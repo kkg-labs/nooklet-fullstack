@@ -1,10 +1,25 @@
-* {
-  margin: 0;
-  padding: 0;
+@import "tailwindcss";
+
+@theme {
+  --color-navy-900: #1a1d29;
+  --color-gray-800: #2a2d3a;
+  --color-gray-700: #3a3d4a;
+  --color-blue-400: #60a5fa;
+  --color-blue-300: #93c5fd;
+  --color-blue-100: #dbeafe;
+  --color-slate-50: #f8fafc;
+  --color-slate-300: #cbd5e1;
+  --color-slate-400: #94a3b8;
+  --color-green-500: #10b981;
+  --color-orange-500: #f59e0b;
+  --color-red-500: #ef4444;
 }
 
-html,
-body {
+html, body, #app {
   height: 100%;
-  width: 100%;
+}
+
+body {
+  background-color: var(--color-navy-900);
+  color: var(--color-slate-50);
 }
