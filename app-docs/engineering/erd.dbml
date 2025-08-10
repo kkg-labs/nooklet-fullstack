@@ -1,0 +1,764 @@
+// Database Schema for Nooklet - AI-powered Second Brain Application
+// Generated: July 2025
+// Description: Core entities including Users, Nooklets, Mood System, Tags, and Collections
+
+Project nooklet {
+  database_type: 'PostgreSQL'
+  Note: '''
+    # Nooklet Database Schema
+    
+    This schema supports:
+    - User management and authentication
+    - Multi-type content storage: journaling (nooklets) and resource links (articles, videos)
+    - Sophisticated mood tracking system (daily, momentary, content-specific, independent)
+    - AI-powered tagging system
+    - Smart and manual collections
+    - Full-text and semantic search capabilities
+  '''
+}
+
+// ===== CORE USER MANAGEMENT =====
+
+Table auth_users {
+  id uuid [pk, default: `gen_random_uuid()`]
+  email varchar(255) [not null, unique]
+  password_hash varchar(255) [not null]
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz [default: `now()`]
+  last_active_at timestamptz
+  is_active boolean [default: true]
+
+  Note: 'Authentication credentials and login-related information'
+}
+
+Table profiles {
+  id uuid [pk, default: `gen_random_uuid()`]
+  auth_user_id uuid [not null, unique, ref: - auth_users.id]
+  username varchar(50) [unique]
+  display_name varchar(100)
+  avatar_url text
+  timezone varchar(50) [default: 'UTC']
+  subscription_tier varchar(20) [default: 'free']
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz [default: `now()`]
+
+  Note: 'User profile information and public data'
+}
+
+Table profile_settings {
+  id uuid [pk, default: `gen_random_uuid()`]
+  profile_id uuid [not null, ref: > profiles.id]
+  settings jsonb [not null, default: '{}']
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz [default: `now()`]
+
+  indexes {
+    profile_id [unique]
+  }
+
+  Note: 'User preferences and application settings'
+}
+
+// ===== CONTENT MANAGEMENT =====
+
+Table nooklets {
+  // Journaling entries only (journal, voice, quick_capture) — resource links are separate tables
+  id uuid [pk, default: `gen_random_uuid()`]
+  user_id uuid [not null, ref: > profiles.id]
+  type varchar(20) [not null]
+  title varchar(500)
+  content text
+  raw_content text
+  summary text
+  metadata jsonb [default: '{}']
+  mood_entry_id uuid [ref: > mood_entries.id]
+  location jsonb
+  word_count integer
+  estimated_read_time integer
+  is_favorite boolean [default: false]
+  is_archived boolean [default: false]
+  is_draft boolean [default: false]
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz [default: `now()`]
+  published_at timestamptz
+
+  Note: '''
+    Core journaling content unit supporting:
+    - journal: Personal thoughts and reflections
+    - voice: Voice notes with transcription
+    - quick_capture: Rapid text input and notes
+
+    Resource links (articles, videos) are separate entities, owned by the user and not linked to nooklets.
+  '''
+}
+
+// ===== MOOD TRACKING SYSTEM =====
+
+Table mood_types {
+  id uuid [pk, default: `gen_random_uuid()`]
+  user_id uuid [not null, ref: > profiles.id]
+  name varchar(50) [not null]
+  emoji varchar(10)
+  color varchar(7)
+  description text
+  is_default boolean [default: false]
+  usage_count integer [default: 0]
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz [default: `now()`]
+
+  indexes {
+    (user_id, name) [unique]
+    user_id
+    usage_count
+  }
+
+  Note: 'Reusable mood definitions/templates that users can create and customize'
+}
+
+Table mood_entries {
+  id uuid [pk, default: `gen_random_uuid()`]
+  user_id uuid [not null, ref: > profiles.id]
+  mood_type_id uuid [not null, ref: > mood_types.id]
+  entry_type varchar(20) [not null]
+  nooklet_id uuid [ref: > nooklets.id]
+  date date
+  intensity integer
+  notes text
+  location jsonb
+  triggers jsonb
+  
+  // Sentiment analysis integration
+  suggested_by_sentiment boolean [default: false]
+  sentiment_analysis_id uuid [ref: > sentiment_analyses.id]
+  
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz [default: `now()`]
+
+  indexes {
+    user_id
+    date
+    entry_type
+    mood_type_id
+    nooklet_id
+    created_at
+    sentiment_analysis_id
+    suggested_by_sentiment
+    (user_id, date, entry_type) [unique]
+    (user_id, created_at)
+  }
+
+  Note: '''
+    Actual mood records supporting multiple entry types:
+    - daily: Overall mood for entire day
+    - momentary: Specific moment mood throughout day
+    - nooklet: Mood tied to specific content
+    - independent: Standalone mood entry
+
+    Constraints:
+    - intensity: 1-10 scale
+    - daily entries require date
+    - nooklet entries require nooklet_id
+    - only one daily mood per user per date
+  '''
+}
+
+// ===== TAGGING SYSTEM =====
+
+Table tags {
+  id uuid [pk, default: `gen_random_uuid()`]
+  user_id uuid [not null, ref: > profiles.id]
+  name varchar(100) [not null]
+  color varchar(7)
+  is_ai_generated boolean [default: false]
+  usage_count integer [default: 0]
+  created_at timestamptz [default: `now()`]
+
+  indexes {
+    (user_id, name) [unique]
+    user_id
+    usage_count
+    is_ai_generated
+  }
+
+  Note: 'Tags supporting both AI-generated and manual categorization'
+}
+
+Table nooklet_tags {
+  nooklet_id uuid [not null, ref: > nooklets.id]
+  tag_id uuid [not null, ref: > tags.id]
+  is_ai_generated boolean [default: false]
+  confidence_score decimal(3,2)
+  created_at timestamptz [default: `now()`]
+
+  indexes {
+    (nooklet_id, tag_id) [pk]
+    nooklet_id
+    tag_id
+  }
+
+  Note: 'Many-to-many relationship between nooklets and tags with AI confidence scores'
+}
+
+Table article_tags {
+  article_id uuid [not null, ref: > nooklet_articles.id]
+  tag_id uuid [not null, ref: > tags.id]
+  is_ai_generated boolean [default: false]
+  confidence_score decimal(3,2)
+  created_at timestamptz [default: `now()`]
+
+  indexes {
+    (article_id, tag_id) [pk]
+    article_id
+    tag_id
+  }
+
+  Note: 'Many-to-many relationship between articles and tags with AI confidence scores'
+}
+
+Table video_tags {
+  video_id uuid [not null, ref: > nooklet_videos.id]
+  tag_id uuid [not null, ref: > tags.id]
+  is_ai_generated boolean [default: false]
+  confidence_score decimal(3,2)
+  created_at timestamptz [default: `now()`]
+
+  indexes {
+    (video_id, tag_id) [pk]
+    video_id
+    tag_id
+  }
+
+  Note: 'Many-to-many relationship between videos and tags with AI confidence scores'
+}
+
+// ===== COLLECTIONS SYSTEM =====
+
+Table collections {
+  id uuid [pk, default: `gen_random_uuid()`]
+  user_id uuid [not null, ref: > profiles.id]
+  name varchar(200) [not null]
+  description text
+  color varchar(7)
+  is_smart boolean [default: false]
+  smart_rules jsonb
+  is_public boolean [default: false]
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz [default: `now()`]
+
+  indexes {
+    user_id
+    is_smart
+    is_public
+  }
+
+  Note: '''
+    User-created groupings supporting:
+    - Manual collections: User manually adds/removes nooklets, articles, and videos
+    - Smart collections: Auto-populated based on rules
+    - Public collections: Shareable collections
+  '''
+}
+
+Table collection_nooklets {
+  collection_id uuid [not null, ref: > collections.id]
+  nooklet_id uuid [not null, ref: > nooklets.id]
+  added_at timestamptz [default: `now()`]
+
+  indexes {
+    (collection_id, nooklet_id) [pk]
+    collection_id
+    nooklet_id
+  }
+
+  Note: 'Many-to-many relationship between collections and nooklets'
+}
+
+Table collection_articles {
+  collection_id uuid [not null, ref: > collections.id]
+  article_id uuid [not null, ref: > nooklet_articles.id]
+  added_at timestamptz [default: `now()`]
+
+  indexes {
+    (collection_id, article_id) [pk]
+    collection_id
+    article_id
+  }
+
+  Note: 'Many-to-many relationship between collections and articles'
+}
+
+Table collection_videos {
+  collection_id uuid [not null, ref: > collections.id]
+  video_id uuid [not null, ref: > nooklet_videos.id]
+  added_at timestamptz [default: `now()`]
+
+  indexes {
+    (collection_id, video_id) [pk]
+    collection_id
+    video_id
+  }
+
+  Note: 'Many-to-many relationship between collections and videos'
+}
+
+// ===== AI AND SEARCH =====
+
+Table embeddings {
+  id uuid [pk, default: `gen_random_uuid()`]
+  user_id uuid [not null, ref: > profiles.id]
+  entity_type varchar(20) [not null] // 'nooklet' | 'article' | 'video'
+  entity_id uuid [not null]
+
+  // Chunking support for RAG
+  chunk_index integer [not null, default: 0] // Position within document (0 for full document)
+  chunk_text text [not null] // The actual text that was embedded
+  chunk_size integer [not null] // Character count of the chunk
+  chunk_type varchar(20) [not null, default: 'full_document'] // 'full_document', 'paragraph', 'sentence', 'sliding_window'
+
+  // Vector and model info
+  embedding vector(1536) [not null]
+  model_name varchar(100) [not null] // e.g., 'text-embedding-3-small', 'text-embedding-ada-002'
+  model_version varchar(50) [not null]
+  embedding_dimension integer [not null, default: 1536]
+
+  // Content versioning and caching
+  content_hash varchar(64) [not null] // SHA-256 hash of source content for change detection
+  source_content_updated_at timestamptz // When the source content was last modified
+
+  // RAG optimization metadata
+  token_count integer // Approximate token count for the chunk
+  has_overlap boolean [default: false] // Whether this chunk overlaps with adjacent chunks
+  overlap_chars integer [default: 0] // Number of overlapping characters
+
+  // Search and retrieval optimization
+  search_vector tsvector // Full-text search vector for hybrid search
+  retrieval_count integer [default: 0] // How often this chunk has been retrieved
+  last_retrieved_at timestamptz // For analytics and cache optimization
+
+  // Processing metadata
+  processed_at timestamptz [default: `now()`]
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz [default: `now()`]
+
+  indexes {
+    user_id
+    entity_type
+    entity_id
+    (entity_id, chunk_index) [unique] // Ensure unique chunks per entity
+    model_name
+    model_version
+    content_hash
+    chunk_type
+    embedding // Vector similarity search index (ivfflat in PostgreSQL)
+    search_vector // Full-text search index (GIN in PostgreSQL)
+    (user_id, entity_type, retrieval_count) // For popular content queries
+    (user_id, last_retrieved_at) // For recent activity queries
+    source_content_updated_at
+  }
+
+  Note: '''
+    Enhanced vector embeddings optimized for RAG (Retrieval-Augmented Generation):
+
+    Key RAG Features:
+    - Chunking support for large documents with configurable strategies
+    - Stores both vector embeddings and original text for context retrieval
+    - Content versioning via hashing to detect when re-embedding is needed
+    - Hybrid search support combining vector similarity and full-text search
+    - Retrieval analytics for performance optimization
+    - Support for multiple embedding models and dimensions
+
+    Chunking Strategies:
+    - full_document: Single embedding for entire content
+    - paragraph: Natural paragraph boundaries
+    - sentence: Sentence-level chunking
+    - sliding_window: Overlapping fixed-size windows
+
+    Performance Optimizations:
+    - ivfflat index for fast vector similarity search
+    - GIN index for full-text search capabilities
+    - Retrieval tracking for cache optimization
+  '''
+}
+
+Table rag_sessions {
+  id uuid [pk, default: `gen_random_uuid()`]
+  user_id uuid [not null, ref: > profiles.id]
+
+  // Query information
+  query_text text [not null]
+  query_embedding vector(1536) // Embedding of the user's query
+  query_type varchar(50) [not null, default: 'semantic'] // 'semantic', 'hybrid', 'keyword'
+
+  // Retrieval results
+  retrieved_chunks jsonb [not null] // Array of retrieved chunk IDs and scores
+  retrieval_method varchar(50) [not null] // 'cosine_similarity', 'hybrid_search', etc.
+  num_chunks_retrieved integer [not null]
+  max_similarity_score decimal(5,4) // Highest similarity score in results
+
+  // Context and generation
+  context_length integer // Total characters in retrieved context
+  context_token_count integer // Estimated tokens in context
+  generated_response text // AI-generated response (optional)
+  response_quality_score decimal(3,2) // User feedback on response quality (1-5)
+
+  // Performance metrics
+  retrieval_time_ms integer // Time taken for retrieval in milliseconds
+  generation_time_ms integer // Time taken for response generation
+  total_time_ms integer // Total query processing time
+
+  // User interaction
+  user_feedback varchar(20) // 'helpful', 'not_helpful', 'partially_helpful'
+  clicked_chunks jsonb // Which retrieved chunks user clicked/viewed
+
+  created_at timestamptz [default: `now()`]
+
+  indexes {
+    user_id
+    query_type
+    retrieval_method
+    max_similarity_score
+    response_quality_score
+    created_at
+    (user_id, created_at) // For user query history
+    (retrieval_method, max_similarity_score) // For performance analysis
+  }
+
+  Note: '''
+    RAG session tracking for query optimization and analytics:
+
+    Features:
+    - Tracks retrieval performance and user satisfaction
+    - Stores query embeddings for similarity analysis
+    - Records which chunks were most useful
+    - Enables A/B testing of different retrieval methods
+    - Provides data for improving RAG system performance
+  '''
+}
+
+Table content_analysis {
+  // Analysis targets can be journal entries (nooklets) or resource links (articles/videos) — see entity_type/entity_id
+  id uuid [pk, default: `gen_random_uuid()`]
+  user_id uuid [not null, ref: > profiles.id]
+  entity_type varchar(20) [not null] // 'nooklet' | 'article' | 'video'
+  entity_id uuid [not null]
+  analysis_type varchar(50) [not null]
+  results jsonb [not null]
+  confidence_score decimal(3,2)
+  model_version varchar(50)
+  created_at timestamptz [default: `now()`]
+
+  indexes {
+    user_id
+    entity_type
+    entity_id
+    analysis_type
+    created_at
+  }
+
+  Note: '''
+    AI analysis results including:
+    - sentiment_analysis
+    - topic_extraction
+    - entity_recognition
+    - content_classification
+  '''
+}
+
+// ===== NOOKLET RESOURCES =====
+
+Table nooklet_articles {
+  id uuid [pk, default: `gen_random_uuid()`]
+  user_id uuid [not null, ref: > profiles.id]
+  
+  // Core URL data
+  original_url text [not null]
+  canonical_url text
+  final_url text // after redirects
+  domain varchar(255)
+  
+  // Article metadata
+  title varchar(500)
+  description text
+  author varchar(255)
+  site_name varchar(255)
+  published_date timestamptz
+  
+  // Content extraction
+  article_content text // cleaned/parsed article content
+  excerpt text // short preview/summary
+  word_count integer
+  estimated_read_time integer // in minutes
+  language varchar(10) // ISO language code
+  
+  // Visual metadata
+  featured_image_url text
+  favicon_url text
+  
+  // Reading tracking
+  is_read boolean [default: false]
+  reading_progress decimal(3,2) [default: 0] // 0.0 to 1.0 (percentage read)
+  read_at timestamptz
+  last_accessed_at timestamptz
+  reading_session_count integer [default: 0]
+  
+  // Content status
+  parse_status varchar(50) [default: 'pending'] // 'pending', 'success', 'failed', 'partial'
+  content_type varchar(50) [default: 'article'] // 'article', 'blog_post', 'news', 'pdf', 'document'
+  
+  // Archive.org backup
+  archive_url text
+  
+  // Processing metadata
+  parsed_at timestamptz
+  last_updated_at timestamptz
+  parser_version varchar(50)
+  
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz [default: `now()`]
+
+  indexes {
+    user_id
+    original_url
+    domain
+    is_read
+    content_type
+    parse_status
+    published_date
+    author
+    created_at
+    (user_id, is_read, created_at) // for reading list queries scoped to user
+    (domain, published_date) // for site-specific browsing
+  }
+
+  Note: '''
+    Text-based resource metadata for articles, blog posts, and documents.
+    Optimized for reading experience with:
+    - Content parsing and extraction
+    - Reading progress tracking (percentage-based)
+    - Rich text metadata
+    - Archive.org backup integration
+  '''
+}
+
+Table nooklet_videos {
+  id uuid [pk, default: `gen_random_uuid()`]
+  user_id uuid [not null, ref: > profiles.id]
+  
+  // Core URL data
+  original_url text [not null]
+  embed_url text // embeddable video URL
+  domain varchar(255)
+  
+  // Video metadata
+  title varchar(500)
+  description text
+  channel_name varchar(255)
+  channel_url text
+  creator_name varchar(255)
+  published_date timestamptz
+  
+  // Video specifications
+  duration_seconds integer // total video duration
+  thumbnail_url text
+  high_res_thumbnail_url text
+  video_quality varchar(20) // '720p', '1080p', '4K', etc.
+  video_format varchar(20) // 'mp4', 'webm', etc.
+  
+  // Platform-specific data
+  platform varchar(50) // 'youtube', 'vimeo', 'twitch', 'podcast', etc.
+  platform_video_id varchar(255) // YouTube video ID, Vimeo ID, etc.
+  playlist_id varchar(255) // if part of a playlist
+  
+  // Viewing tracking
+  is_watched boolean [default: false]
+  viewing_progress_seconds integer [default: 0] // time-based progress
+  watch_percentage decimal(3,2) [default: 0] // calculated percentage
+  watched_at timestamptz
+  last_accessed_at timestamptz
+  viewing_session_count integer [default: 0]
+  
+  // Content features
+  has_transcript boolean [default: false]
+  transcript_text text // full transcript if available
+  has_chapters boolean [default: false]
+  chapters jsonb // chapter markers with timestamps
+  
+  // Content status
+  parse_status varchar(50) [default: 'pending'] // 'pending', 'success', 'failed', 'unavailable'
+  content_type varchar(50) [default: 'video'] // 'video', 'podcast', 'livestream', 'audio'
+  
+  // Processing metadata
+  parsed_at timestamptz
+  last_updated_at timestamptz
+  parser_version varchar(50)
+  
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz [default: `now()`]
+
+  indexes {
+    user_id
+    original_url
+    platform
+    platform_video_id
+    channel_name
+    is_watched
+    content_type
+    parse_status
+    published_date
+    duration_seconds
+    created_at
+    (user_id, is_watched, created_at) // for watch list queries scoped to user
+    (platform, channel_name) // for channel-based browsing
+    (duration_seconds, is_watched) // for filtering by video length
+  }
+
+  Note: '''
+    Video and audio resource metadata for YouTube, podcasts, and media content.
+    Optimized for viewing experience with:
+    - Time-based progress tracking
+    - Platform-specific metadata
+    - Transcript and chapter support
+    - Rich media specifications
+  '''
+}
+
+// ===== MEDIA AND ATTACHMENTS =====
+
+Table media_files {
+  id uuid [pk, default: `gen_random_uuid()`]
+  user_id uuid [not null, ref: > profiles.id]
+  nooklet_id uuid [ref: > nooklets.id]
+  filename varchar(255) [not null]
+  original_filename varchar(255) [not null]
+  file_type varchar(50) [not null]
+  file_size bigint [not null]
+  storage_path text [not null]
+  storage_provider varchar(50) [default: 'local']
+  metadata jsonb [default: '{}']
+  is_processed boolean [default: false]
+  created_at timestamptz [default: `now()`]
+
+  indexes {
+    user_id
+    nooklet_id
+    file_type
+    created_at
+  }
+
+  Note: 'File attachments supporting images, audio, documents, etc.'
+}
+
+// ===== SENTIMENT ANALYSIS =====
+
+Table sentiment_analyses {
+  id uuid [pk, default: `gen_random_uuid()`]
+  nooklet_id uuid [ref: > nooklets.id, not null]
+  
+  // Basic sentiment scores
+  sentiment_score decimal(3,2) [not null] // -1.0 (very negative) to 1.0 (very positive)
+  confidence_score decimal(3,2) [not null] // 0.0 to 1.0
+  
+  // Suggested mood based on sentiment
+  suggested_mood_id uuid [ref: > mood_types.id]
+  
+  // Analysis metadata
+  model_version varchar(50) [not null]
+  analyzed_at timestamptz [default: `now()`]
+  
+  // User interaction tracking
+  user_accepted_suggestion boolean [default: null] // null=not reviewed, true=accepted, false=rejected
+  
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz [default: `now()`]
+
+  indexes {
+    nooklet_id [unique]
+    sentiment_score
+    confidence_score
+    suggested_mood_id
+    analyzed_at
+  }
+
+  Note: 'Basic sentiment analysis for nooklet content with mood suggestions'
+}
+
+// ===== CONNECTIONS AND RELATIONSHIPS =====
+
+Table nooklet_connections {
+  id uuid [pk, default: `gen_random_uuid()`]
+  source_nooklet_id uuid [not null, ref: > nooklets.id]
+  target_nooklet_id uuid [not null, ref: > nooklets.id]
+  connection_type varchar(50) [not null]
+  strength decimal(3,2)
+  notes text
+  created_at timestamptz [default: `now()`]
+
+  indexes {
+    source_nooklet_id
+    target_nooklet_id
+    connection_type
+    (source_nooklet_id, target_nooklet_id) [unique]
+  }
+
+  Note: '''
+    Connections between nooklets:
+    - related: General relationship
+    - references: One references another
+    - inspired_by: Creative inspiration
+    - follow_up: Sequential relationship
+  '''
+}
+
+// ===== ACTIVITY AND ANALYTICS =====
+
+Table user_activity {
+  id uuid [pk, default: `gen_random_uuid()`]
+  user_id uuid [not null, ref: > profiles.id]
+  activity_type varchar(50) [not null]
+  entity_type varchar(50)
+  entity_id uuid
+  metadata jsonb [default: '{}']
+  created_at timestamptz [default: `now()`]
+
+  indexes {
+    user_id
+    activity_type
+    entity_type
+    created_at
+    (user_id, created_at)
+  }
+
+  Note: '''
+    User activity tracking for analytics:
+    - nooklet_created, nooklet_updated, nooklet_viewed
+    - mood_logged, tag_applied, collection_created
+    - search_performed, export_generated
+  '''
+}
+
+// ===== SEARCH AND INDEXING =====
+
+Table search_queries {
+  id uuid [pk, default: `gen_random_uuid()`]
+  user_id uuid [not null, ref: > profiles.id]
+  query_text text [not null]
+  query_type varchar(50) [not null]
+  filters jsonb [default: '{}']
+  results_count integer
+  clicked_result_id uuid
+  created_at timestamptz [default: `now()`]
+
+  indexes {
+    user_id
+    query_type
+    created_at
+  }
+
+  Note: '''
+    Search query tracking for:
+    - full_text: Traditional text search
+    - semantic: Vector similarity search
+    - hybrid: Combined approach
+  '''
+}
+
