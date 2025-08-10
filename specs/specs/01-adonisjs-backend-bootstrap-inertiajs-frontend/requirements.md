@@ -13,34 +13,36 @@ Initialization must use the official AdonisJS Inertia starter with React provide
 - Testing: MCP Playwright for visual and DOM testing (always consult Playwright MCP)
 - Documentation: Always consult Context7 for AdonisJS v6 + Inertia docs
 
-## Requirements
+## Requirements (Layered Delivery)
 
-### REQ-001: AdonisJS Backend Foundation
+### REQ-001: Foundation (Layer 0)
 **Description:** Set up AdonisJS v6 backend with essential configuration following skedai-adonisjs patterns
 
 **Acceptance Criteria:**
 
-- [ ] AdonisJS v6 project initialized with TypeScript via starter kit
-- [ ] Starter used: `npm init adonisjs@latest -- -K=inertia --adapter=react --ssr` (or `--no-ssr`)
-- [ ] Domain-driven structure: `app/features/*` instead of standard controllers/models
-- [ ] UUID primary keys configured in BaseModel
-- [ ] PostgreSQL database connection configured using Docker container from `../nooklet-db/`
-- [ ] BiomeJS configured for linting/formatting (exclude ESLint/Prettier/pino-pretty)
-- [ ] Basic environment configuration (.env setup with Docker database credentials)
+- [x] AdonisJS v6 project initialized with TypeScript via starter kit
+- [x] Starter used: `npm init adonisjs@latest -- -K=inertia --adapter=react --ssr` (or `--no-ssr`)
+- [x] Inertia SSR enabled; Vite configured with `@tailwindcss/vite`
+- [x] BiomeJS configured (exclude ESLint/Prettier/pino-pretty)
+- [ ] `.env.example` present with DB credentials for Docker
+- [ ] Docker compose for Postgres validated
 
-### REQ-002: Authentication System
-**Description:** Implement auth separation pattern with auth_users and profiles tables
+### REQ-002: Auth — Registration (Layer 1)
+**Description:** Implement registration end-to-end (backend + Inertia UI), using auth separation pattern with `auth_users` and `profiles` tables
 
 **Acceptance Criteria:**
 
-- [ ] AuthUser model for credentials (email, password_hash)
-- [ ] Profile model for user data (username, display_name, timezone)
-- [ ] User registration endpoint
-- [ ] User login endpoint with access token
-- [ ] Auth middleware for protected routes
-- [ ] Basic password hashing and validation
+- [ ] Migrations for `auth_users` and `profiles` (UUID PKs)
+- [ ] BaseModel with UUID + ISO serialization
+- [ ] AuthUser model (email unique, password_hash hidden)
+- [ ] Profile model (one-to-one with AuthUser)
+- [ ] Vine validator for registration
+- [ ] Service to register user (hash, create auth_user + profile)
+- [ ] Controller + routes: GET `/register`, POST `/register` (Inertia)
+- [ ] Inertia page `inertia/pages/auth/Register.tsx` with form + validation errors
+- [ ] Japa tests verifying DB rows are created and response is Inertia success (redirect/flash)
 
-### REQ-003: Nooklet Management (Core Feature)
+### REQ-003: Nooklet Management (Layer 4)
 **Description:** Basic CRUD operations for nooklets (journal entries) with soft-delete
 
 **Acceptance Criteria:**
@@ -52,7 +54,7 @@ Initialization must use the official AdonisJS Inertia starter with React provide
 - [ ] Soft-delete nooklet endpoint (set isArchived = true)
 - [ ] Basic validation for nooklet data
 
-### REQ-004: InertiaJS Frontend Setup
+### REQ-004: InertiaJS Frontend Setup (Through Layers)
 **Description:** Configure InertiaJS with React and Tailwind CSS v4 for server-driven navigation
 
 **Acceptance Criteria:**
@@ -64,7 +66,7 @@ Initialization must use the official AdonisJS Inertia starter with React provide
 - [ ] Shared props configuration (auth user, flash messages)
 - [ ] SSR configuration validated (enable/disable per project decision)
 
-### REQ-005: Basic UI Pages
+### REQ-005: Basic UI Pages (Through Layers)
 **Description:** Minimal dashboard and nooklet management interface
 
 **Acceptance Criteria:**

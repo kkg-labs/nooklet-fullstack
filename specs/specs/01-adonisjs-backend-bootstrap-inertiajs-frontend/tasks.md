@@ -1,241 +1,91 @@
-# Implementation Tasks: AdonisJS Backend Bootstrap with InertiaJS Frontend
+# Implementation Tasks: Layered Feature Slices (Backend + Inertia UI)
 
-## Task Overview
-**Total Tasks:** 16
-**Estimated Duration:** 8-10 hours
-**Priority:** high
-**Focus:** Inertia-first development with Playwright testing
+## Overview
+- Implement the app foundation layer-by-layer. Each layer delivers a complete vertical slice: backend domain + tests + Inertia UI integration.
+- Verify each layer with Japa tests (backend) and minimal UI checks; prefer Playwright for UI where feasible.
 
-## Task List
+## Layer 0: Foundation (project + tooling)
 
-### Phase 1: Project Foundation
-**Note:** Resetting statuses to planned for a fresh start
+- [x] L0-001: Initialize AdonisJS v6 with Inertia (React, SSR)
+  - Deliverables: Starter scaffold under `inertia/app`, `inertia/pages`
+- [x] L0-002: Tooling — Biome only (replace ESLint/Prettier), Tailwind v4 (CSS-first), Vite plugin
+  - Deliverables: `biome.json`, `vite.config.ts` with `@tailwindcss/vite`, `inertia/css/app.css` theme tokens
+- [x] L0-003: Logging — remove pino-pretty; standard stdout logging
+  - Deliverables: `config/logger.ts` uses stdout/file transports only
+- [ ] L0-004: Dev environment — `.env` template, Docker Compose for Postgres
+  - Deliverables: `.env.example`; `nooklet-db/docker-compose.yml` usage
 
-- [ ] **TASK-001**: Initialize AdonisJS + Inertia (React)
-  - **Status:** planned
-  - **Estimated Time:** 45 minutes
-  - **Dependencies:** None
-  - **Description:** Initialize using the official starter: `npm init adonisjs@latest -- -K=inertia --adapter=react --ssr` (or `--no-ssr`). If starting from a plain app, install and configure `@adonisjs/inertia`.
-  - **Deliverables:**
-    - AdonisJS project with Inertia React integration
-    - TypeScript configuration
-    - Starter folder structure (`inertia/app`, `inertia/pages`)
+Acceptance (L0):
+- `npm run dev` boots with SSR; Vite assets build/run; no ESLint/Prettier in toolchain.
 
-- [ ] **TASK-002**: Configure Development Environment
-  - **Status:** planned
-  - **Estimated Time:** 20 minutes
-  - **Dependencies:** TASK-001
-  - **Description:** Configure BiomeJS, Vite, Tailwind v4, and environment variables. Exclude ESLint/Prettier/pino-pretty.
-  - **Deliverables:**
-    - biome.json configuration
-    - package.json with required dependencies
-    - Tailwind v4 via `@tailwindcss/vite` and CSS-first imports
+## Layer 1: Auth — Registration (Backend → Inertia UI)
 
-### Phase 2: Database and Models Setup (1.5 hours)
+Backend
+- [ ] L1-001: Migrations
+  - `auth_users` (uuid PK via `gen_random_uuid()`, email unique, password_hash, timestamps, is_active)
+  - `profiles` (uuid PK, `auth_user_id` unique→auth_users.id, username unique, display_name, timezone, subscription_tier, timestamps)
+- [ ] L1-002: BaseModel
+  - `app/models/base_model.ts` with UUID defaulting + ISO DateTime serialization + simple `isArchived` helpers (future use)
+- [ ] L1-003: Models
+  - `app/features/auth/models/auth_user.ts`
+  - `app/features/user/models/profile.ts`
+- [ ] L1-004: Validation & Service
+  - Vine validator for registration (email, password, username optional)
+  - `AuthService.register()` (hash password, create AuthUser + Profile)
+- [ ] L1-005: Controller & Routes (Inertia)
+  - GET `/register` returns Inertia page
+  - POST `/register` creates user and returns success (redirect/flash)
+  - Inertia shared props include flash messages
 
-- [ ] **TASK-003**: Database Configuration and Migrations
-  - **Status:** planned
-  - **Estimated Time:** 45 minutes
-  - **Dependencies:** TASK-002
-  - **Description:** Configure PostgreSQL connection and create domain-driven migrations for Inertia consumption
-  - **Deliverables:**
-    - Start Docker database: `cd nooklet-db && docker-compose up -d`
-    - Database configuration using Docker credentials
-    - auth_users migration with UUID primary keys
-    - profiles migration with auth_user relationship
-    - nooklets migration with JSONB metadata and soft-delete
-    - auth_access_tokens migration for API authentication
+Frontend (Inertia React)
+- [ ] L1-006: `inertia/pages/auth/Register.tsx`
+  - `useForm` with fields: email, password, password_confirmation (username optional)
+  - Submit via Inertia POST; display validation errors; show success flash
 
-- [ ] **TASK-004**: Create BaseModel with UUID Support
-  - **Status:** planned
-  - **Estimated Time:** 30 minutes
-  - **Dependencies:** TASK-003
-  - **Description:** Implement BaseModel optimized for Inertia serialization
-  - **Deliverables:**
-    - app/models/base_model.ts with UUID configuration and custom serialization
-    - Custom DateTime serialization for Inertia (ISO strings)
-    - Soft-delete query scopes (whereNotArchived, whereNotDeleted, whereActive)
-    - Domain-driven model structure: AuthUser, Profile, Nooklet models
-    - Inertia-optimized serialization with computed properties
+Tests & Verification
+- [ ] L1-007: Japa integration tests
+  - Happy path: POST `/register` persists records (auth_users + profiles)
+  - Duplicate email validation
+  - Response is Inertia (redirect/flash) with 2xx/3xx
+- [ ] L1-008: Minimal UI verification (Playwright or manual)
+  - Navigate to `/register`, submit form, expect success UI and DB row exists
 
-- [ ] **TASK-005**: Auth Models for Inertia Integration
-  - **Status:** planned
-  - **Estimated Time:** 30 minutes
-  - **Dependencies:** TASK-004
-  - **Description:** Create AuthUser and Profile models optimized for Inertia shared props
-  - **Deliverables:**
-    - app/features/auth/models/auth_user.ts
-    - app/features/auth/models/profile.ts
-    - Model serialization for Inertia/shared props
+Acceptance (L1):
+- Registering a new user returns a successful Inertia response (redirect/flash) and user+profile rows exist in DB. Login is not required yet.
 
-### Phase 3: Inertia-First Frontend Setup (2 hours)
+## Layer 2: Auth — Login (Backend → Inertia UI)
 
-- [ ] **TASK-006**: Inertia Server Configuration and Middleware
-  - **Status:** planned
-  - **Estimated Time:** 45 minutes
-  - **Dependencies:** TASK-005
-  - **Description:** Configure Inertia server adapter with shared props for auth state
-  - **Deliverables:**
-    - Inertia middleware configuration (start/kernel.ts)
-    - Shared props (auth, flash, csrf) in config/inertia.ts
-    - SSR enabled with entrypoint inertia/app/ssr.tsx
+- [ ] L2-001: Validator + Service for login (access tokens/sessions per Adonis auth)
+- [ ] L2-002: Controller + Routes (GET `/login`, POST `/login`)
+- [ ] L2-003: Inertia page `inertia/pages/auth/Login.tsx`
+- [ ] L2-004: Japa tests (valid credentials; invalid credentials)
+- [ ] L2-005: UI verification (successful login + redirect)
 
-- [ ] **TASK-007**: Frontend Build and Styling Setup
-  - **Status:** planned
-  - **Estimated Time:** 30 minutes
-  - **Dependencies:** TASK-006
-  - **Description:** Configure Vite, React, and Tailwind CSS v4 for Inertia
-  - **Deliverables:**
-    - vite.config.ts with Inertia, React, Tailwind plugins
-    - Tailwind v4 via `inertia/css/app.css` with `@import "tailwindcss"`
-    - React + Inertia setup in inertia/app/app.tsx
+## Layer 3: Dashboard (Protected Inertia page)
 
-- [ ] **TASK-008**: Core Inertia Components and Layout
-  - **Status:** planned
-  - **Estimated Time:** 45 minutes
-  - **Dependencies:** TASK-007
-  - **Description:** Create app.jsx and layout components with Inertia navigation
-  - **Deliverables:**
-    - resources/js/app.jsx with Inertia setup
-    - resources/js/Components/Layout.jsx
-    - resources/js/Components/NavBar.jsx with Inertia Link components
-    - Basic styling with Tailwind CSS v4
+- [ ] L3-001: Route + middleware protection; shared props user
+- [ ] L3-002: `inertia/pages/Dashboard.tsx` with basic layout
+- [ ] L3-003: Japa test for auth guard; UI smoke test
 
-### Phase 4: Authentication with Inertia (1.5 hours)
+## Layer 4: Nooklets — Minimal CRUD (Backend → Inertia UI)
 
-- [ ] **TASK-009**: Auth Service and Validation for Inertia
-  - **Status:** planned
-  - **Estimated Time:** 45 minutes
-  - **Dependencies:** TASK-008
-  - **Description:** Create authentication service optimized for Inertia form handling
-  - **Deliverables:**
-    - app/features/auth/auth_service.ts
-    - app/features/auth/auth_validator.ts with Inertia error formatting
-    - Password hashing and session management
-
-- [ ] **TASK-010**: Auth Controllers for Inertia Pages
-  - **Status:** planned
-  - **Estimated Time:** 45 minutes
-  - **Dependencies:** TASK-009
-  - **Description:** Implement auth controllers that render Inertia pages
-  - **Deliverables:**
-    - app/features/auth/auth_controller.ts with Inertia.render()
-    - Registration and login endpoints returning Inertia responses
-    - Auth middleware for protected Inertia routes
-    - Route definitions for auth pages
-
-### Phase 5: Inertia Authentication UI (1.5 hours)
-
-- [ ] **TASK-011**: Authentication Pages with Inertia Forms
-  - **Status:** planned
-  - **Estimated Time:** 60 minutes
-  - **Dependencies:** TASK-010
-  - **Description:** Create login and registration forms using Inertia form helpers
-  - **Deliverables:**
-    - resources/js/Pages/Auth/Login.jsx with useForm hook
-    - resources/js/Pages/Auth/Register.jsx with validation
-    - Form submission with Inertia.post()
-    - Error handling and flash messages
-
-- [ ] **TASK-012**: Dashboard with Inertia Navigation
-  - **Status:** planned
-  - **Estimated Time:** 30 minutes
-  - **Dependencies:** TASK-011
-  - **Description:** Create protected dashboard page with Inertia navigation
-  - **Deliverables:**
-    - resources/js/Pages/Dashboard.jsx
-    - Protected route middleware
-    - Basic timeline layout preparation
-
-### Phase 6: Nooklet Management with Inertia (2 hours)
-
-- [ ] **TASK-013**: Nooklet Model and Service for Inertia
-  - **Status:** planned
-  - **Estimated Time:** 30 minutes
-  - **Dependencies:** TASK-012
-  - **Description:** Create Nooklet model and service optimized for Inertia data flow
-  - **Deliverables:**
-    - app/features/nooklet/models/nooklet.ts with JSONB metadata
-    - app/features/nooklet/services/nooklet_service.ts
-    - Soft-delete implementation with Inertia-friendly responses
-
-- [ ] **TASK-014**: Nooklet Controllers for Inertia Pages
-  - **Status:** planned
-  - **Estimated Time:** 60 minutes
-  - **Dependencies:** TASK-013
-  - **Description:** Implement nooklet CRUD controllers that render Inertia pages
-  - **Deliverables:**
-    - app/features/nooklet/nooklet_controller.ts with Inertia.render()
-    - Create, read, update, delete endpoints with Inertia responses
-    - app/features/nooklet/nooklet_validator.ts
-    - Route definitions for nooklet management
-
-- [ ] **TASK-015**: Nooklet Management UI with Inertia
-  - **Status:** planned
-  - **Estimated Time:** 90 minutes
-  - **Dependencies:** TASK-014
-  - **Description:** Create nooklet CRUD interface using Inertia forms and navigation
-  - **Deliverables:**
-    - resources/js/Pages/Nooklets/Index.jsx (timeline view)
-    - resources/js/Pages/Nooklets/Create.jsx with useForm
-    - resources/js/Pages/Nooklets/Edit.jsx with form pre-population
-    - resources/js/Pages/Nooklets/Show.jsx for detail view
-    - resources/js/Components/Timeline.jsx for nooklet list
-    - Full CRUD functionality with Inertia navigation
-
-### Phase 7: Playwright Testing Setup (1 hour)
-
-- [ ] **TASK-016**: Playwright Testing Configuration
-  - **Status:** planned
-  - **Estimated Time:** 60 minutes
-  - **Dependencies:** TASK-015
-  - **Description:** Set up Playwright for frontend functionality testing
-  - **Deliverables:**
-    - playwright.config.js configuration
-    - Basic test structure for Inertia pages
-    - Authentication flow tests
-    - Nooklet CRUD operation tests
-    - Visual regression testing setup
-    - CI/CD integration preparation
+- [ ] L4-001: Migration `nooklets` (uuid PK, user_id, title, content, metadata jsonb default {}, is_archived, timestamps)
+- [ ] L4-002: Model + Service; validators
+- [ ] L4-003: Controller + Routes (index/create/store/edit/update/archive)
+- [ ] L4-004: Inertia pages (Index, Create, Edit)
+- [ ] L4-005: Japa tests (scoped to user); UI smoke tests
 
 ## Status Legend
-
-- **planned**: Task is defined and ready to start
-- **in-progress**: Task is currently being worked on
-- **done**: Task is completed and verified
+- planned / in-progress / done
 
 ## Progress Tracking
-**Completed:** 0/16 tasks (0%)
-**In Progress:** 0/16 tasks
-**Remaining:** 16/16 tasks
+- Completed: L0-001, L0-002, L0-003
+- Remaining: L0-004 and Layers 1–4
 
-## Testing Strategy (Playwright Focus)
+## Testing Strategy (Per Layer)
+- Backend: Japa integration tests for routes, validation, and DB persistence
+- Frontend: Minimal Playwright checks (page renders, form submit, success UI); console error-free
 
-Each task should include Playwright testing for:
-
-- **Visual Testing**: Screenshot comparisons for UI components
-- **DOM Structure Validation**: Ensure proper Inertia page rendering
-- **Form Interactions**: Test Inertia form submissions and validation
-- **Navigation Testing**: Verify Inertia.js client-side navigation
-- **Authentication Flows**: Login/logout with Inertia redirects
-- **CRUD Operations**: Full nooklet management workflow
-- **Console Log Monitoring**: Detect JavaScript errors
-- **Performance Metrics**: Page load times and Inertia navigation speed
-
-## Dependencies Summary
-
-- Tasks 1-3: Project foundation + Database
-- Tasks 4-5: Models with UUID support (sequential, Inertia-optimized)
-- Tasks 6-8: Inertia frontend setup (depends on models)
-- Tasks 9-10: Authentication backend (depends on Inertia setup)
-- Tasks 11-12: Authentication UI (depends on auth backend)
-- Tasks 13-14: Nooklet backend (depends on auth completion)
-- Task 15: Nooklet UI (depends on nooklet backend)
-- Task 16: Playwright testing (depends on full functionality)
-
-## Key Notes
-
-- Use the AdonisJS Inertia starter kit with React (`npm init adonisjs@latest -- -K=inertia --adapter=react`).
-- Always consult Context7 for AdonisJS v6 + Inertia documentation when making architectural or API choices.
-- Always validate testing approach and examples using the Playwright MCP tool.
-- Prefer Adonis v6 Inertia scaffolding paths (`inertia/app`, `inertia/pages`); legacy `resources/js` paths acceptable if already present.
+## Notes
+- Inertia-first: No client-side API calls; server renders pages and handles POSTs. Each UI form submits via Inertia and receives errors/redirects/flash.
+- Always consult Context7 docs; validate UI test patterns with Playwright MCP tools.
