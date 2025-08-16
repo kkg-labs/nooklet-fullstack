@@ -7,6 +7,15 @@
 |
 */
 
-import router from '@adonisjs/core/services/router'
-router.on('/').renderInertia('home')
+import router from "@adonisjs/core/services/router";
+router.on("/").renderInertia("home");
 
+// Auth — Registration
+router.get("/register", [
+  () => import("#features/auth/controllers/auth_controller"),
+  "showRegister",
+]);
+router.post("/register", [
+  () => import("#features/auth/controllers/auth_controller"),
+  "register",
+]);
