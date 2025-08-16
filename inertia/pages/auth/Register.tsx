@@ -48,7 +48,7 @@ export default function Register() {
             <input
               type="email"
               id="email"
-              className="w-full px-3 py-2 rounded bg-[var(--color-navy-900)] border border-[var(--color-gray-700)] focus:outline-none"
+              className="w-full input input-bordered bg-base-200"
               value={data.email}
               onChange={(e) => setData("email", e.target.value)}
               required
@@ -72,7 +72,7 @@ export default function Register() {
             <input
               type="password"
               id="password"
-              className="w-full px-3 py-2 rounded bg-[var(--color-navy-900)] border border-[var(--color-gray-700)] focus:outline-none"
+              className="w-full input input-bordered bg-base-200"
               value={data.password}
               onChange={(e) => setData("password", e.target.value)}
               required
@@ -94,7 +94,7 @@ export default function Register() {
             <input
               type="password"
               id="password_confirmation"
-              className="w-full px-3 py-2 rounded bg-[var(--color-navy-900)] border border-[var(--color-gray-700)] focus:outline-none"
+              className="w-full input input-bordered bg-base-200"
               value={data.password_confirmation}
               onChange={(e) => setData("password_confirmation", e.target.value)}
               required
@@ -116,7 +116,7 @@ export default function Register() {
             <input
               type="text"
               id="username"
-              className="w-full px-3 py-2 rounded bg-[var(--color-navy-900)] border border-[var(--color-gray-700)] focus:outline-none"
+              className="w-full input input-bordered bg-base-200"
               value={data.username}
               onChange={(e) => setData("username", e.target.value)}
             />

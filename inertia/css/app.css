@@ -1,6 +1,66 @@
 @import "tailwindcss";
+@plugin "daisyui";
 
+
+
+@plugin "daisyui/theme" {
+  name: "nooklet";
+  default: true;
+  color-scheme: dark;
+
+  --color-base-100: var(--brand-bg);
+  --color-base-200: color-mix(in oklab, var(--brand-bg), white 3%);
+  --color-base-300: color-mix(in oklab, var(--brand-bg), white 6%);
+  --color-base-content: var(--brand-text);
+
+  --color-primary: var(--brand-accent);
+  --color-primary-content: #0D0F12;
+  --color-secondary: #6A7E9E;
+  --color-secondary-content: #0D0F12;
+  --color-accent: #475C7D;
+  --color-accent-content: #0D0F12;
+  --color-neutral: #3F4B5E;
+  --color-neutral-content: #E6EBF5;
+
+  --color-info: #60a5fa;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+
+  --radius-selector: .375rem;
+  --radius-field: .5rem;
+  --radius-box: .75rem;
+  --border: 1px;
+}
+
+/* Tailwind v4 palettes generated from provided hexes */
 @theme {
+  /* Palette A (Navy/Slate family) */
+  --color-nook-50: #111317;
+  --color-nook-100: #0D0F12; /* base darkest */
+  --color-nook-200: #1E293A; /* deep slate blue */
+  --color-nook-300: #202532; /* charcoal navy */
+  --color-nook-400: #3F4B5E; /* slate */
+  --color-nook-500: #475C7D; /* steel blue */
+  --color-nook-600: #536C93; /* muted indigo */
+  --color-nook-700: #6A7E9E; /* desaturated blue */
+  --color-nook-800: #8A9CB8;
+  --color-nook-900: #AFC0D4;
+
+  /* Palette B (if separation is preferred: cooler/light tints) */
+  --color-nookb-50: #0B0D10;
+  --color-nookb-100: #141821;
+  --color-nookb-200: #1B2230;
+  --color-nookb-300: #263248;
+  --color-nookb-400: #314264;
+  --color-nookb-500: #3C5480;
+  --color-nookb-600: #4D6A9C; /* near #536C93/#6A7E9E */
+  --color-nookb-700: #6C86B3;
+  --color-nookb-800: #8AA1C5;
+  --color-nookb-900: #B7C6DB;
+
+  /* Core palette */
+  --color-navy-950: #111422;
   --color-navy-900: #1a1d29;
   --color-gray-800: #2a2d3a;
   --color-gray-700: #3a3d4a;
@@ -12,7 +72,16 @@
   --color-slate-400: #94a3b8;
   --color-green-500: #10b981;
   --color-orange-500: #f59e0b;
+  --color-slate-100: #f1f5f9;
   --color-red-500: #ef4444;
+
+  /* Brand tokens */
+  --brand-bg: var(--color-navy-900);
+  --brand-text: var(--color-slate-50);
+  --brand-accent: var(--color-blue-400);
+  --brand-accent-hover: var(--color-blue-300);
+  --brand-border: var(--color-gray-800);
+  --brand-card: var(--color-navy-950);
 }
 
 html, body, #app {
@@ -22,4 +91,10 @@ html, body, #app {
 body {
   background-color: var(--color-navy-900);
   color: var(--color-slate-50);
+}
+
+/* Brand theming override */
+body {
+  background-color: var(--brand-bg);
+  color: var(--brand-text);
 }
