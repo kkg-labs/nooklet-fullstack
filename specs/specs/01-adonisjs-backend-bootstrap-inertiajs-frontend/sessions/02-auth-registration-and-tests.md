@@ -70,7 +70,7 @@
 2. Add `.env.test` with `SESSION_DRIVER=memory` to further stabilize CSRF/session in tests.
 3. Add assertions for flash messages content after redirects in tests.
 4. Implement login flow (service, controller, UI) and tests.
-5. Add Playwright MCP e2e happy path: register → login → basic navigation.
+5. Add MCP Playwright UI flow: register → login → basic navigation.
 
 ### Technical Context
 - CSRF middleware: `config/shield.ts` with `enableXsrfCookie: true`; use `withCsrfToken()` after preflight `GET` in tests.

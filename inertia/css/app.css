@@ -2,62 +2,31 @@
 @plugin "daisyui";
 
 
-
-@plugin "daisyui/theme" {
-  name: "nooklet";
-  default: true;
-  color-scheme: dark;
-
-  --color-base-100: var(--brand-bg);
-  --color-base-200: color-mix(in oklab, var(--brand-bg), white 3%);
-  --color-base-300: color-mix(in oklab, var(--brand-bg), white 6%);
-  --color-base-content: var(--brand-text);
-
-  --color-primary: var(--brand-accent);
-  --color-primary-content: #0D0F12;
-  --color-secondary: #6A7E9E;
-  --color-secondary-content: #0D0F12;
-  --color-accent: #475C7D;
-  --color-accent-content: #0D0F12;
-  --color-neutral: #3F4B5E;
-  --color-neutral-content: #E6EBF5;
-
-  --color-info: #60a5fa;
-  --color-success: #10b981;
-  --color-warning: #f59e0b;
-  --color-error: #ef4444;
-
-  --radius-selector: .375rem;
-  --radius-field: .5rem;
-  --radius-box: .75rem;
-  --border: 1px;
-}
-
 /* Tailwind v4 palettes generated from provided hexes */
 @theme {
   /* Palette A (Navy/Slate family) */
-  --color-nook-50: #111317;
-  --color-nook-100: #0D0F12; /* base darkest */
-  --color-nook-200: #1E293A; /* deep slate blue */
-  --color-nook-300: #202532; /* charcoal navy */
-  --color-nook-400: #3F4B5E; /* slate */
-  --color-nook-500: #475C7D; /* steel blue */
-  --color-nook-600: #536C93; /* muted indigo */
-  --color-nook-700: #6A7E9E; /* desaturated blue */
-  --color-nook-800: #8A9CB8;
-  --color-nook-900: #AFC0D4;
+  --color-nook-50: #AFC0D4; /* lightest */
+  --color-nook-100: #8A9CB8;
+  --color-nook-200: #6A7E9E; /* desaturated blue */
+  --color-nook-300: #536C93; /* muted indigo */
+  --color-nook-400: #475C7D; /* steel blue */
+  --color-nook-500: #3F4B5E; /* slate */
+  --color-nook-600: #202532; /* charcoal navy */
+  --color-nook-700: #1E293A; /* deep slate blue */
+  --color-nook-800: #111317;
+  --color-nook-900: #0D0F12; /* darkest */
 
   /* Palette B (if separation is preferred: cooler/light tints) */
-  --color-nookb-50: #0B0D10;
-  --color-nookb-100: #141821;
-  --color-nookb-200: #1B2230;
-  --color-nookb-300: #263248;
-  --color-nookb-400: #314264;
-  --color-nookb-500: #3C5480;
-  --color-nookb-600: #4D6A9C; /* near #536C93/#6A7E9E */
-  --color-nookb-700: #6C86B3;
-  --color-nookb-800: #8AA1C5;
-  --color-nookb-900: #B7C6DB;
+  --color-nookb-50: #B7C6DB; /* lightest */
+  --color-nookb-100: #8AA1C5;
+  --color-nookb-200: #6C86B3;
+  --color-nookb-300: #4D6A9C; /* near #536C93/#6A7E9E */
+  --color-nookb-400: #3C5480;
+  --color-nookb-500: #314264;
+  --color-nookb-600: #263248;
+  --color-nookb-700: #1B2230;
+  --color-nookb-800: #141821;
+  --color-nookb-900: #0B0D10; /* darkest */
 
   /* Core palette */
   --color-navy-950: #111422;
@@ -77,12 +46,42 @@
 
   /* Brand tokens */
   --brand-bg: var(--color-navy-900);
-  --brand-text: var(--color-slate-50);
-  --brand-accent: var(--color-blue-400);
+  --brand-text: var(--color-nookb-800);
+  --brand-accent: var(--color-nookb-600);
   --brand-accent-hover: var(--color-blue-300);
-  --brand-border: var(--color-gray-800);
+  --brand-border: var(--color-slate-800);
   --brand-card: var(--color-navy-950);
 }
+
+/* Custom DaisyUI theme variables - BiomeJS compatible */
+:root {
+  /* DaisyUI theme variables */
+  --color-base-100: var(--brand-bg);
+  --color-base-200: color-mix(in oklab, var(--brand-bg), white 3%);
+  --color-base-300: var(--brand-border);
+  --color-base-content: var(--brand-text);
+
+  --color-primary: var(--brand-accent);
+  --color-primary-content: var(--color-nook-200);
+  --color-secondary: #6A7E9E;
+  --color-secondary-content: #0D0F12;
+  --color-accent: #475C7D;
+  --color-accent-content: #0D0F12;
+  --color-neutral: #3F4B5E;
+  --color-neutral-content: #E6EBF5;
+
+  --color-info: #60a5fa;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+
+  --radius-selector: .375rem;
+  --radius-field: .5rem;
+  --radius-box: .75rem;
+  --border: 1px;
+  --input-border: var(--color-base-300);
+}
+
 
 html, body, #app {
   height: 100%;
@@ -97,4 +96,103 @@ body {
 body {
   background-color: var(--brand-bg);
   color: var(--brand-text);
+}
+
+/*
+  UI polish & accessibility
+  - Unify focus style (remove glow/shadow; use outline with brand accent)
+  - Ensure labels stack above inputs consistently
+*/
+
+/* Consistent focus outline without blue shadow glow */
+:where(.btn, .input, .select, .textarea, .checkbox, .radio, .link):focus {
+  box-shadow: none;
+}
+:where(.btn, .input, .select, .textarea, .checkbox, .radio, .link):focus-visible {
+  outline: 2px solid var(--brand-accent);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
+/* Labels above inputs, with compact spacing */
+.form-control {
+  display: grid;
+  gap: 0.375rem; /* 6px */
+}
+.form-control > .label {
+  align-items: flex-start;
+  padding-left: 0;
+  padding-right: 0;
+}
+.form-control > .label .label-text {
+  display: block;
+}
+
+/* Layered overrides to ensure precedence over plugin utilities/components */
+@layer components {
+  /* Ensure primary buttons have high-contrast text color */
+  .btn.btn-primary,
+  .btn.btn-primary:hover,
+  .btn.btn-primary:focus-visible {
+    color: var(--color-primary-content) !important;
+  }
+}
+
+@layer utilities {
+  /* Ensure base-300 borders use theme token (darker divider) */
+  .border-base-300 {
+    border-color: var(--color-base-300) !important;
+  }
+
+  /* Stronger specificity for navbar divider */
+  .navbar.border-b.border-base-300 {
+    border-bottom-color: var(--color-base-300) !important;
+  }
+
+  /* Outline buttons: use subtle base-300 border instead of bright content color */
+  .btn.btn-outline,
+  .btn.btn-outline:hover,
+  .btn.btn-outline:focus,
+  .btn.btn-outline:focus-visible {
+    /* drive DaisyUI variable and the actual border color */
+    --btn-border: var(--color-base-300) !important;
+    border-color: var(--color-base-300) !important;
+  }
+
+  /* Bordered inputs: unify to base-300 border */
+  .input.input-bordered,
+  .input.input-bordered:hover,
+  .input.input-bordered:focus,
+  .input.input-bordered:focus-within {
+    /* drive DaisyUI variable and the actual border color */
+    --input-border: var(--color-base-300) !important;
+    border-color: var(--color-base-300) !important;
+  }
+}
+
+/* (moved component-level fixes into the main utilities layer above) */
+
+/*
+  DaisyUI final overrides (outside of any layer) to guarantee border colors
+  These ensure outline buttons and bordered inputs use the subtle divider color.
+*/
+:root {
+  /* Default btn border when not overridden by component state */
+  --btn-border: var(--color-base-300);
+}
+
+:where(.btn).btn-outline,
+:where(.btn).btn-outline:hover,
+:where(.btn).btn-outline:focus,
+:where(.btn).btn-outline:focus-visible {
+  --btn-border: var(--color-base-300) !important;
+  border-color: var(--color-base-300) !important;
+}
+
+:where(.input).input-bordered,
+:where(.input).input-bordered:hover,
+:where(.input).input-bordered:focus,
+:where(.input).input-bordered:focus-within {
+  --input-border: var(--color-base-300) !important;
+  border-color: var(--color-base-300) !important;
 }

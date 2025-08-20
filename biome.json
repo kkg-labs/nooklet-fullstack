@@ -1,7 +1,12 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.1.4/schema.json",
   "linter": {
-    "enabled": true
+    "enabled": true,
+    "rules": {
+      "nursery": {
+        "useCssUnknownProperty": "off"
+      }
+    }
   },
   "formatter": {
     "enabled": true,
@@ -12,6 +17,13 @@
     "formatter": {
       "quoteStyle": "single"
     }
+  },
+  "css": {
+    "linter": {
+      "enabled": false
+    }
+  },
+  "files": {
+    "ignore": ["**/*.css"]
   }
 }
-

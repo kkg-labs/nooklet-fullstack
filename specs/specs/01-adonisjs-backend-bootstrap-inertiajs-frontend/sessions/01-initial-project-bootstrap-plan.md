@@ -20,7 +20,7 @@ Previous Status: No implementation yet. Specs prepared with detailed tasks and r
 - Phase 4: BaseModel with UUID + soft-delete scopes and ISO serialization.
 - Phase 5: Auth models/services/controllers/validators; Inertia middleware and shared props.
 - Phase 6: Auth UI pages (Login/Register), Dashboard, Nooklets CRUD pages.
-- Phase 7: Playwright setup and core flow tests.
+- Phase 7: MCP Playwright setup and core flow tests.
 
 ## Testing Results
 - N/A for this session (planning only).

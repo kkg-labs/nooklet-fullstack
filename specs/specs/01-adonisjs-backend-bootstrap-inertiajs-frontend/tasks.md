@@ -47,7 +47,7 @@ Tests & Verification
   - Happy path: POST `/register` persists records (auth_users + profiles)
   - Duplicate email validation
   - Response is Inertia (redirect/flash) with 2xx/3xx
-- [ ] L1-008: Minimal UI verification (Playwright or manual)
+- [ ] L1-008: Minimal UI verification (MCP Playwright or manual)
   - Navigate to `/register`, submit form, expect success UI and DB row exists
 
 Acceptance (L1):

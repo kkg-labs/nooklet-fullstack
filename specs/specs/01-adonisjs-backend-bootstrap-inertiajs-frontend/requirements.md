@@ -40,7 +40,7 @@ Initialization must use the official AdonisJS Inertia starter with React provide
 - [ ] Service to register user (hash, create auth_user + profile)
 - [ ] Controller + routes: GET `/register`, POST `/register` (Inertia)
 - [ ] Inertia page `inertia/pages/auth/Register.tsx` with form + validation errors
-- [ ] Japa tests verifying DB rows are created and response is Inertia success (redirect/flash)
+- [ ] Japa tests verifying DB rows are created and response is Inertia success (redirect/flash). UI validation handled via MCP Playwright.
 
 ### REQ-003: Nooklet Management (Layer 4)
 **Description:** Basic CRUD operations for nooklets (journal entries) with soft-delete

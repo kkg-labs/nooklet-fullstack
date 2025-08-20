@@ -25,123 +25,98 @@ export default function Register() {
   return (
     <div className="min-h-screen flex items-center justify-center p-6">
       <Head title="Register" />
-      <form
-        onSubmit={submit}
-        className="w-full max-w-md bg-[var(--color-gray-800)] rounded-xl p-6 shadow border border-[var(--color-gray-700)]"
-      >
-        <h1 className="text-2xl font-semibold mb-4">Create your account</h1>
+      <form onSubmit={submit} className="w-full max-w-md card bg-base-200 shadow-xl">
+        <div className="card-body">
+          <h1 className="card-title text-2xl">Create your account</h1>
 
-        {flash?.success && (
-          <div className="mb-4 text-[var(--color-green-500)]">
-            {flash.success}
-          </div>
-        )}
+          {flash?.success && (
+            <div className="alert alert-success">
+              <span>{flash.success}</span>
+            </div>
+          )}
 
-        <div className="space-y-3">
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm text-[var(--color-slate-300)] mb-1"
-            >
-              Email
+          <div className="form-control">
+            <label htmlFor="email" className="label">
+              <span className="label-text">Email</span>
             </label>
             <input
               type="email"
               id="email"
-              className="w-full input input-bordered bg-base-200"
+              className="input input-bordered border-base-300 bg-base-100 [--input-border:var(--color-base-300)]"
               value={data.email}
               onChange={(e) => setData("email", e.target.value)}
               required
             />
-            {(errors.email ||
-              (flash?.errors as Record<string, string> | undefined)?.email) && (
-              <p className="text-[var(--color-red-500)] text-sm mt-1">
-                {errors.email ||
-                  (flash?.errors as Record<string, string> | undefined)?.email}
+            {(errors.email || (flash?.errors as Record<string, string> | undefined)?.email) && (
+              <p className="text-error text-sm mt-1 text-[var(--color-red-500)]">
+                {errors.email || (flash?.errors as Record<string, string> | undefined)?.email}
               </p>
             )}
           </div>
 
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm text-[var(--color-slate-300)] mb-1"
-            >
-              Password
+          <div className="form-control mt-2">
+            <label htmlFor="password" className="label">
+              <span className="label-text">Password</span>
             </label>
             <input
               type="password"
               id="password"
-              className="w-full input input-bordered bg-base-200"
+              className="input input-bordered border-base-300 bg-base-100 [--input-border:var(--color-base-300)]"
               value={data.password}
               onChange={(e) => setData("password", e.target.value)}
               required
             />
-            {errors.password && (
-              <p className="text-[var(--color-red-500)] text-sm mt-1">
-                {errors.password}
-              </p>
-            )}
+            {errors.password && <p className="text-error text-sm mt-1 text-[var(--color-red-500)]">{errors.password}</p>}
           </div>
 
-          <div>
-            <label
-              htmlFor="password_confirmation"
-              className="block text-sm text-[var(--color-slate-300)] mb-1"
-            >
-              Confirm Password
+          <div className="form-control mt-2">
+            <label htmlFor="password_confirmation" className="label">
+              <span className="label-text">Confirm Password</span>
             </label>
             <input
               type="password"
               id="password_confirmation"
-              className="w-full input input-bordered bg-base-200"
+              className="input input-bordered border-base-300 bg-base-100 [--input-border:var(--color-base-300)]"
               value={data.password_confirmation}
               onChange={(e) => setData("password_confirmation", e.target.value)}
               required
             />
             {errors.password_confirmation && (
-              <p className="text-[var(--color-red-500)] text-sm mt-1">
-                {errors.password_confirmation}
-              </p>
+              <p className="text-error text-sm mt-1 text-[var(--color-red-500)]">{errors.password_confirmation}</p>
             )}
           </div>
 
-          <div>
-            <label
-              htmlFor="username"
-              className="block text-sm text-[var(--color-slate-300)] mb-1"
-            >
-              Username (optional)
+          <div className="form-control mt-2">
+            <label htmlFor="username" className="label">
+              <span className="label-text">Username (optional)</span>
             </label>
             <input
               type="text"
               id="username"
-              className="w-full input input-bordered bg-base-200"
+              className="input input-bordered border-base-300 bg-base-100 [--input-border:var(--color-base-300)]"
               value={data.username}
               onChange={(e) => setData("username", e.target.value)}
             />
-            {errors.username && (
-              <p className="text-[var(--color-red-500)] text-sm mt-1">
-                {errors.username}
-              </p>
-            )}
+            {errors.username && <p className="text-error text-sm mt-1 text-[var(--color-red-500)]">{errors.username}</p>}
           </div>
+
+          <div className="form-control mt-4">
+            <button
+              type="submit"
+              disabled={processing}
+              className="btn btn-primary w-full"
+            >
+              {processing ? "Creating account..." : "Register"}
+            </button>
+          </div>
+
+          <p className="mt-3 text-sm text-base-content/70">
+            Already have an account?{" "}
+            <Link href="/login" className="link link-primary">
+              Login
+            </Link>
+          </p>
         </div>
-
-        <button
-          type="submit"
-          disabled={processing}
-          className="mt-5 w-full py-2 rounded bg-[var(--color-blue-400)] text-[var(--color-navy-900)] font-semibold disabled:opacity-60"
-        >
-          {processing ? "Creating account..." : "Register"}
-        </button>
-
-        <p className="mt-3 text-sm text-[var(--color-slate-300)]">
-          Already have an account?{" "}
-          <Link href="/login" className="text-[var(--color-blue-300)]">
-            Login
-          </Link>
-        </p>
       </form>
     </div>
   );

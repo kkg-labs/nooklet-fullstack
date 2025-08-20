@@ -1,19 +1,20 @@
-# E2E Testing with Playwright
+# UI Testing with MCP Playwright
 
 This directory contains end-to-end tests for the Nooklet application using Playwright.
 
 ## Overview
 
-The E2E test suite covers:
-- User registration flow with comprehensive validation
-- Cross-browser compatibility testing
-- Performance and accessibility testing
-- Database verification and cleanup
+The UI test checks (via MCP Playwright) cover:
+
+- User registration flow with validation and UI feedback
+- Cross-browser rendering checks (via MCP browser projects)
+- Visual and DOM assertions
+- Optional DB verification via helper scripts (non-MCP)
 - Error handling and edge cases
 
 ## Test Structure
 
-```
+```text
 tests/browser/
 ├── auth/
 │   ├── registration.spec.ts           # Main registration tests

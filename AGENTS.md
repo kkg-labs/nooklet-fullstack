@@ -14,7 +14,7 @@
 - Initialize app (once): `npm init adonisjs@latest -- -K=inertia --adapter=react --ssr` (run in a new `app/` dir at repo root).
 - Dev server (after scaffold): `npm run dev` (Adonis serve + Vite) or `node ace serve --watch`.
 - Type check/build: `node ace build` (compiles TypeScript) and `vite build` for assets.
-- E2E tests (after setup): `npx playwright test`.
+- UI tests should be executed via MCP Playwright (Model Context Protocol). Do not use `npx playwright test` in this project.
 
 ## Coding Style & Naming Conventions
 - Language: TypeScript (backend and Inertia React). Indentation: 2 spaces.
