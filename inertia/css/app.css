@@ -46,10 +46,10 @@
 
   /* Brand tokens */
   --brand-bg: var(--color-navy-900);
-  --brand-text: var(--color-nookb-800);
+  --brand-text: var(--color-slate-100);
   --brand-accent: var(--color-nookb-600);
   --brand-accent-hover: var(--color-blue-300);
-  --brand-border: var(--color-slate-800);
+  --brand-border: var(--color-gray-800);
   --brand-card: var(--color-navy-950);
 }
 
@@ -62,11 +62,11 @@
   --color-base-content: var(--brand-text);
 
   --color-primary: var(--brand-accent);
-  --color-primary-content: var(--color-nook-200);
+  --color-primary-content: var(--color-slate-50);
   --color-secondary: #6A7E9E;
-  --color-secondary-content: #0D0F12;
+  --color-secondary-content: var(--color-slate-50);
   --color-accent: #475C7D;
-  --color-accent-content: #0D0F12;
+  --color-accent-content: var(--color-slate-50);
   --color-neutral: #3F4B5E;
   --color-neutral-content: #E6EBF5;
 
@@ -80,6 +80,8 @@
   --radius-box: .75rem;
   --border: 1px;
   --input-border: var(--color-base-300);
+  --depth: 0;
+  color-scheme: dark;
 }
 
 
@@ -135,7 +137,7 @@ body {
   .btn.btn-primary:hover,
   .btn.btn-primary:focus-visible {
     color: var(--color-primary-content) !important;
-  }
+  } 
 }
 
 @layer utilities {

@@ -40,7 +40,7 @@ export default function Landing() {
                   Get started — it’s free
                 </Link>
                 <a href="#features" className="btn btn-outline">
-                  View all featuresss →
+                  View all features →
                 </a>
               </div>
             </div>
