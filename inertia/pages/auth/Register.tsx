@@ -1,5 +1,6 @@
 import { Head, Link, useForm, usePage } from "@inertiajs/react";
 import type { SharedProps } from "@adonisjs/inertia/types";
+import LabeledTextInput from "../../components/form/LabeledTextInput";
 
 export default function Register() {
   const { flash } = usePage<SharedProps>().props as unknown as {
@@ -35,70 +36,47 @@ export default function Register() {
             </div>
           )}
 
-          <div className="form-control">
-            <label htmlFor="email" className="label">
-              <span className="label-text">Email</span>
-            </label>
-            <input
-              type="email"
-              id="email"
-              className="input input-bordered border-base-300 bg-base-100 [--input-border:var(--color-base-300)]"
-              value={data.email}
-              onChange={(e) => setData("email", e.target.value)}
-              required
-            />
-            {(errors.email || (flash?.errors as Record<string, string> | undefined)?.email) && (
-              <p className="text-error text-sm mt-1 text-[var(--color-red-500)]">
-                {errors.email || (flash?.errors as Record<string, string> | undefined)?.email}
-              </p>
-            )}
-          </div>
+          <LabeledTextInput
+            id="email"
+            type="email"
+            label="Email"
+            value={data.email}
+            onChange={(e) => setData("email", (e.target as HTMLInputElement).value)}
+            required
+            error={errors.email || (flash?.errors as Record<string, string> | undefined)?.email || null}
+          />
 
-          <div className="form-control mt-2">
-            <label htmlFor="password" className="label">
-              <span className="label-text">Password</span>
-            </label>
-            <input
-              type="password"
-              id="password"
-              className="input input-bordered border-base-300 bg-base-100 [--input-border:var(--color-base-300)]"
-              value={data.password}
-              onChange={(e) => setData("password", e.target.value)}
-              required
-            />
-            {errors.password && <p className="text-error text-sm mt-1 text-[var(--color-red-500)]">{errors.password}</p>}
-          </div>
+          <LabeledTextInput
+            id="password"
+            type="password"
+            label="Password"
+            value={data.password}
+            onChange={(e) => setData("password", (e.target as HTMLInputElement).value)}
+            required
+            error={errors.password || null}
+            containerClassName="mt-2"
+          />
 
-          <div className="form-control mt-2">
-            <label htmlFor="password_confirmation" className="label">
-              <span className="label-text">Confirm Password</span>
-            </label>
-            <input
-              type="password"
-              id="password_confirmation"
-              className="input input-bordered border-base-300 bg-base-100 [--input-border:var(--color-base-300)]"
-              value={data.password_confirmation}
-              onChange={(e) => setData("password_confirmation", e.target.value)}
-              required
-            />
-            {errors.password_confirmation && (
-              <p className="text-error text-sm mt-1 text-[var(--color-red-500)]">{errors.password_confirmation}</p>
-            )}
-          </div>
+          <LabeledTextInput
+            id="password_confirmation"
+            type="password"
+            label="Confirm Password"
+            value={data.password_confirmation}
+            onChange={(e) => setData("password_confirmation", (e.target as HTMLInputElement).value)}
+            required
+            error={errors.password_confirmation || null}
+            containerClassName="mt-2"
+          />
 
-          <div className="form-control mt-2">
-            <label htmlFor="username" className="label">
-              <span className="label-text">Username (optional)</span>
-            </label>
-            <input
-              type="text"
-              id="username"
-              className="input input-bordered border-base-300 bg-base-100 [--input-border:var(--color-base-300)]"
-              value={data.username}
-              onChange={(e) => setData("username", e.target.value)}
-            />
-            {errors.username && <p className="text-error text-sm mt-1 text-[var(--color-red-500)]">{errors.username}</p>}
-          </div>
+          <LabeledTextInput
+            id="username"
+            type="text"
+            label="Username (optional)"
+            value={data.username}
+            onChange={(e) => setData("username", (e.target as HTMLInputElement).value)}
+            error={errors.username || null}
+            containerClassName="mt-2"
+          />
 
           <div className="form-control mt-4">
             <button

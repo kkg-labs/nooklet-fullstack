@@ -15,18 +15,37 @@
   --color-nook-700: #1E293A; /* deep slate blue */
   --color-nook-800: #111317;
   --color-nook-900: #0D0F12; /* darkest */
+  
+  --color-nookb-50: oklch(93.2% 0.0389 263.4); 
+  --color-nookb-75: oklch(88.8% 0.043 260.4);
+  --color-nookb-100: oklch(79.1% 0.0761 263.4);
+  --color-nookb-200: oklch(83.3% 0.0798 263.4); 
+  --color-nookb-300: oklch(68.5% 0.094 258.8);
+  --color-nookb-400: oklch(55.2% 0.0888 263.4);
+  --color-nookb-500: oklch(48.4% 0.0766 263.4);
+  --color-nookb-600: oklch(42.4% 0.0686 263.4);
+  --color-nookb-700: oklch(37.1% 0.0625 263.4);
+  --color-nookb-800: oklch(32% 0.0552 263.4);
+  --color-nookb-850: oklch(26.9% 0.0426 263.4);
+  --color-nookb-875: oklch(23.3% 0.0315 263.4);
+  --color-nookb-900: oklch(21% 0.0224 263.4);
+  --color-nookb-925: oklch(19.2% 0.0177 267);
+  --color-nookb-950: oklch(18% 0.015 270.6); 
+  --color-nookb-1000: oklch(15.8% 0.007 258.4); 
 
-  /* Palette B (if separation is preferred: cooler/light tints) */
-  --color-nookb-50: #B7C6DB; /* lightest */
-  --color-nookb-100: #8AA1C5;
-  --color-nookb-200: #6C86B3;
-  --color-nookb-300: #4D6A9C; /* near #536C93/#6A7E9E */
-  --color-nookb-400: #3C5480;
-  --color-nookb-500: #314264;
-  --color-nookb-600: #263248;
-  --color-nookb-700: #1B2230;
-  --color-nookb-800: #141821;
-  --color-nookb-900: #0B0D10; /* darkest */
+  --color-accent-50: oklch(0.950 0.018 50.3);   /* lightest */
+  --color-accent-100: oklch(0.896 0.039 50.3);
+  --color-accent-200: oklch(0.842 0.062 50.3);
+  --color-accent-300: oklch(0.788 0.086 50.3);
+  --color-accent-400: oklch(0.733 0.109 50.3);
+  --color-accent-500: oklch(0.679 0.101 50.3);
+  --color-accent-600: oklch(0.625 0.093 50.3);
+  --color-accent-700: oklch(0.571 0.085 50.3);
+  --color-accent-800: oklch(0.517 0.077 50.3);
+  --color-accent-900: oklch(0.463 0.069 50.3);
+  --color-accent-950: oklch(0.408 0.061 50.3);
+  --color-accent-1000: oklch(0.354 0.053 50.3); /* darkest */
+  
 
   /* Core palette */
   --color-navy-950: #111422;
@@ -137,7 +156,7 @@ body {
   .btn.btn-primary:hover,
   .btn.btn-primary:focus-visible {
     color: var(--color-primary-content) !important;
-  } 
+  }
 }
 
 @layer utilities {
