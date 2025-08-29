@@ -1,7 +1,7 @@
 import hash from "@adonisjs/core/services/hash";
 import db from "@adonisjs/lucid/services/db";
-import AuthUser from "#features/auth/models/auth_user";
-import Profile from "#features/user/models/profile";
+import AuthUser from "#features/auth/auth_user";
+import Profile from "#features/user/profile";
 
 export type RegisterData = {
   email: string;

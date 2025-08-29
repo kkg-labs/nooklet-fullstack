@@ -12,10 +12,10 @@ router.on("/").renderInertia("landing");
 
 // Auth — Registration
 router.get("/register", [
-  () => import("#features/auth/controllers/auth_controller"),
+  () => import("#features/auth/auth_controller"),
   "showRegister",
 ]);
 router.post("/register", [
-  () => import("#features/auth/controllers/auth_controller"),
+  () => import("#features/auth/auth_controller"),
   "register",
 ]);

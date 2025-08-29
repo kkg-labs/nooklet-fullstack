@@ -2,7 +2,7 @@ import type { DateTime } from "luxon";
 import { belongsTo, column } from "@adonisjs/lucid/orm";
 import type { BelongsTo } from "@adonisjs/lucid/types/relations";
 import Base from "#models/base_model";
-import AuthUser from "#features/auth/models/auth_user";
+import AuthUser from "#features/auth/auth_user";
 
 export default class Profile extends Base {
   public static table = "profiles";

@@ -5,16 +5,6 @@
 /* Tailwind v4 palettes generated from provided hexes */
 @theme {
   /* Palette A (Navy/Slate family) */
-  --color-nook-50: #AFC0D4; /* lightest */
-  --color-nook-100: #8A9CB8;
-  --color-nook-200: #6A7E9E; /* desaturated blue */
-  --color-nook-300: #536C93; /* muted indigo */
-  --color-nook-400: #475C7D; /* steel blue */
-  --color-nook-500: #3F4B5E; /* slate */
-  --color-nook-600: #202532; /* charcoal navy */
-  --color-nook-700: #1E293A; /* deep slate blue */
-  --color-nook-800: #111317;
-  --color-nook-900: #0D0F12; /* darkest */
   
   --color-nookb-50: oklch(93.2% 0.0389 263.4); 
   --color-nookb-75: oklch(88.8% 0.043 260.4);
