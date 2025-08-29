@@ -27,8 +27,14 @@ RUN npm ci --include=dev
 # Copy application code
 COPY . .
 
+# Build frontend assets with Vite
+RUN npx vite build
+
 # Build application
 RUN npm run build
+
+# Verify build output exists
+RUN ls -la /app/build/ && ls -la /app/build/bin/
 
 
 # Final stage for app image
@@ -37,15 +43,27 @@ FROM base
 # Copy built application
 COPY --from=build /app /app
 
+# Install production dependencies in the build directory
+WORKDIR /app/build
+RUN npm ci --omit=dev
+
+# Return to app directory
+WORKDIR /app
+
 # Entrypoint sets up the container.
 ENTRYPOINT [ "/app/docker-entrypoint.js" ]
 
 # Start the server by default, this can be overwritten at runtime
-EXPOSE 3000
 ENV CACHE_VIEWS="true" \
     DB_CONNECTION="pg" \
     DRIVE_DISK="local" \
     HOST="0.0.0.0" \
-    PORT="3000" \
+    PORT="3333" \
     SESSION_DRIVER="cookie"
-CMD [ "node", "/app/build/server.js" ]
+
+# Expose the port from environment variable
+EXPOSE $PORT
+# Verify files exist before starting
+RUN ls -la /app/build/bin/
+
+CMD [ "node", "/app/build/bin/server.js" ]
