@@ -74,7 +74,7 @@ export default function Register() {
             label="Username (optional)"
             value={data.username}
             onChange={(e) => setData("username", (e.target as HTMLInputElement).value)}
-            error={errors.username || null}
+            error={errors.username || (flash?.errors as Record<string, string> | undefined)?.username || null}
             containerClassName="mt-2"
           />
 

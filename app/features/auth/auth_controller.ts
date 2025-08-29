@@ -21,6 +21,10 @@ export default class AuthController {
         session.flash("errors", { email: "Email is already in use" });
         return response.redirect().back();
       }
+      if ((error as Error).message === "USERNAME_TAKEN") {
+        session.flash("errors", { username: "Username is already taken" });
+        return response.redirect().back();
+      }
       throw error;
     }
 
