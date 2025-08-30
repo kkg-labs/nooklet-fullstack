@@ -19,3 +19,15 @@ router.post("/register", [
   () => import("#features/auth/auth_controller"),
   "register",
 ]);
+
+
+// Test LLM endpoints (no auth)
+router.post("/test/llm/embed-text", [
+  () => import("#features/ai/llm_test_controller"),
+  "embedText",
+]);
+
+router.post("/test/llm/chat", [
+  () => import("#features/ai/llm_test_controller"),
+  "chat",
+]);

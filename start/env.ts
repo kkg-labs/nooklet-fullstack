@@ -34,5 +34,14 @@ export default await Env.create(new URL('../', import.meta.url), {
   DB_PORT: Env.schema.number(),
   DB_USER: Env.schema.string(),
   DB_PASSWORD: Env.schema.string.optional(),
-  DB_DATABASE: Env.schema.string()
+  DB_DATABASE: Env.schema.string(),
+
+  /*
+  |----------------------------------------------------------
+  | AI / Vector services
+  |----------------------------------------------------------
+  */
+  OPENAI_API_KEY: Env.schema.string(),
+  QDRANT_HOST: Env.schema.string({ format: 'host' }),
+  QDRANT_PORT: Env.schema.number(),
 })

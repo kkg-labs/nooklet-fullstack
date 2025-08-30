@@ -1,0 +1,12 @@
+{
+  "id": "approval_1756485964190_8wg106ejq",
+  "title": "LLM Test Endpoints - Revised Tasks Document",
+  "filePath": ".spec-workflow/specs/llm-test-endpoints/tasks.md",
+  "type": "document",
+  "status": "approved",
+  "createdAt": "2025-08-29T16:46:04.190Z",
+  "category": "spec",
+  "categoryName": "llm-test-endpoints",
+  "response": "Approved via dashboard",
+  "respondedAt": "2025-08-29T16:47:13.603Z"
+}

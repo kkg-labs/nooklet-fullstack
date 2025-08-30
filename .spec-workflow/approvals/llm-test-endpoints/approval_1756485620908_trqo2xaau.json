@@ -1,0 +1,57 @@
+{
+  "id": "approval_1756485620908_trqo2xaau",
+  "title": "LLM Test Endpoints - Tasks Document",
+  "filePath": ".spec-workflow/specs/llm-test-endpoints/tasks.md",
+  "type": "document",
+  "status": "needs-revision",
+  "createdAt": "2025-08-29T16:40:20.909Z",
+  "category": "spec",
+  "categoryName": "llm-test-endpoints",
+  "response": "Feedback Summary (4 comments):\n\nGeneral Comments:\n1. also make sure there's no auth middleware for this \"/test\" endpoints\n\nSpecific Text Comments:\n1. \"- [ ] 1. Add environment variables for AI services...\": disregard this, i already added it manually\n2. \"qdrant/js-client-rest\": i dont think we need to use the sdk, for simplicity can we use qdrant's builtin rest endpoints to interact with the db?\n3. \"- [ ] 3. Create AI feature directory structure\n  -...\": dont create subdirectories if it only contains single file, like avoid doing this \"/controllers/llm_controller.ts\", it should only be \"llm_controller.ts\". The file name is just a sample\n",
+  "annotations": "{\n  \"decision\": \"needs-revision\",\n  \"comments\": [\n    {\n      \"type\": \"selection\",\n      \"comment\": \"disregard this, i already added it manually\",\n      \"timestamp\": \"2025-08-29T16:41:03.918Z\",\n      \"selectedText\": \"- [ ] 1. Add environment variables for AI services\\n  - File: start/env.ts\\n  - Add OPENAI_API_KEY, QDRANT_HOST, QDRANT_PORT to environment schema\\n  - Purpose: Enable configuration validation for external AI services\\n  - _Leverage: existing env.ts patterns_\\n  - _Requirements: 1.1, 1.2_\",\n      \"highlightColor\": {\n        \"bg\": \"rgba(255, 235, 59, 0.3)\",\n        \"border\": \"#FFEB3B\",\n        \"name\": \"#ffeb3b\"\n      },\n      \"id\": \"comment_1756485663918_rrt11rynm\"\n    },\n    {\n      \"type\": \"selection\",\n      \"comment\": \"i dont think we need to use the sdk, for simplicity can we use qdrant's builtin rest endpoints to interact with the db?\",\n      \"timestamp\": \"2025-08-29T16:42:35.285Z\",\n      \"selectedText\": \"qdrant/js-client-rest\",\n      \"highlightColor\": {\n        \"bg\": \"rgba(255, 235, 59, 0.3)\",\n        \"border\": \"#FFEB3B\",\n        \"name\": \"#ffeb3b\"\n      },\n      \"id\": \"comment_1756485755285_lju94yuzb\"\n    },\n    {\n      \"type\": \"selection\",\n      \"comment\": \"dont create subdirectories if it only contains single file, like avoid doing this \\\"/controllers/llm_controller.ts\\\", it should only be \\\"llm_controller.ts\\\". The file name is just a sample\",\n      \"timestamp\": \"2025-08-29T16:43:22.092Z\",\n      \"selectedText\": \"- [ ] 3. Create AI feature directory structure\\n  - Directory: app/features/ai/\\n  - Create subdirectories: controllers/, validators/\\n  - Purpose: Follow established domain-driven structure\\n  - _Leverage: existing app/features/* pattern_\\n  - _Requirements: All_\",\n      \"highlightColor\": {\n        \"bg\": \"rgba(255, 235, 59, 0.3)\",\n        \"border\": \"#FFEB3B\",\n        \"name\": \"#ffeb3b\"\n      },\n      \"id\": \"comment_1756485802092_u2x71n74e\"\n    },\n    {\n      \"type\": \"general\",\n      \"comment\": \"also make sure there's no auth middleware for this \\\"/test\\\" endpoints\",\n      \"timestamp\": \"2025-08-29T16:44:11.535Z\",\n      \"id\": \"comment_1756485851535_vlbgzh2v5\"\n    }\n  ],\n  \"summary\": \"Feedback Summary (4 comments):\\n\\nGeneral Comments:\\n1. also make sure there's no auth middleware for this \\\"/test\\\" endpoints\\n\\nSpecific Text Comments:\\n1. \\\"- [ ] 1. Add environment variables for AI services...\\\": disregard this, i already added it manually\\n2. \\\"qdrant/js-client-rest\\\": i dont think we need to use the sdk, for simplicity can we use qdrant's builtin rest endpoints to interact with the db?\\n3. \\\"- [ ] 3. Create AI feature directory structure\\n  -...\\\": dont create subdirectories if it only contains single file, like avoid doing this \\\"/controllers/llm_controller.ts\\\", it should only be \\\"llm_controller.ts\\\". The file name is just a sample\\n\",\n  \"timestamp\": \"2025-08-29T16:44:19.675Z\"\n}",
+  "respondedAt": "2025-08-29T16:44:19.689Z",
+  "comments": [
+    {
+      "type": "selection",
+      "comment": "disregard this, i already added it manually",
+      "timestamp": "2025-08-29T16:41:03.918Z",
+      "selectedText": "- [ ] 1. Add environment variables for AI services\n  - File: start/env.ts\n  - Add OPENAI_API_KEY, QDRANT_HOST, QDRANT_PORT to environment schema\n  - Purpose: Enable configuration validation for external AI services\n  - _Leverage: existing env.ts patterns_\n  - _Requirements: 1.1, 1.2_",
+      "highlightColor": {
+        "bg": "rgba(255, 235, 59, 0.3)",
+        "border": "#FFEB3B",
+        "name": "#ffeb3b"
+      },
+      "id": "comment_1756485663918_rrt11rynm"
+    },
+    {
+      "type": "selection",
+      "comment": "i dont think we need to use the sdk, for simplicity can we use qdrant's builtin rest endpoints to interact with the db?",
+      "timestamp": "2025-08-29T16:42:35.285Z",
+      "selectedText": "qdrant/js-client-rest",
+      "highlightColor": {
+        "bg": "rgba(255, 235, 59, 0.3)",
+        "border": "#FFEB3B",
+        "name": "#ffeb3b"
+      },
+      "id": "comment_1756485755285_lju94yuzb"
+    },
+    {
+      "type": "selection",
+      "comment": "dont create subdirectories if it only contains single file, like avoid doing this \"/controllers/llm_controller.ts\", it should only be \"llm_controller.ts\". The file name is just a sample",
+      "timestamp": "2025-08-29T16:43:22.092Z",
+      "selectedText": "- [ ] 3. Create AI feature directory structure\n  - Directory: app/features/ai/\n  - Create subdirectories: controllers/, validators/\n  - Purpose: Follow established domain-driven structure\n  - _Leverage: existing app/features/* pattern_\n  - _Requirements: All_",
+      "highlightColor": {
+        "bg": "rgba(255, 235, 59, 0.3)",
+        "border": "#FFEB3B",
+        "name": "#ffeb3b"
+      },
+      "id": "comment_1756485802092_u2x71n74e"
+    },
+    {
+      "type": "general",
+      "comment": "also make sure there's no auth middleware for this \"/test\" endpoints",
+      "timestamp": "2025-08-29T16:44:11.535Z",
+      "id": "comment_1756485851535_vlbgzh2v5"
+    }
+  ]
+}
