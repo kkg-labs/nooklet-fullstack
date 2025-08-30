@@ -148,7 +148,7 @@ export default class LlmTestController {
       });
 
       const content = chatRes.choices?.[0]?.message?.content ?? "";
-      return response.ok({ success: true, response: content, retrieved: hits.length });
+      return response.ok({ success: true, response: content, systemPrompt, retrieved: hits.length });
     } catch (error) {
       return response.status(500).send({ success: false, error: (error as Error).message });
     }

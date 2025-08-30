@@ -13,6 +13,9 @@ export default function Landing() {
             </a>
           </div>
           <nav className="flex items-center gap-2">
+            <Link href="/rag-test" className="btn btn-ghost btn-sm">
+              RAG Test
+            </Link>
             <a href="/login" className="btn btn-ghost btn-sm">
               Log in
             </a>

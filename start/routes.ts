@@ -21,6 +21,10 @@ router.post("/register", [
 ]);
 
 
+// RAG Test page (Inertia)
+router.get("/rag-test", ({ inertia }) => inertia.render("rag-test/Index"));
+
+
 // Test LLM endpoints (no auth)
 router.post("/test/llm/embed-text", [
   () => import("#features/ai/llm_test_controller"),

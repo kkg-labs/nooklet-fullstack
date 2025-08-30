@@ -1,0 +1,27 @@
+{
+  "id": "approval_1756528916448_tqsuo4xit",
+  "title": "RAG Test Interface - Requirements Document",
+  "filePath": ".spec-workflow/specs/rag-test-interface/requirements.md",
+  "type": "document",
+  "status": "needs-revision",
+  "createdAt": "2025-08-30T04:41:56.449Z",
+  "category": "spec",
+  "categoryName": "rag-test-interface",
+  "response": "Feedback Summary (2 comments):\n\nGeneral Comments:\n1. for test pages like rag-test, we dont need to add like csrf security because the api is also excluded from that for testing purposes.\n2. and for submitting data, we should utilize \"useForm\" from inertia reactjs just like how register page works\n\n",
+  "annotations": "{\n  \"decision\": \"needs-revision\",\n  \"comments\": [\n    {\n      \"type\": \"general\",\n      \"comment\": \"for test pages like rag-test, we dont need to add like csrf security because the api is also excluded from that for testing purposes.\",\n      \"timestamp\": \"2025-08-30T04:45:42.573Z\",\n      \"id\": \"comment_1756529142573_6287lmeeg\"\n    },\n    {\n      \"type\": \"general\",\n      \"comment\": \"and for submitting data, we should utilize \\\"useForm\\\" from inertia reactjs just like how register page works\",\n      \"timestamp\": \"2025-08-30T04:46:18.514Z\",\n      \"id\": \"comment_1756529178514_q1bqi6krp\"\n    }\n  ],\n  \"summary\": \"Feedback Summary (2 comments):\\n\\nGeneral Comments:\\n1. for test pages like rag-test, we dont need to add like csrf security because the api is also excluded from that for testing purposes.\\n2. and for submitting data, we should utilize \\\"useForm\\\" from inertia reactjs just like how register page works\\n\\n\",\n  \"timestamp\": \"2025-08-30T04:46:19.842Z\"\n}",
+  "respondedAt": "2025-08-30T04:46:19.857Z",
+  "comments": [
+    {
+      "type": "general",
+      "comment": "for test pages like rag-test, we dont need to add like csrf security because the api is also excluded from that for testing purposes.",
+      "timestamp": "2025-08-30T04:45:42.573Z",
+      "id": "comment_1756529142573_6287lmeeg"
+    },
+    {
+      "type": "general",
+      "comment": "and for submitting data, we should utilize \"useForm\" from inertia reactjs just like how register page works",
+      "timestamp": "2025-08-30T04:46:18.514Z",
+      "id": "comment_1756529178514_q1bqi6krp"
+    }
+  ]
+}
