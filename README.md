@@ -24,7 +24,7 @@ Core goals:
     npm install
     ```
 
-3. Start Postgres (Docker):
+3. Start Postgres (Docker) and QDRANT:
 
     ```bash
     npm run db:dev
@@ -34,6 +34,12 @@ Core goals:
 
     ```bash
     npm run dev
+    ```
+
+5. Run Database Migrations:
+
+    ```bash
+    node ace migration:run
     ```
 
 ## Frontend
