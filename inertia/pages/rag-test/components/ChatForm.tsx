@@ -1,10 +1,10 @@
 import React from "react";
 import { useForm } from "@inertiajs/react";
 import LabeledTextInput from "~/components/form/LabeledTextInput";
-import { ChatFormData, ChatResponse } from "../types";
+import { ChatResponse } from "../types";
 
 export default function ChatForm() {
-  const { data, setData, processing, errors } = useForm<ChatFormData>({
+  const { data, setData, processing, errors } = useForm({
     prompt: "",
     user: "",
   });
@@ -19,18 +19,27 @@ export default function ChatForm() {
     setRes(null);
     setSubmitting(true);
     try {
-      const res = await fetch("/test/llm/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('/test/llm/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        credentials: 'same-origin',
         body: JSON.stringify(data),
       });
-      const json = (await res.json()) as ChatResponse;
-      if (!res.ok || !json.success) {
-        setErr(json.error || "Chat request failed. Check server logs.");
-      } else {
-        setRes(json);
+      if (!response.ok) {
+        let message = `HTTP ${response.status}`;
+        try {
+          const errJson = await response.json();
+          message = errJson?.message || message;
+        } catch {}
+        setErr(`Chat request failed: ${message}`);
+        return;
       }
-    } catch (e) {
+      const json = (await response.json()) as ChatResponse;
+      setRes(json);
+        } catch (e) {
       setErr("Network error. Please try again.");
     } finally {
       setSubmitting(false);

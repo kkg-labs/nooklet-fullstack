@@ -1,10 +1,18 @@
 import type { DateTime } from "luxon";
+import hash from "@adonisjs/core/services/hash";
+import { compose } from "@adonisjs/core/helpers";
 import { column, hasOne } from "@adonisjs/lucid/orm";
 import type { HasOne } from "@adonisjs/lucid/types/relations";
+import { withAuthFinder } from "@adonisjs/auth/mixins/lucid";
 import Base from "#models/base_model";
 import Profile from "#features/user/profile";
 
-export default class AuthUser extends Base {
+const AuthFinder = withAuthFinder(() => hash.use("scrypt"), {
+  uids: ["email"],
+  passwordColumnName: "passwordHash",
+});
+
+export default class AuthUser extends compose(Base, AuthFinder) {
   public static table = "auth_users";
 
   @column({ isPrimary: true })

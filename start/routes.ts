@@ -20,6 +20,36 @@ router.post("/register", [
   "register",
 ]);
 
+// Auth — Login/Logout
+router.get("/login", [
+  () => import("#features/auth/auth_controller"),
+  "showLogin",
+]);
+router.post("/login", [
+  () => import("#features/auth/auth_controller"),
+  "login",
+]);
+router.post("/logout", [
+  () => import("#features/auth/auth_controller"),
+  "logout",
+]);
+
+// Test route to check authentication
+router.get("/test-auth", async ({ auth, response }) => {
+  try {
+    const user = await auth.user;
+    return response.json({
+      authenticated: true,
+      user: user ? { id: user.id, email: user.email } : null
+    });
+  } catch (error) {
+    return response.json({
+      authenticated: false,
+      error: error.message
+    });
+  }
+});
+
 
 // RAG Test page (Inertia)
 router.get("/rag-test", ({ inertia }) => inertia.render("rag-test/Index"));

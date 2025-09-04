@@ -5,17 +5,12 @@ export interface EmbedFormData {
   user: string;
   date: string; // formatted via shared/utils.ts formatDate
 }
-
-export interface ChatFormData {
-  prompt: string;
-  user: string;
-}
-
 export interface EmbedResponse {
   success: boolean;
   chunksProcessed?: number;
   collection?: string;
   error?: string;
+  [x: string]: any; // allow any additional fields
 }
 
 export interface ChatResponse {

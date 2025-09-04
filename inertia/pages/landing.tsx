@@ -1,32 +1,32 @@
-import { Head, Link } from "@inertiajs/react";
+import { Head, Link, usePage } from "@inertiajs/react";
+import Navigation from "../components/layout/Navigation";
+import type { SharedProps } from "@adonisjs/inertia/types";
 
 export default function Landing() {
+  const { user, flash } = usePage<SharedProps>().props as unknown as {
+    user?: {
+      id: string;
+      email: string;
+      profile?: {
+        username?: string;
+        displayName?: string;
+      };
+    } | null;
+    flash?: { success?: string; errors?: Record<string, string> };
+  };
+
   return (
     <div className="min-h-screen bg-base-100 text-base-content">
       <Head title="Nooklet — Capture small ideas. Build big momentum." />
 
-      <header className="navbar bg-base-100 border-b border-base-300">
-        <div className="container mx-auto px-6 flex items-center justify-between">
-          <div className="flex-1">
-            <a href="/" className="btn btn-ghost normal-case text-xl">
-              Nooklet
-            </a>
-          </div>
-          <nav className="flex items-center gap-2">
-            <Link href="/rag-test" className="btn btn-ghost btn-sm">
-              RAG Test
-            </Link>
-            <a href="/login" className="btn btn-ghost btn-sm">
-              Log in
-            </a>
-            <a href="/register" className="btn btn-primary btn-sm">
-              Get started
-            </a>
-          </nav>
-        </div>
-      </header>
+      <Navigation user={user} />
 
       <main className="container mx-auto px-6 pt-12 pb-20 grid gap-10">
+        {flash?.success && (
+          <div className="alert alert-success max-w-md mx-auto">
+            <span>{flash.success}</span>
+          </div>
+        )}
         <section className="hero">
           <div className="hero-content text-center">
             <div className="max-w-2xl">

@@ -1,5 +1,6 @@
 import type { HttpContext } from "@adonisjs/core/http";
 import { registerValidator } from "#features/auth/register_validator";
+import { loginValidator } from "#features/auth/validators/login_validator";
 import AuthService from "#features/auth/auth_service";
 
 export default class AuthController {
@@ -30,5 +31,42 @@ export default class AuthController {
 
     session.flash("success", "Registration successful");
     return response.redirect("/register");
+  }
+
+  async showLogin({ inertia }: HttpContext) {
+    return inertia.render("auth/Login");
+  }
+
+  async login({ request, response, session, auth }: HttpContext) {
+    const payload = await request.validateUsing(loginValidator);
+
+    try {
+      const user = await AuthService.login({
+        email: payload.email,
+        password: payload.password,
+      });
+
+      // Create session for the user
+      await auth.use('web').login(user);
+
+      session.flash("success", "Login successful");
+      return response.redirect("/");
+    } catch (error) {
+      if ((error as Error).message === "INVALID_CREDENTIALS") {
+        session.flash("errors", { email: "Invalid email or password" });
+        return response.redirect().back();
+      }
+      if ((error as Error).message === "ACCOUNT_INACTIVE") {
+        session.flash("errors", { email: "Account is inactive" });
+        return response.redirect().back();
+      }
+      throw error;
+    }
+  }
+
+  async logout({ response, session, auth }: HttpContext) {
+    await auth.use('web').logout();
+    session.flash("success", "Logged out successfully");
+    return response.redirect("/");
   }
 }

@@ -9,6 +9,11 @@ export type RegisterData = {
   username?: string;
 };
 
+export type LoginData = {
+  email: string;
+  password: string;
+};
+
 const AuthService = {
   async register({ email, password, username }: RegisterData) {
     const passwordHash = await hash.make(password);
@@ -38,6 +43,31 @@ const AuthService = {
       // Re-throw any other errors
       throw error;
     }
+  },
+
+  async login({ email, password }: LoginData) {
+    // Find user by email
+    const user = await AuthUser.findBy('email', email);
+    if (!user) {
+      throw new Error("INVALID_CREDENTIALS");
+    }
+
+    // Check if account is active
+    if (!user.isActive || user.isArchived) {
+      throw new Error("ACCOUNT_INACTIVE");
+    }
+
+    // Verify password
+    const isValidPassword = await this.verifyPassword(user, password);
+    if (!isValidPassword) {
+      throw new Error("INVALID_CREDENTIALS");
+    }
+
+    return user;
+  },
+
+  async verifyPassword(user: AuthUser, password: string): Promise<boolean> {
+    return await hash.verify(user.passwordHash, password);
   },
 };
 
