@@ -8,6 +8,7 @@
 */
 
 import router from "@adonisjs/core/services/router";
+import { middleware } from "#start/kernel";
 router.on("/").renderInertia("landing");
 
 // Auth — Registration
@@ -49,11 +50,18 @@ router.get("/test-auth", async ({ auth, response }) => {
     });
   }
 });
+// // Home (protected) — alias of Journal
+// router.get("/home", ({ inertia }) => inertia.render("JournalHome")).use(middleware.auth());
+
+// // Redirect /journal -> /home for consistency
+// router.get("/journal", ({ response }) => response.redirect("/home"));
+
 
 
 // RAG Test page (Inertia)
 router.get("/rag-test", ({ inertia }) => inertia.render("rag-test/Index"));
 
+router.get("/home", ({ inertia }) => inertia.render("JournalHome")).use(middleware.auth());
 
 // Test LLM endpoints (no auth)
 router.post("/test/llm/embed-text", [

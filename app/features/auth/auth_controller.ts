@@ -50,7 +50,7 @@ export default class AuthController {
       await auth.use('web').login(user);
 
       session.flash("success", "Login successful");
-      return response.redirect("/");
+      return response.redirect("/home");
     } catch (error) {
       if ((error as Error).message === "INVALID_CREDENTIALS") {
         session.flash("errors", { email: "Invalid email or password" });
