@@ -2,6 +2,7 @@
 /// <reference path="../../config/inertia.ts" />
 
 import '../css/app.css';
+import '../css/editor-theme.scss';
 import { hydrateRoot } from 'react-dom/client'
 import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from '@adonisjs/inertia/helpers'
@@ -21,8 +22,8 @@ createInertiaApp({
   },
 
   setup({ el, App, props }) {
-    
+
     hydrateRoot(el, <App {...props} />)
-    
+
   },
 });

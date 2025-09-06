@@ -11,7 +11,12 @@
 
 import { Env } from '@adonisjs/core/env'
 
-export default await Env.create(new URL('../', import.meta.url), {
+// Resolve .env root for both dev (TS source) and prod (compiled in build/)
+const defaultRoot = new URL('../', import.meta.url); // dev: project root, prod: build/
+const isBuildDir = defaultRoot.pathname.endsWith('/build/');
+const appRoot = isBuildDir ? new URL('../', defaultRoot) : defaultRoot;
+
+export default await Env.create(appRoot, {
   NODE_ENV: Env.schema.enum(['development', 'production', 'test'] as const),
   PORT: Env.schema.number(),
   APP_KEY: Env.schema.string(),

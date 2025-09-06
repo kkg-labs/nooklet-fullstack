@@ -1,0 +1,141 @@
+// Editor Theme SCSS
+// CodeMirror dark theme customizations using existing color palette
+
+// SCSS Variables for editor theming based on existing color palette
+$editor-bg: var(--color-nookb-1000);           // Main background
+$editor-bg-darker: var(--color-navy-950);    // Darker background for gutters
+$editor-bg-lighter: var(--color-nookb-875);  // Slightly lighter for active line
+$editor-border: var(--color-gray-800);       // Border color
+$editor-text: var(--color-slate-100);        // Main text color
+$editor-text-muted: var(--color-slate-400);  // Muted text (line numbers, placeholders)
+$editor-accent: var(--color-nookb-600);      // Primary accent (cursor, selections)
+$editor-accent-hover: var(--color-blue-300); // Hover states
+$editor-accent-light: var(--color-nookb-400); // Lighter accent for highlights
+
+// CodeMirror dark theme background override
+.cm-theme-dark .cm-editor {
+  background-color: $editor-bg !important;
+  color: $editor-text;
+
+  // Ensure the focused state also uses the same background
+  &.cm-focused {
+    background-color: $editor-bg !important;
+  }
+}
+
+// Additional CodeMirror dark theme customizations
+.cm-theme-dark {
+  // Content area
+  .cm-content {
+    background-color: transparent;
+    color: $editor-text;
+    caret-color: $editor-accent;
+  }
+
+  // Gutters (line numbers, fold markers, etc.)
+  .cm-gutters {
+    background-color: $editor-bg-darker;
+    border-right: 1px solid $editor-border;
+    color: $editor-text-muted;
+  }
+
+  // Line numbers
+  .cm-lineNumbers .cm-gutterElement {
+    color: $editor-text-muted;
+  }
+
+  // Active line highlighting
+  .cm-activeLine {
+    background-color: $editor-bg-lighter !important;
+  }
+
+  // Selection
+  .cm-selectionBackground {
+    background-color: color-mix(in oklab, $editor-accent, transparent 70%) !important;
+  }
+
+  // Cursor
+  .cm-cursor {
+    border-left-color: $editor-accent;
+  }
+
+  // Search highlighting
+  .cm-searchMatch {
+    background-color: color-mix(in oklab, $editor-accent-light, transparent 60%);
+    border: 1px solid $editor-accent;
+  }
+
+  .cm-searchMatch.cm-searchMatch-selected {
+    background-color: color-mix(in oklab, $editor-accent, transparent 40%);
+  }
+
+  // Bracket matching
+  .cm-matchingBracket {
+    background-color: color-mix(in oklab, $editor-accent-light, transparent 80%);
+    outline: 1px solid $editor-accent;
+  }
+
+  // Placeholder text
+  .cm-placeholder {
+    color: $editor-text-muted;
+  }
+  // Markdown-specific styling
+  .cm-line {
+    // Headers
+    .cm-header {
+      color: $editor-accent-hover;
+      font-weight: 600;
+    }
+
+    // Bold text
+    .cm-strong {
+      color: color-mix(in oklab, $editor-text, $editor-accent-light 30%);
+      font-weight: 600;
+    }
+
+    // Italic text
+    .cm-emphasis {
+      color: color-mix(in oklab, $editor-text, $editor-accent-light 20%);
+      font-style: italic;
+    }
+
+    // Code spans
+    .cm-monospace {
+      background-color: $editor-bg-lighter;
+      color: var(--color-accent-400);
+      padding: 0.125rem 0.25rem;
+      border-radius: 0.25rem;
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+    }
+
+    // Links
+    .cm-link {
+      color: $editor-accent-hover;
+      text-decoration: underline;
+      text-decoration-color: color-mix(in oklab, $editor-accent-hover, transparent 50%);
+
+      &:hover {
+        text-decoration-color: $editor-accent-hover;
+      }
+    }
+
+    // Lists
+    .cm-list {
+      color: color-mix(in oklab, $editor-text, $editor-accent-light 15%);
+    }
+
+    // Quotes
+    .cm-quote {
+      color: $editor-text-muted;
+      font-style: italic;
+      border-left: 3px solid $editor-border;
+      padding-left: 0.75rem;
+      margin-left: 0.5rem;
+    }
+  }
+}
+
+// Ensure the markdown editor container also matches
+.markdown-editor {
+  background-color: $editor-bg;
+}
