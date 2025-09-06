@@ -2,6 +2,7 @@ import type { HttpContext } from "@adonisjs/core/http";
 import { registerValidator } from "#features/auth/register_validator";
 import { loginValidator } from "#features/auth/validators/login_validator";
 import AuthService from "#features/auth/auth_service";
+import AuthUser from "#features/auth/auth_user";
 
 export default class AuthController {
   async showRegister({ inertia }: HttpContext) {
@@ -16,6 +17,7 @@ export default class AuthController {
         email: payload.email,
         password: payload.password,
         username: payload.username,
+        displayName: payload.displayName,
       });
     } catch (error) {
       if ((error as Error).message === "EMAIL_TAKEN") {
@@ -41,14 +43,8 @@ export default class AuthController {
     const payload = await request.validateUsing(loginValidator);
 
     try {
-      const user = await AuthService.login({
-        email: payload.email,
-        password: payload.password,
-      });
-
-      // Create session for the user
-      await auth.use('web').login(user);
-
+      const user = (await (AuthUser as any).verifyCredentials(payload.email, payload.password)) as any
+      await auth.use('web').login(user as any)
       session.flash("success", "Login successful");
       return response.redirect("/home");
     } catch (error) {

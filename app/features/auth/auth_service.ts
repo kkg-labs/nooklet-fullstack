@@ -7,6 +7,7 @@ export type RegisterData = {
   email: string;
   password: string;
   username?: string;
+  displayName?: string;
 };
 
 export type LoginData = {
@@ -15,17 +16,17 @@ export type LoginData = {
 };
 
 const AuthService = {
-  async register({ email, password, username }: RegisterData) {
-    const passwordHash = await hash.make(password);
-
+  async register({ email, password, username, displayName }: RegisterData) {
     try {
       return await db.transaction(async (trx) => {
-        const user = await AuthUser.create(
-          { email, passwordHash },
-          { client: trx }
-        );
+        const user = new AuthUser()
+        user.email = email
+        ;(user as any).password = password
+        user.useTransaction(trx)
+        await user.save()
+
         await Profile.create(
-          { authUserId: user.id, username: username ?? null },
+          { authUserId: user.id, username: username ?? null, displayName: displayName ?? null },
           { client: trx }
         );
         return user;
@@ -57,8 +58,9 @@ const AuthService = {
       throw new Error("ACCOUNT_INACTIVE");
     }
 
+
     // Verify password
-    const isValidPassword = await this.verifyPassword(user, password);
+    const isValidPassword = await user.verifyPassword(password);
     if (!isValidPassword) {
       throw new Error("INVALID_CREDENTIALS");
     }

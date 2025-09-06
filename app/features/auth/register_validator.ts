@@ -6,6 +6,7 @@ export const registerValidator = vine.compile(
     password: vine.string().minLength(8).maxLength(255),
     password_confirmation: vine.string().sameAs("password"),
     username: vine.string().trim().optional(),
+    displayName: vine.string().trim().optional(),
   })
 );
 
@@ -14,4 +15,5 @@ export type RegisterInput = {
   password: string;
   password_confirmation: string;
   username?: string;
+  displayName?: string;
 };

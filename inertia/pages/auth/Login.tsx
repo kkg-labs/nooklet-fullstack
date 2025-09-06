@@ -40,6 +40,14 @@ export default function Login() {
             </div>
           )}
 
+          {/* Non-field error from server (e.g., E_INVALID_CREDENTIALS) */}
+          {((errors as Record<string, string>)?.E_INVALID_CREDENTIALS) && (
+            <div className="alert alert-error">
+              <span>{(errors as Record<string, string>).E_INVALID_CREDENTIALS}</span>
+            </div>
+          )}
+
+
           <LabeledTextInput
             id="email"
             type="email"
