@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 - Source code is not scaffolded yet. Implementation follows AdonisJS v6 + Inertia (React) per specs in `specs/specs/01-adonisjs-backend-bootstrap-inertiajs-frontend/` (see `design.md`, `tasks.md`, `rules.md`).
-- Documentation lives in `app-docs/` (architecture, PRD) and `specs/` (implementation plan and templates).
+- Documentation now lives in `docs/` for BMAD-generated deliverables (PRD, Architecture, QA, Stories). `specs/` remains for implementation plans and templates. Legacy `app-docs/` has been migrated.
 - Database infra is in `nooklet-db/` (PostgreSQL 17 via Docker Compose).
 - When scaffolding the app, prefer:
   - Backend: `app/features/<feature>/`, `app/models/`, `app/middleware/`
