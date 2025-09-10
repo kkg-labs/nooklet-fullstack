@@ -75,12 +75,13 @@ Make creating and browsing nooklets as quick as jotting a note, but organized, s
 
 ## 9) Out‑of‑Scope (MVP)
 
+- User registration (email/password) and email verification.
+- Voice Recording: Voice nooklet capture with transcription integration.
 - Notifications, comments, rich collaboration, import/export, analytics UI.
 
 ## 10) Functional Requirements
 
 ### 10.1) Authentication & User Management
-- **Registration**: Email/password with email verification
 - **Login/Logout**: Session management with access/refresh tokens
 - **Profile Management**: Username, display name, timezone, privacy preferences
 - **Security**: Rate limiting, password strength validation, secure session handling
@@ -188,7 +189,6 @@ estimated_read_time integer, -- In minutes
 location jsonb, -- GPS coordinates, place names
 is_favorite boolean DEFAULT false,
 is_archived boolean DEFAULT false,
-is_draft boolean DEFAULT false,
 created_at timestamptz DEFAULT now(),
 updated_at timestamptz DEFAULT now(),
 published_at timestamptz
@@ -250,12 +250,22 @@ PRIMARY KEY (nooklet_id, tag_id)
 
 ### Phase 3: Content Management (Weeks 8-10)
 - **Rich Text Editor**: Journal nooklet creation with markdown support
-- **Voice Recording**: Voice nooklet capture with transcription integration
-- **Quick Capture**: Streamlined text input with auto-save functionality
+- **Quick Capture**: The home page markdown editor functions as the primary quick capture mechanism, with immediate saving to the timeline.
 - **Timeline Interface**: Chronological view with filtering and search
-- **Success Criteria**: All three nooklet types fully functional with smooth UX
+- **Widgets UI**: Implement customizable widgets for the home page dashboard.
+- **Success Criteria**: All three nooklet types fully functional with smooth UX, and dashboard widgets are operational.
 
-### Phase 4: Polish & Launch Prep (Weeks 11-12)
+### Phase 4: AI & RAG Integration (Weeks 11-14)
+- **RAG Features**: Implement core Retrieval Augmented Generation capabilities.
+- **Embedding User Data**: Develop mechanisms to embed user-generated content.
+- **Dynamic Embedding Updates**: Ensure embeddings are updated when user data changes.
+- **Graph RAG for Entities**: Integrate graph-based RAG for storing and retrieving entities.
+- **Enhanced Chunking**: Implement advanced chunking strategies using appropriate embedding models.
+- **"Recall Memories" Search**: Develop the AI-powered search feature for saved writings.
+- **Additional AI Features**: Explore and integrate further AI capabilities as identified.
+- **Success Criteria**: Core RAG features are functional, "Recall Memories" search is operational, and embeddings are managed effectively.
+
+### Phase 5: Polish & Launch Prep (Weeks 15-16)
 - **Privacy Controls**: Granular privacy settings and sharing functionality
 - **Performance Optimization**: API response times, frontend bundle optimization
 - **Accessibility Audit**: WCAG AA compliance verification
@@ -308,7 +318,7 @@ PRIMARY KEY (nooklet_id, tag_id)
    - Voice: Record button → real-time transcription → edit transcript
    - Quick Capture: Plain text area with auto-save every 3 seconds
 4. **Metadata Enhancement**: Optional mood logging, location detection, tag suggestions
-5. **Publishing**: Auto-save as draft → explicit publish or auto-publish for quick captures
+5. **Publishing**: Auto-save → immediate display in timeline
 
 **Content Organization Flow**:
 1. **Tagging**: AI-suggested tags based on content analysis + manual tag creation

@@ -18,6 +18,8 @@ Core goals:
     cp .env.example .env
     ```
 
+    **Note:** You will need to add your own `OPENAI_API_KEY` to the `.env` file for embedding and chat API features.
+
 2. Install dependencies:
 
     ```bash

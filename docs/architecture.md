@@ -511,6 +511,29 @@ const entryValidationSchema = schema.create({
 **Connection Transparency:** Clear indication of why connections were made
 **Data Retention:** Configurable retention for AI-generated connections
 
+## External Service Integration
+
+This section outlines the strategy for integrating with third-party services like OpenAI and Qdrant.
+
+### API Key Management
+- **Local Development:** API keys (e.g., `OPENAI_API_KEY`) are managed in the local `.env` file. Developers are responsible for acquiring their own keys for services that require them.
+- **Production:** A proper secret management solution (e.g., Doppler, AWS Secrets Manager, or environment variables in the hosting provider) will be required as part of the production deployment strategy.
+
+### Rate Limiting and Cost Management
+- **Risk:** External APIs have rate limits and costs associated with them. Uncontrolled use can lead to service disruption or unexpected bills.
+- **Mitigation (Future Considerations):**
+    - Implement client-side and server-side caching for API responses where possible.
+    - Add application-level rate limiting for endpoints that call external services.
+    - Implement circuit breakers (e.g., using a library like `opossum`) to prevent repeated calls to a failing service.
+    - Add monitoring and alerting to track API usage and costs.
+
+### Graceful Degradation
+- **Risk:** External services can become unavailable. Features that depend on them will break.
+- **Mitigation Strategy:**
+    - For non-critical features (e.g., AI-powered tag suggestions), the application should fail gracefully. The UI should not crash, and a clear message should be logged or displayed.
+    - For critical features (e.g., voice transcription), the UI should disable the feature and inform the user that the service is temporarily unavailable.
+    - Implement timeouts for all external API calls to prevent long-running requests from tying up server resources.
+
 ## Performance Optimization
 
 Given the front-end specification's demanding performance requirements (<16ms keystroke response, <200ms timeline rendering), here's the comprehensive performance strategy:
@@ -575,6 +598,11 @@ Given the front-end specification's demanding performance requirements (<16ms ke
 **Production Planning:** TBD - will evolve based on needs and scale
 **Database:** PostgreSQL (existing setup)
 **Approach:** Iterative deployment strategy that adapts as requirements become clearer
+
+### Future Production Considerations
+- **DNS & CDN:** A custom domain with a CDN (like Cloudflare or AWS CloudFront) will be required for production to ensure performance and security.
+- **Secret Management:** A robust secret management solution will be needed for production API keys and credentials.
+- **CI/CD Pipeline:** A full CI/CD pipeline will be implemented to automate testing and deployment.
 
 ### AdonisJS Built-in Logging
 **Logger:** AdonisJS built-in Logger with structured logging support

@@ -23,3 +23,4 @@ yarn-error.log
 
 # Platform specific
 .DS_Store
+.augment/rules/byterover-rules.md
