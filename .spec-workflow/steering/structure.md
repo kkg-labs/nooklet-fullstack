@@ -8,7 +8,7 @@
 ```
 nooklet-next/
 ├── app/                    # Backend application code
-├── docs/                  # BMAD-generated project documentation (PRD, Architecture, QA, Stories)
+├── app-docs/              # Project documentation
 ├── config/                # AdonisJS configuration
 ├── database/              # Migrations, factories, seeders
 ├── inertia/               # Frontend React application
@@ -69,7 +69,7 @@ inertia/
 
 **Documentation Structure**
 ```
-docs/
+app-docs/
 ├── PRD.md                    # Product Requirements Document
 ├── backend-architecture.md  # Backend technical details
 ├── frontend-architecture.md # Frontend technical details
@@ -248,19 +248,19 @@ npm run format
 ### Where to Find What
 
 **Product Information**
-- `docs/prd.md` - Product requirements and vision
+- `app-docs/PRD.md` - Product requirements and vision
 - `.spec-workflow/steering/product.md` - Product steering document
 - `specs/specs/*/requirements.md` - Feature-specific requirements
 
 **Technical Information**
-- `docs/architecture/backend-architecture.md` - Backend technical details
-- `docs/architecture/frontend-architecture.md` - Frontend technical details
+- `app-docs/backend-architecture.md` - Backend technical details
+- `app-docs/frontend-architecture.md` - Frontend technical details
 - `.spec-workflow/steering/tech.md` - Technical steering document
 - `specs/specs/*/design.md` - Feature-specific technical design
 
 **Process Information**
 - `.spec-workflow/steering/structure.md` - This document
-- `app-docs/layer-spec-template.md` - SPEC creation template (legacy template, kept for reference)
+- `app-docs/layer-spec-template.md` - SPEC creation template
 - `specs/specs/*/tasks.md` - Implementation task lists
 - `specs/specs/*/sessions/` - Development session notes
 
@@ -298,7 +298,7 @@ npm run format
 
 **Templates and Guidelines**
 - `specs/templates/` - Reusable SPEC templates
-- `app-docs/layer-spec-template.md` - Primary template (legacy template, kept for reference)
+- `app-docs/layer-spec-template.md` - Primary template
 - Guidelines for creating consistent SPECs
 
 ## Team Conventions

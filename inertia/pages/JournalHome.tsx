@@ -74,6 +74,10 @@ export default function JournalHome() {
             <div className="card-body">
               <div className="flex items-center justify-between">
                 <h2 className="card-title">Today’s Journal</h2>
+                <div className="flex items-center gap-2">
+                  <button className="btn btn-outline btn-sm">Save</button>
+                  <button className="btn btn-ghost btn-sm">Share</button>
+                </div>
               </div>
               <div className="mt-2">
                 <MarkdownEditor
