@@ -9,6 +9,7 @@ import Profile from "#features/user/profile";
 
 const AuthFinder = withAuthFinder(() => hash.use("scrypt"), {
   uids: ["email"],
+  // This expects the MODEL PROPERTY name, not the DB column
   passwordColumnName: "passwordHash",
 });
 

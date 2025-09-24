@@ -1,10 +1,8 @@
-import React, { useMemo } from 'react';
+import React, { useMemo } from "react";
 
-import CodeMirror from '@uiw/react-codemirror';
-import { markdown } from '@codemirror/lang-markdown';
+import CodeMirror from "@uiw/react-codemirror";
+import { markdown } from "@codemirror/lang-markdown";
 import { richMarkdown } from "./extensions/richMarkdown";
-
-// Note: Rich Markdoc extension not used here to avoid incorrect import issues
 
 interface MarkdownEditorProps {
   value: string;
@@ -18,54 +16,32 @@ interface MarkdownEditorProps {
   maxHeight?: string;
 }
 
-// Use built-in dark theme provided by @uiw/react-codemirror via "dark" string, and rely on app styles
-const darkTheme: any = 'dark';
-
 const MarkdownEditorBase: React.FC<MarkdownEditorProps> = ({
   value,
   onChange,
-  placeholder = 'Start typing your markdown...',
-  className = '',
+  placeholder = "Start typing your markdown...",
+  className = "",
   disabled = false,
   readOnly = false,
-  height = '300px',
-  minHeight = '200px',
-  maxHeight = '600px',
+  height = "300px",
+  minHeight = "200px",
+  maxHeight = "600px",
 }) => {
-
-
-  // Avoid re-creating expensive objects on every render
   const extensions = useMemo(() => [markdown(), richMarkdown()], []);
 
-  const basicSetup = useMemo(
-    () => ({
-      lineNumbers: false,
-      foldGutter: false,
-      dropCursor: false,
-      allowMultipleSelections: false,
-      indentOnInput: true,
-      bracketMatching: true,
-      closeBrackets: true,
-      autocompletion: true,
-      highlightSelectionMatches: false,
-      searchKeymap: true,
-    }),
-    []
+  const containerStyle = useMemo(
+    () => ({ minHeight, maxHeight }),
+    [minHeight, maxHeight]
   );
 
-  const containerStyle = useMemo(() => ({ minHeight, maxHeight }), [minHeight, maxHeight]);
   const editorStyle = useMemo(
     () => ({
-      fontSize: '14px',
+      fontSize: "14px",
       fontFamily:
         'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
     }),
     []
   );
-
-
-
-
 
   return (
     <div
@@ -73,7 +49,14 @@ const MarkdownEditorBase: React.FC<MarkdownEditorProps> = ({
         markdown-editor
         rounded-lg
         overflow-hidden
-        ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
+        border border-base-200
+        bg-base-100/80
+        transition
+        ${
+          disabled
+            ? "opacity-50 cursor-not-allowed"
+            : "focus-within:border-primary"
+        }
         ${className}
       `}
       style={containerStyle}
@@ -82,20 +65,33 @@ const MarkdownEditorBase: React.FC<MarkdownEditorProps> = ({
         value={value}
         onChange={onChange}
         placeholder={placeholder}
-        theme={darkTheme}
+        theme="dark"
         extensions={extensions}
         editable={!disabled && !readOnly}
         readOnly={readOnly}
         height={height}
         style={editorStyle}
-        basicSetup={basicSetup}
+        basicSetup={{
+          lineNumbers: false,
+          foldGutter: false,
+          dropCursor: false,
+          allowMultipleSelections: false,
+          indentOnInput: true,
+          bracketMatching: true,
+          closeBrackets: true,
+          autocompletion: true,
+          highlightSelectionMatches: false,
+          searchKeymap: true,
+        }}
       />
     </div>
   );
 };
 
-// Prevent unnecessary re-renders if props did not change between parent updates
-const propsAreEqual = (prev: Readonly<MarkdownEditorProps>, next: Readonly<MarkdownEditorProps>) => {
+const propsAreEqual = (
+  prev: Readonly<MarkdownEditorProps>,
+  next: Readonly<MarkdownEditorProps>
+) => {
   return (
     prev.value === next.value &&
     prev.onChange === next.onChange &&

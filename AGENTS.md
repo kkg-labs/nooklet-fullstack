@@ -9,6 +9,9 @@
   - Frontend: `inertia/app/` and `inertia/pages/` (Adonis v6 style) or `resources/js/` (legacy)
   - Migrations: `database/migrations/001_*.ts`, `002_*.ts`, `003_*.ts`
 
+### Additional Structure Rules
+- Avoid single-file subfolders. Do not encapsulate a single file inside a folder like `services/` if there's only one file. Place the file directly under the feature (e.g., `app/features/nooklet/nooklet_service.ts`). Create subfolders only when there are multiple files that clearly belong together.
+
 ## Build, Test, and Development Commands
 - Database: `cd nooklet-db && docker-compose up -d` (uses `.env` for `POSTGRES_*`).
 - Initialize app (once): `npm init adonisjs@latest -- -K=inertia --adapter=react --ssr` (run in a new `app/` dir at repo root).
@@ -34,3 +37,6 @@
 ## Security & Configuration Tips
 - Never commit secrets. Copy app `.env` from `.env.example`. The DB `.env` in `nooklet-db/` is for local only.
 - Use CSRF protection and input validation (VineJS). Prefer UUID PKs and soft-delete as specified in `design.md`.
+
+# Governance (follow strictly)
+- Before you end your message turn, how can we test our changes? if update concerns frontend, follow the Testing Guidelines, use Playwright MCP to access the site and navigate to our changed update. Say "following governance" if you followed this governance.

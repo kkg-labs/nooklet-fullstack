@@ -61,7 +61,12 @@ router.get("/test-auth", async ({ auth, response }) => {
 // RAG Test page (Inertia)
 router.get("/rag-test", ({ inertia }) => inertia.render("rag-test/Index"));
 
-router.get("/home", ({ inertia }) => inertia.render("JournalHome")).use(middleware.auth());
+router
+  .get("/home", [
+    () => import("#features/nooklet/nooklet_controller"),
+    "index",
+  ])
+  .use(middleware.auth());
 
 // Test LLM endpoints (no auth)
 router.post("/test/llm/embed-text", [
@@ -73,3 +78,21 @@ router.post("/test/llm/chat", [
   () => import("#features/ai/llm_test_controller"),
   "chat",
 ]);
+
+router
+  .group(() => {
+    router.post("nooklets", [
+      () => import("#features/nooklet/nooklet_controller"),
+      "store",
+    ]);
+    router.put("nooklets/:id", [
+      () => import("#features/nooklet/nooklet_controller"),
+      "update",
+    ]);
+    router.delete("nooklets/:id", [
+      () => import("#features/nooklet/nooklet_controller"),
+      "destroy",
+    ]);
+  })
+  .prefix("api/v1")
+  .use(middleware.auth());

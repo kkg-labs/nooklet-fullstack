@@ -43,25 +43,39 @@ export default class AuthController {
     const payload = await request.validateUsing(loginValidator);
 
     try {
-      const user = (await (AuthUser as any).verifyCredentials(payload.email, payload.password)) as any
-      await auth.use('web').login(user as any)
-      session.flash("success", "Login successful");
-      return response.redirect("/home");
-    } catch (error) {
-      if ((error as Error).message === "INVALID_CREDENTIALS") {
-        session.flash("errors", { email: "Invalid email or password" });
-        return response.redirect().back();
-      }
-      if ((error as Error).message === "ACCOUNT_INACTIVE") {
+      console.debug("[auth] login attempt", { email: payload.email });
+      const existing = await AuthUser.findBy("email", payload.email);
+      console.debug("[auth] existing?", {
+        found: !!existing,
+        hasHash: existing
+          ? typeof (existing as any).passwordHash === "string" &&
+            (existing as any).passwordHash.startsWith("$scrypt$")
+          : false,
+      });
+      // Verify credentials using the Lucid AuthFinder mixin
+      const user = await AuthUser.verifyCredentials(
+        payload.email,
+        payload.password
+      );
+      console.debug("[auth] verifyCredentials ok", { id: user.id });
+      if (!user.isActive || user.isArchived) {
         session.flash("errors", { email: "Account is inactive" });
         return response.redirect().back();
       }
-      throw error;
+
+      await auth.use("web").login(user);
+      console.debug("[auth] session login ok");
+      session.flash("success", "Login successful");
+      return response.redirect("/home");
+    } catch (error) {
+      console.error("[auth] login failed", { error });
+      session.flash("errors", { email: "Invalid email or password" });
+      return response.redirect().back();
     }
   }
 
   async logout({ response, session, auth }: HttpContext) {
-    await auth.use('web').logout();
+    await auth.use("web").logout();
     session.flash("success", "Logged out successfully");
     return response.redirect("/");
   }
