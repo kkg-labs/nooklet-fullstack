@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Head, usePage } from "@inertiajs/react";
 import type { SharedProps } from "@adonisjs/inertia/types";
 import MarkdownEditor from "../components/editor/MarkdownEditor";
@@ -70,8 +70,14 @@ export default function JournalHome() {
   const [isCreating, setIsCreating] = useState(false);
 
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editContent, setEditContent] = useState("");
+  const [editContent, setEditContentState] = useState("");
+  const [editCursor, setEditCursor] = useState<number | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
+
+  const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [pendingAutoSave, setPendingAutoSave] = useState(false);
+  const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
+  const [autoSaveError, setAutoSaveError] = useState<string | null>(null);
 
   const [archiveId, setArchiveId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -80,25 +86,23 @@ export default function JournalHome() {
     setEntries(initialNooklets);
   }, [initialNooklets]);
 
-  const greeting = useMemo(() => {
-    const hour = new Date().getHours();
-    if (hour < 12) return "Good morning";
-    if (hour < 18) return "Good afternoon";
-    return "Good evening";
+  const clearAutoSaveTimer = useCallback(() => {
+    if (autoSaveTimerRef.current) {
+      clearTimeout(autoSaveTimerRef.current);
+      autoSaveTimerRef.current = null;
+    }
   }, []);
 
-  const displayName = useMemo(() => {
-    return (
-      user?.profile?.displayName ||
-      user?.profile?.username ||
-      user?.email ||
-      "Friend"
-    );
-  }, [user]);
-
-  const canSubmitNew = useMemo(() => {
-    return newContent.trim().length > 0 && !isCreating;
-  }, [newContent, isCreating]);
+  const resetEditingState = useCallback(() => {
+    clearAutoSaveTimer();
+    setEditingId(null);
+    setEditContentState("");
+    setEditCursor(null);
+    setPendingAutoSave(false);
+    setIsUpdating(false);
+    setLastSavedAt(null);
+    setAutoSaveError(null);
+  }, [clearAutoSaveTimer]);
 
   const requestJson = useCallback(async (url: string, init: RequestInit) => {
     const headers: Record<string, string> = {
@@ -134,6 +138,153 @@ export default function JournalHome() {
     return data as { data: SerializedNooklet };
   }, []);
 
+  const handleEditContentChange = useCallback((value: string) => {
+    setEditContentState((previous) => {
+      if (previous === value) {
+        return previous;
+      }
+      setPendingAutoSave(true);
+      setLastSavedAt(null);
+      setAutoSaveError(null);
+      return value;
+    });
+    setActionError(null);
+  }, []);
+
+  const flushAutoSave = useCallback(
+    async (force = false) => {
+      if (!editingId) {
+        return false;
+      }
+
+      const entry = entries.find((item) => item.id === editingId);
+      if (!entry) {
+        return false;
+      }
+
+      clearAutoSaveTimer();
+
+      if (!force && !pendingAutoSave) {
+        return false;
+      }
+
+      const nextContent = editContent.trim();
+      const currentContent = (entry.content ?? "").trim();
+
+      if (nextContent === currentContent) {
+        setPendingAutoSave(false);
+        setAutoSaveError(null);
+        if (force) {
+          setLastSavedAt(entry.updatedAt ?? entry.createdAt ?? null);
+        }
+        return true;
+      }
+
+      if (isUpdating) {
+        return false;
+      }
+
+      setIsUpdating(true);
+      setActionError(null);
+
+      try {
+        const json = await requestJson(`/api/v1/nooklets/${editingId}`, {
+          method: "PUT",
+          body: JSON.stringify({
+            content: nextContent,
+            type: entry.type || DEFAULT_TYPE,
+          }),
+        });
+
+        setEntries((current) =>
+          current.map((item) => (item.id === editingId ? json.data : item))
+        );
+        setEditContentState(json.data.content ?? nextContent);
+        setLastSavedAt(json.data.updatedAt ?? new Date().toISOString());
+        setPendingAutoSave(false);
+        setIsUpdating(false);
+        setAutoSaveError(null);
+        return true;
+      } catch (error) {
+        setActionError((error as Error).message);
+        setIsUpdating(false);
+        setPendingAutoSave(true);
+        setAutoSaveError((error as Error).message);
+        return false;
+      }
+    },
+    [
+      clearAutoSaveTimer,
+      editContent,
+      editingId,
+      entries,
+      isUpdating,
+      pendingAutoSave,
+      requestJson,
+    ]
+  );
+
+  const finishEditing = useCallback(async () => {
+    if (!editingId) {
+      return;
+    }
+
+    const saved = await flushAutoSave(true);
+    if (!saved) {
+      return;
+    }
+
+    resetEditingState();
+  }, [editingId, flushAutoSave, resetEditingState]);
+
+  useEffect(() => {
+    if (!editingId || !pendingAutoSave) {
+      clearAutoSaveTimer();
+      return;
+    }
+
+    if (isUpdating) {
+      return;
+    }
+
+    clearAutoSaveTimer();
+
+    autoSaveTimerRef.current = setTimeout(() => {
+      void flushAutoSave();
+    }, 2000);
+
+    return () => {
+      clearAutoSaveTimer();
+    };
+  }, [
+    clearAutoSaveTimer,
+    editContent,
+    editingId,
+    flushAutoSave,
+    isUpdating,
+    pendingAutoSave,
+  ]);
+
+  const greeting = useMemo(() => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good morning";
+    if (hour < 18) return "Good afternoon";
+    return "Good evening";
+  }, []);
+
+  const displayName = useMemo(() => {
+    return (
+      user?.profile?.displayName ||
+      user?.profile?.username ||
+      user?.email ||
+      "Friend"
+    );
+  }, [user]);
+
+  const canSubmitNew = useMemo(() => {
+    return newContent.trim().length > 0 && !isCreating;
+  }, [newContent, isCreating]);
+
   const handleCreate = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
@@ -164,59 +315,25 @@ export default function JournalHome() {
     [canSubmitNew, newContent, requestJson]
   );
 
-  const beginEdit = useCallback((entry: SerializedNooklet) => {
-    setEditingId(entry.id);
-    setEditContent(entry.content);
-    setActionError(null);
-  }, []);
-
-  const cancelEdit = useCallback(() => {
-    setEditingId(null);
-    setEditContent("");
-    setIsUpdating(false);
-  }, []);
-
-  const handleUpdate = useCallback(
-    async (entryId: string) => {
-      const entry = entries.find((item) => item.id === entryId);
-      if (!entry) {
-        return;
-      }
-
-      const nextContent = editContent.trim();
-      const payload: Record<string, unknown> = {};
-
-      if (nextContent !== entry.content.trim()) {
-        payload.content = nextContent;
-      }
-
-      if (Object.keys(payload).length === 0) {
-        cancelEdit();
-        return;
-      }
-
-      payload.type = entry.type || DEFAULT_TYPE;
-
-      setIsUpdating(true);
+  const beginEdit = useCallback(
+    (
+      entry: SerializedNooklet,
+      cursor: number | null = null,
+      contentOverride?: string
+    ) => {
+      clearAutoSaveTimer();
+      setEditingId(entry.id);
+      const sourceContent = contentOverride ?? entry.content;
+      setEditContentState(sourceContent);
+      const fallbackCursor = cursor ?? sourceContent.length;
+      setEditCursor(fallbackCursor);
+      setPendingAutoSave(false);
+      setIsUpdating(false);
       setActionError(null);
-
-      try {
-        const json = await requestJson(`/api/v1/nooklets/${entryId}`, {
-          method: "PUT",
-          body: JSON.stringify(payload),
-        });
-
-        setEntries((current) =>
-          current.map((item) => (item.id === entryId ? json.data : item))
-        );
-        cancelEdit();
-      } catch (error) {
-        setActionError((error as Error).message);
-      } finally {
-        setIsUpdating(false);
-      }
+      setLastSavedAt(entry.updatedAt ?? entry.createdAt ?? null);
+      setAutoSaveError(null);
     },
-    [cancelEdit, editContent, entries, requestJson]
+    [clearAutoSaveTimer]
   );
 
   const handleArchive = useCallback(
@@ -233,13 +350,16 @@ export default function JournalHome() {
           body: JSON.stringify({}),
         });
         setEntries((current) => current.filter((item) => item.id !== entryId));
+        if (editingId === entryId) {
+          resetEditingState();
+        }
       } catch (error) {
         setActionError((error as Error).message);
       } finally {
         setArchiveId(null);
       }
     },
-    [archiveId, requestJson]
+    [archiveId, editingId, requestJson, resetEditingState]
   );
 
   return (
@@ -316,7 +436,7 @@ export default function JournalHome() {
           </div>
         ) : null}
 
-        <div className="grid gap-6">
+        <div className="flex flex-col gap-6">
           {entries.length === 0 ? (
             <div className="card border border-dashed border-nookb-800 bg-nookb-1000/60">
               <div className="card-body items-center text-center text-nookb-400">
@@ -329,11 +449,29 @@ export default function JournalHome() {
               const isEditing = editingId === entry.id;
               const createdLabel = formatDateTime(entry.createdAt);
               const updatedLabel = formatDateTime(entry.updatedAt);
+              const autoSaveStatus = (() => {
+                if (!isEditing) {
+                  return null;
+                }
+                if (autoSaveError) {
+                  return `Error saving: ${autoSaveError}`;
+                }
+                if (isUpdating) {
+                  return "Saving...";
+                }
+                if (pendingAutoSave) {
+                  return "Unsaved changes";
+                }
+                if (lastSavedAt) {
+                  return `Saved ${formatDateTime(lastSavedAt)}`;
+                }
+                return "All changes saved";
+              })();
 
               return (
                 <div
                   key={entry.id}
-                  className="card card-bordered bg-nookb-1000"
+                  className="card card-bordered bg-nookb-1000 w-full"
                 >
                   <div className="card-body gap-4">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -356,46 +494,32 @@ export default function JournalHome() {
                         </div>
                       </div>
 
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
                         {isEditing ? (
-                          <>
-                            <button
-                              type="button"
-                              className="btn btn-success btn-sm"
-                              onClick={() => handleUpdate(entry.id)}
-                              disabled={isUpdating}
+                          autoSaveStatus ? (
+                            <span
+                              className={`text-xs ${
+                                autoSaveError
+                                  ? "text-error"
+                                  : isUpdating
+                                  ? "text-nookb-200"
+                                  : "text-nookb-400"
+                              }`}
                             >
-                              {isUpdating ? "Saving..." : "Save"}
-                            </button>
-                            <button
-                              type="button"
-                              className="btn btn-ghost btn-sm"
-                              onClick={cancelEdit}
-                              disabled={isUpdating}
-                            >
-                              Cancel
-                            </button>
-                          </>
+                              {autoSaveStatus}
+                            </span>
+                          ) : null
                         ) : (
-                          <>
-                            <button
-                              type="button"
-                              className="btn btn-outline btn-sm"
-                              onClick={() => beginEdit(entry)}
-                            >
-                              Edit
-                            </button>
-                            <button
-                              type="button"
-                              className="btn btn-ghost btn-sm"
-                              onClick={() => handleArchive(entry.id)}
-                              disabled={archiveId === entry.id}
-                            >
-                              {archiveId === entry.id
-                                ? "Archiving..."
-                                : "Archive"}
-                            </button>
-                          </>
+                          <button
+                            type="button"
+                            className="btn btn-ghost btn-sm"
+                            onClick={() => handleArchive(entry.id)}
+                            disabled={archiveId === entry.id}
+                          >
+                            {archiveId === entry.id
+                              ? "Archiving..."
+                              : "Archive"}
+                          </button>
                         )}
                       </div>
                     </div>
@@ -404,15 +528,22 @@ export default function JournalHome() {
                       {isEditing ? (
                         <MarkdownEditor
                           value={editContent}
-                          onChange={setEditContent}
-                          height="260px"
-                          minHeight="200px"
-                          maxHeight="400px"
+                          onChange={handleEditContentChange}
+                          onBlur={() => {
+                            void finishEditing();
+                          }}
+                          autoFocus
+                          unstyledContainer
+                          className="rounded-lg border border-base-200 bg-base-100/80 p-4 transition"
+                          cursorPosition={editCursor}
                         />
                       ) : (
                         <MarkdownPreview
                           value={entry.content}
-                          className="rounded-lg border border-nookb-900/40 bg-nookb-900/60 p-4"
+                          className="rounded-lg border border-base-200 bg-base-100/80 p-4 transition cursor-text"
+                          onClick={(event, cursor, value) =>
+                            beginEdit(entry, cursor, value)
+                          }
                         />
                       )}
                     </div>

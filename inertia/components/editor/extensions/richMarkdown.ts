@@ -1,5 +1,11 @@
 import { Extension, RangeSetBuilder } from "@codemirror/state";
-import { Decoration, DecorationSet, EditorView, ViewPlugin, ViewUpdate } from "@codemirror/view";
+import {
+  Decoration,
+  DecorationSet,
+  EditorView,
+  ViewPlugin,
+  ViewUpdate,
+} from "@codemirror/view";
 
 // Prototype rich markdown rendering using decorations
 // - Hides header markers (# ... ) and bold markers (**...**)
@@ -17,6 +23,7 @@ function buildDecorations(view: EditorView): DecorationSet {
 
   // Inline rules
   const boldRE = /\*\*(.+?)\*\*/g;
+  const italicStarRE = /(?<!\*)\*(?!\*)([^*\n]+?)(?<!\*)\*(?!\*)/g; // single * emphasis
   const strikeRE = /~~([^~\n]+)~~/g;
   const codeRE = /`([^`\n]+)`/g;
   const italicUsRE = /_([^_\n]+)_/g; // underscore emphasis
@@ -34,15 +41,26 @@ function buildDecorations(view: EditorView): DecorationSet {
       const hashes = hm[1];
       const level = Math.min(hashes.length, 6);
       const prefixLen = hashes.length + 1; // hashes + space
+      const isPreview = view.state.facet(EditorView.editable) === false;
       const onLine = cursorPos >= line.from && cursorPos <= line.to;
 
-      // Add line decoration for font sizing
-      builder.add(line.from, line.from, Decoration.line({ class: `cm-rm-h${level}-line` }));
+      builder.add(
+        line.from,
+        line.from,
+        Decoration.line({ class: `cm-rm-h${level}-line` })
+      );
 
-      if (!onLine) {
-        // Hide leading #'s and following space (mark decorations in order)
-        builder.add(line.from, line.from + hashes.length, Decoration.mark({ class: "cm-rm-marker" }));
-        builder.add(line.from + hashes.length, line.from + prefixLen, Decoration.mark({ class: "cm-rm-marker" }));
+      if (isPreview || !onLine) {
+        builder.add(
+          line.from,
+          line.from + hashes.length,
+          Decoration.mark({ class: "cm-rm-marker" })
+        );
+        builder.add(
+          line.from + hashes.length,
+          line.from + prefixLen,
+          Decoration.mark({ class: "cm-rm-marker" })
+        );
       }
     }
 
@@ -53,9 +71,17 @@ function buildDecorations(view: EditorView): DecorationSet {
       const prefixLen = prefix.length;
       const onLine = cursorPos >= line.from && cursorPos <= line.to;
       if (!onLine) {
-        builder.add(line.from, line.from + prefixLen, Decoration.mark({ class: "cm-rm-marker" }));
+        builder.add(
+          line.from,
+          line.from + prefixLen,
+          Decoration.mark({ class: "cm-rm-marker" })
+        );
       }
-      builder.add(line.from + prefixLen, line.to, Decoration.mark({ class: "cm-rm-quote" }));
+      builder.add(
+        line.from + prefixLen,
+        line.to,
+        Decoration.mark({ class: "cm-rm-quote" })
+      );
     }
 
     // Unordered list: - or * (always show markers - they're essential)
@@ -64,7 +90,11 @@ function buildDecorations(view: EditorView): DecorationSet {
       const prefix = um[1];
       const prefixLen = prefix.length;
       // Don't hide list markers - they're essential for structure
-      builder.add(line.from + prefixLen, line.to, Decoration.mark({ class: "cm-rm-list" }));
+      builder.add(
+        line.from + prefixLen,
+        line.to,
+        Decoration.mark({ class: "cm-rm-list" })
+      );
     }
 
     // Ordered list: 1. 2. ... (always show markers - they're essential)
@@ -73,12 +103,20 @@ function buildDecorations(view: EditorView): DecorationSet {
       const prefix = om[1];
       const prefixLen = prefix.length;
       // Don't hide list markers - they're essential for structure
-      builder.add(line.from + prefixLen, line.to, Decoration.mark({ class: "cm-rm-olist" }));
+      builder.add(
+        line.from + prefixLen,
+        line.to,
+        Decoration.mark({ class: "cm-rm-olist" })
+      );
     }
 
     // Inline patterns (multiple per line) -----------------------------
     // Collect all inline decorations first, then sort by position
-    const inlineDecorations: Array<{ from: number; to: number; decoration: Decoration }> = [];
+    const inlineDecorations: Array<{
+      from: number;
+      to: number;
+      decoration: Decoration;
+    }> = [];
 
     const collectInline = (re: RegExp, markerLen: number, cls: string) => {
       re.lastIndex = 0;
@@ -90,19 +128,32 @@ function buildDecorations(view: EditorView): DecorationSet {
         const innerStart = start + markerLen;
         const innerEnd = innerStart + inner.length;
         const end = start + full.length;
+        const isPreview = view.state.facet(EditorView.editable) === false;
         const cursorInToken = cursorPos >= start && cursorPos <= end;
 
-        if (!cursorInToken) {
-          // Hide markers when cursor not within token range
-          inlineDecorations.push({ from: start, to: innerStart, decoration: Decoration.mark({ class: "cm-rm-marker" }) });
-          inlineDecorations.push({ from: innerEnd, to: end, decoration: Decoration.mark({ class: "cm-rm-marker" }) });
+        if (isPreview || !cursorInToken) {
+          inlineDecorations.push({
+            from: start,
+            to: innerStart,
+            decoration: Decoration.mark({ class: "cm-rm-marker" }),
+          });
+          inlineDecorations.push({
+            from: innerEnd,
+            to: end,
+            decoration: Decoration.mark({ class: "cm-rm-marker" }),
+          });
         }
-        inlineDecorations.push({ from: innerStart, to: innerEnd, decoration: Decoration.mark({ class: cls }) });
+        inlineDecorations.push({
+          from: innerStart,
+          to: innerEnd,
+          decoration: Decoration.mark({ class: cls }),
+        });
       }
     };
 
     // Collect all inline decorations
     collectInline(boldRE, 2, "cm-rm-bold");
+    collectInline(italicStarRE, 1, "cm-rm-italic");
     collectInline(strikeRE, 2, "cm-rm-strike");
     collectInline(codeRE, 1, "cm-rm-code");
     collectInline(italicUsRE, 1, "cm-rm-italic");
@@ -125,7 +176,11 @@ export function richMarkdown(): Extension {
         this.decorations = buildDecorations(view);
       }
       update(update: ViewUpdate) {
-        if (update.docChanged || update.viewportChanged || update.selectionSet) {
+        if (
+          update.docChanged ||
+          update.viewportChanged ||
+          update.selectionSet
+        ) {
           this.decorations = buildDecorations(update.view);
         }
       }
@@ -176,7 +231,8 @@ export function richMarkdown(): Extension {
       fontStyle: "italic",
     },
     ".cm-rm-code": {
-      fontFamily: "ui-monospace, SFMono-Regular, SF Mono, Consolas, Liberation Mono, Menlo, monospace",
+      fontFamily:
+        "ui-monospace, SFMono-Regular, SF Mono, Consolas, Liberation Mono, Menlo, monospace",
       backgroundColor: "rgba(255,255,255,0.08)",
       padding: "0.125rem 0.25rem",
       borderRadius: "0.25rem",
@@ -196,16 +252,40 @@ export function richMarkdown(): Extension {
     },
     ".cm-rm-olist": {
       // keep default typography
-    }
+    },
   });
 
   const headerLineTheme = EditorView.baseTheme({
-    ".cm-line.cm-rm-h1-line": { fontSize: "1.875rem", fontWeight: "700", lineHeight: "2.25rem" },
-    ".cm-line.cm-rm-h2-line": { fontSize: "1.5rem", fontWeight: "700", lineHeight: "2rem" },
-    ".cm-line.cm-rm-h3-line": { fontSize: "1.25rem", fontWeight: "700", lineHeight: "1.75rem" },
-    ".cm-line.cm-rm-h4-line": { fontSize: "1.125rem", fontWeight: "700", lineHeight: "1.75rem" },
-    ".cm-line.cm-rm-h5-line": { fontSize: "1rem", fontWeight: "700", lineHeight: "1.5rem" },
-    ".cm-line.cm-rm-h6-line": { fontSize: "0.875rem", fontWeight: "700", lineHeight: "1.25rem" },
+    ".cm-line.cm-rm-h1-line": {
+      fontSize: "1.875rem",
+      fontWeight: "700",
+      lineHeight: "2.25rem",
+    },
+    ".cm-line.cm-rm-h2-line": {
+      fontSize: "1.5rem",
+      fontWeight: "700",
+      lineHeight: "2rem",
+    },
+    ".cm-line.cm-rm-h3-line": {
+      fontSize: "1.25rem",
+      fontWeight: "700",
+      lineHeight: "1.75rem",
+    },
+    ".cm-line.cm-rm-h4-line": {
+      fontSize: "1.125rem",
+      fontWeight: "700",
+      lineHeight: "1.75rem",
+    },
+    ".cm-line.cm-rm-h5-line": {
+      fontSize: "1rem",
+      fontWeight: "700",
+      lineHeight: "1.5rem",
+    },
+    ".cm-line.cm-rm-h6-line": {
+      fontSize: "0.875rem",
+      fontWeight: "700",
+      lineHeight: "1.25rem",
+    },
   });
 
   return [plugin, baseTheme, headerLineTheme];

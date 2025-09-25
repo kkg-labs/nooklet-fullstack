@@ -5,7 +5,6 @@ import NookletService, {
   type CreateNookletPayload,
   type UpdateNookletPayload,
 } from "#features/nooklet/nooklet_service";
-import Profile from "#features/user/profile";
 import {
   createNookletValidator,
   updateNookletValidator,

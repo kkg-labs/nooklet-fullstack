@@ -57,6 +57,8 @@ $editor-accent-light: var(--color-nookb-400); // Lighter accent for highlights
   // Cursor
   .cm-cursor {
     border-left-color: $editor-accent;
+    // Make caret a bit wider like common editors
+    border-left-width: 2px;
   }
 
   // Search highlighting

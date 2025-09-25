@@ -89,7 +89,7 @@ const NookletService = {
     payload: CreateNookletPayload,
     options: ServiceOptions = {}
   ): Promise<Nooklet> {
-    const { wordCount, estimatedReadTime } = computeWordStats(payload.content);
+    const { wordCount } = computeWordStats(payload.content);
 
     const nooklet = await Nooklet.create(
       {
@@ -102,7 +102,6 @@ const NookletService = {
         isDraft: payload.isDraft ?? false,
         isFavorite: payload.isFavorite ?? false,
         wordCount,
-        // omit estimatedReadTime for now
         publishedAt: payload.publishedAt ?? null,
       },
       { client: options.client }
@@ -136,9 +135,7 @@ const NookletService = {
 
     if (payload.content !== undefined) {
       nooklet.content = payload.content;
-      const { wordCount, estimatedReadTime } = computeWordStats(
-        payload.content
-      );
+      const { wordCount } = computeWordStats(payload.content);
       nooklet.wordCount = wordCount;
     }
 
