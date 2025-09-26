@@ -1,21 +1,21 @@
-import { expect, Page } from "@playwright/test";
+import { expect, Page } from '@playwright/test';
 
 // Simple navigation helper
 export async function gotoJournal(page: Page) {
-  await page.goto("/home");
-  if (page.url().includes("/login")) {
+  await page.goto('/home');
+  if (page.url().includes('/login')) {
     throw new Error(
-      "Journal page is protected. Please ensure the test user is logged in or provide a login helper.",
+      'Journal page is protected. Please ensure the test user is logged in or provide a login helper.',
     );
   }
-  await expect(page.locator(".cm-editor")).toBeVisible();
+  await expect(page.locator('.cm-editor')).toBeVisible();
 }
 
 // CodeMirror 6 native API helpers - leverages built-in dispatch, selection, and Text APIs
 
 export async function setCursorPosition(page: Page, pos: number) {
   await page.evaluate((position: number) => {
-    const editorElement = document.querySelector(".cm-editor") as any;
+    const editorElement = document.querySelector('.cm-editor') as any;
     const view = editorElement?.cmView;
     if (view) {
       view.dispatch({
@@ -27,7 +27,7 @@ export async function setCursorPosition(page: Page, pos: number) {
 
 export async function setCursorToLineStart(page: Page, lineNumber: number) {
   await page.evaluate((line: number) => {
-    const editorElement = document.querySelector(".cm-editor") as any;
+    const editorElement = document.querySelector('.cm-editor') as any;
     const view = editorElement?.cmView;
     if (view) {
       const doc = view.state.doc;
@@ -42,7 +42,7 @@ export async function setCursorToLineStart(page: Page, lineNumber: number) {
 export async function selectRange(page: Page, from: number, to: number) {
   await page.evaluate(
     (params: { from: number; to: number }) => {
-      const editorElement = document.querySelector(".cm-editor") as any;
+      const editorElement = document.querySelector('.cm-editor') as any;
       const view = editorElement?.cmView;
       if (view) {
         // Use CodeMirror's built-in EditorSelection.range API
@@ -60,20 +60,20 @@ export async function getLineText(
   lineNumber: number,
 ): Promise<string> {
   return await page.evaluate((line: number) => {
-    const editorElement = document.querySelector(".cm-editor") as any;
+    const editorElement = document.querySelector('.cm-editor') as any;
     const view = editorElement?.cmView;
     if (view) {
       // Use CodeMirror's built-in Text.line API
       const doc = view.state.doc;
       return doc.line(line).text;
     }
-    return "";
+    return '';
   }, lineNumber);
 }
 
 export async function getCursorPosition(page: Page): Promise<number> {
   return await page.evaluate(() => {
-    const editorElement = document.querySelector(".cm-editor") as any;
+    const editorElement = document.querySelector('.cm-editor') as any;
     const view = editorElement?.cmView;
     if (view) {
       // Use CodeMirror's built-in EditorSelection.main API
@@ -90,7 +90,7 @@ export async function hasHiddenMarkers(
   return await page.evaluate((line: number) => {
     const lineElement = document.querySelector(`.cm-line:nth-child(${line})`);
     if (!lineElement) return false;
-    const markers = lineElement.querySelectorAll(".cm-rm-marker");
+    const markers = lineElement.querySelectorAll('.cm-rm-marker');
     return markers.length > 0;
   }, lineNumber);
 }
@@ -110,7 +110,7 @@ export async function getLineStartPosition(
   lineNumber: number,
 ): Promise<number> {
   return await page.evaluate((line: number) => {
-    const editorElement = document.querySelector(".cm-editor") as any;
+    const editorElement = document.querySelector('.cm-editor') as any;
     const view = (editorElement as any)?.cmView;
     if (view) {
       const doc = view.state.doc;

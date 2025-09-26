@@ -20,4 +20,3 @@ export interface ChatResponse {
   retrieved?: number;
   error?: string;
 }
-

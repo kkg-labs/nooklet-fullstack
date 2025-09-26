@@ -1,11 +1,11 @@
-import { Extension, RangeSetBuilder } from "@codemirror/state";
+import { Extension, RangeSetBuilder } from '@codemirror/state';
 import {
   Decoration,
   DecorationSet,
   EditorView,
   ViewPlugin,
   ViewUpdate,
-} from "@codemirror/view";
+} from '@codemirror/view';
 
 // Prototype rich markdown rendering using decorations
 // - Hides header markers (# ... ) and bold markers (**...**)
@@ -60,12 +60,12 @@ function buildDecorations(view: EditorView): DecorationSet {
         builder.add(
           line.from,
           line.from + hashes.length,
-          Decoration.mark({ class: "cm-rm-marker" }),
+          Decoration.mark({ class: 'cm-rm-marker' }),
         );
         builder.add(
           line.from + hashes.length,
           line.from + prefixLen,
-          Decoration.mark({ class: "cm-rm-marker" }),
+          Decoration.mark({ class: 'cm-rm-marker' }),
         );
       }
     }
@@ -81,13 +81,13 @@ function buildDecorations(view: EditorView): DecorationSet {
         builder.add(
           line.from,
           line.from + prefixLen,
-          Decoration.mark({ class: "cm-rm-marker" }),
+          Decoration.mark({ class: 'cm-rm-marker' }),
         );
       }
       builder.add(
         line.from + prefixLen,
         line.to,
-        Decoration.mark({ class: "cm-rm-quote" }),
+        Decoration.mark({ class: 'cm-rm-quote' }),
       );
     }
 
@@ -100,7 +100,7 @@ function buildDecorations(view: EditorView): DecorationSet {
       builder.add(
         line.from + prefixLen,
         line.to,
-        Decoration.mark({ class: "cm-rm-list" }),
+        Decoration.mark({ class: 'cm-rm-list' }),
       );
     }
 
@@ -113,7 +113,7 @@ function buildDecorations(view: EditorView): DecorationSet {
       builder.add(
         line.from + prefixLen,
         line.to,
-        Decoration.mark({ class: "cm-rm-olist" }),
+        Decoration.mark({ class: 'cm-rm-olist' }),
       );
     }
 
@@ -144,12 +144,12 @@ function buildDecorations(view: EditorView): DecorationSet {
           inlineDecorations.push({
             from: start,
             to: innerStart,
-            decoration: Decoration.mark({ class: "cm-rm-marker" }),
+            decoration: Decoration.mark({ class: 'cm-rm-marker' }),
           });
           inlineDecorations.push({
             from: innerEnd,
             to: end,
-            decoration: Decoration.mark({ class: "cm-rm-marker" }),
+            decoration: Decoration.mark({ class: 'cm-rm-marker' }),
           });
         }
         inlineDecorations.push({
@@ -161,11 +161,11 @@ function buildDecorations(view: EditorView): DecorationSet {
     };
 
     // Collect all inline decorations
-    collectInline(boldRE, 2, "cm-rm-bold");
-    collectInline(italicStarRE, 1, "cm-rm-italic");
-    collectInline(strikeRE, 2, "cm-rm-strike");
-    collectInline(codeRE, 1, "cm-rm-code");
-    collectInline(italicUsRE, 1, "cm-rm-italic");
+    collectInline(boldRE, 2, 'cm-rm-bold');
+    collectInline(italicStarRE, 1, 'cm-rm-italic');
+    collectInline(strikeRE, 2, 'cm-rm-strike');
+    collectInline(codeRE, 1, 'cm-rm-code');
+    collectInline(italicUsRE, 1, 'cm-rm-italic');
 
     // Sort and add inline decorations
     inlineDecorations.sort((a, b) => a.from - b.from || a.to - b.to);
@@ -200,100 +200,100 @@ export function richMarkdown(): Extension {
   );
 
   const baseTheme = EditorView.baseTheme({
-    ".cm-rm-marker": {
-      display: "none",
+    '.cm-rm-marker': {
+      display: 'none',
     },
-    ".cm-rm-bold": {
-      fontWeight: "700",
+    '.cm-rm-bold': {
+      fontWeight: '700',
     },
-    ".cm-rm-h1": {
-      fontSize: "1.875rem", // text-3xl
-      fontWeight: "700",
-      lineHeight: "2.25rem",
+    '.cm-rm-h1': {
+      fontSize: '1.875rem', // text-3xl
+      fontWeight: '700',
+      lineHeight: '2.25rem',
     },
-    ".cm-rm-h2": {
-      fontSize: "1.5rem", // text-2xl
-      fontWeight: "700",
-      lineHeight: "2rem",
+    '.cm-rm-h2': {
+      fontSize: '1.5rem', // text-2xl
+      fontWeight: '700',
+      lineHeight: '2rem',
     },
-    ".cm-rm-h3": {
-      fontSize: "1.25rem", // text-xl
-      fontWeight: "700",
-      lineHeight: "1.75rem",
+    '.cm-rm-h3': {
+      fontSize: '1.25rem', // text-xl
+      fontWeight: '700',
+      lineHeight: '1.75rem',
     },
-    ".cm-rm-h4": {
-      fontSize: "1.125rem", // text-lg
-      fontWeight: "700",
-      lineHeight: "1.75rem",
+    '.cm-rm-h4': {
+      fontSize: '1.125rem', // text-lg
+      fontWeight: '700',
+      lineHeight: '1.75rem',
     },
-    ".cm-rm-h5": {
-      fontSize: "1rem", // text-base
-      fontWeight: "700",
-      lineHeight: "1.5rem",
+    '.cm-rm-h5': {
+      fontSize: '1rem', // text-base
+      fontWeight: '700',
+      lineHeight: '1.5rem',
     },
-    ".cm-rm-h6": {
-      fontSize: "0.875rem", // text-sm
-      fontWeight: "700",
-      lineHeight: "1.25rem",
+    '.cm-rm-h6': {
+      fontSize: '0.875rem', // text-sm
+      fontWeight: '700',
+      lineHeight: '1.25rem',
     },
-    ".cm-rm-italic": {
-      fontStyle: "italic",
+    '.cm-rm-italic': {
+      fontStyle: 'italic',
     },
-    ".cm-rm-code": {
+    '.cm-rm-code': {
       fontFamily:
-        "ui-monospace, SFMono-Regular, SF Mono, Consolas, Liberation Mono, Menlo, monospace",
-      backgroundColor: "rgba(255,255,255,0.08)",
-      padding: "0.125rem 0.25rem",
-      borderRadius: "0.25rem",
+        'ui-monospace, SFMono-Regular, SF Mono, Consolas, Liberation Mono, Menlo, monospace',
+      backgroundColor: 'rgba(255,255,255,0.08)',
+      padding: '0.125rem 0.25rem',
+      borderRadius: '0.25rem',
     },
-    ".cm-rm-strike": {
-      textDecoration: "line-through",
+    '.cm-rm-strike': {
+      textDecoration: 'line-through',
       opacity: 0.85,
     },
-    ".cm-rm-quote": {
-      fontStyle: "italic",
+    '.cm-rm-quote': {
+      fontStyle: 'italic',
       opacity: 0.9,
-      borderLeft: "3px solid var(--brand-accent, #3b82f6)",
-      paddingLeft: "0.75rem",
+      borderLeft: '3px solid var(--brand-accent, #3b82f6)',
+      paddingLeft: '0.75rem',
     },
-    ".cm-rm-list": {
+    '.cm-rm-list': {
       // keep default typography, just ensure consistent spacing if needed
     },
-    ".cm-rm-olist": {
+    '.cm-rm-olist': {
       // keep default typography
     },
   });
 
   const headerLineTheme = EditorView.baseTheme({
-    ".cm-line.cm-rm-h1-line": {
-      fontSize: "1.875rem",
-      fontWeight: "700",
-      lineHeight: "2.25rem",
+    '.cm-line.cm-rm-h1-line': {
+      fontSize: '1.875rem',
+      fontWeight: '700',
+      lineHeight: '2.25rem',
     },
-    ".cm-line.cm-rm-h2-line": {
-      fontSize: "1.5rem",
-      fontWeight: "700",
-      lineHeight: "2rem",
+    '.cm-line.cm-rm-h2-line': {
+      fontSize: '1.5rem',
+      fontWeight: '700',
+      lineHeight: '2rem',
     },
-    ".cm-line.cm-rm-h3-line": {
-      fontSize: "1.25rem",
-      fontWeight: "700",
-      lineHeight: "1.75rem",
+    '.cm-line.cm-rm-h3-line': {
+      fontSize: '1.25rem',
+      fontWeight: '700',
+      lineHeight: '1.75rem',
     },
-    ".cm-line.cm-rm-h4-line": {
-      fontSize: "1.125rem",
-      fontWeight: "700",
-      lineHeight: "1.75rem",
+    '.cm-line.cm-rm-h4-line': {
+      fontSize: '1.125rem',
+      fontWeight: '700',
+      lineHeight: '1.75rem',
     },
-    ".cm-line.cm-rm-h5-line": {
-      fontSize: "1rem",
-      fontWeight: "700",
-      lineHeight: "1.5rem",
+    '.cm-line.cm-rm-h5-line': {
+      fontSize: '1rem',
+      fontWeight: '700',
+      lineHeight: '1.5rem',
     },
-    ".cm-line.cm-rm-h6-line": {
-      fontSize: "0.875rem",
-      fontWeight: "700",
-      lineHeight: "1.25rem",
+    '.cm-line.cm-rm-h6-line': {
+      fontSize: '0.875rem',
+      fontWeight: '700',
+      lineHeight: '1.25rem',
     },
   });
 

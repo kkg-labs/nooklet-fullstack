@@ -118,14 +118,14 @@ body {
   box-shadow: none;
 }
 :where(
-  .btn,
-  .input,
-  .select,
-  .textarea,
-  .checkbox,
-  .radio,
-  .link
-):focus-visible {
+    .btn,
+    .input,
+    .select,
+    .textarea,
+    .checkbox,
+    .radio,
+    .link
+  ):focus-visible {
   outline: 2px solid var(--brand-accent);
   outline-offset: 2px;
   box-shadow: none;

@@ -1,14 +1,14 @@
-import React from "react";
-import { useForm } from "@inertiajs/react";
-import LabeledTextInput from "~/components/form/LabeledTextInput";
-import { EmbedFormData, EmbedResponse } from "../types";
-import DateTimePicker from "./DateTimePicker";
+import React from 'react';
+import { useForm } from '@inertiajs/react';
+import LabeledTextInput from '~/components/form/LabeledTextInput';
+import { EmbedFormData, EmbedResponse } from '../types';
+import DateTimePicker from './DateTimePicker';
 
 export default function EmbedForm() {
   const { data, setData, processing, errors, reset } = useForm<EmbedFormData>({
-    content: "",
-    user: "",
-    date: "",
+    content: '',
+    user: '',
+    date: '',
   });
 
   const [result, setResult] = React.useState<EmbedResponse | null>(null);
@@ -21,20 +21,20 @@ export default function EmbedForm() {
     setResult(null);
     setSubmitting(true);
     try {
-      const res = await fetch("/test/llm/embed-text", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const res = await fetch('/test/llm/embed-text', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
       const json = (await res.json()) as EmbedResponse;
       if (!res.ok || !json.success) {
-        setErr(json.error || "Failed to embed text. Check server logs.");
+        setErr(json.error || 'Failed to embed text. Check server logs.');
       } else {
         setResult(json);
-        reset("content");
+        reset('content');
       }
     } catch (e) {
-      setErr("Network error. Please try again.");
+      setErr('Network error. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -52,7 +52,9 @@ export default function EmbedForm() {
             className="textarea textarea-bordered h-40"
             placeholder="Paste or type content here..."
             value={data.content}
-            onChange={(e) => setData("content", (e.target as HTMLTextAreaElement).value)}
+            onChange={(e) =>
+              setData('content', (e.target as HTMLTextAreaElement).value)
+            }
             required
           />
         </div>
@@ -62,7 +64,9 @@ export default function EmbedForm() {
           label="User"
           type="text"
           value={data.user}
-          onChange={(e) => setData("user", (e.target as HTMLInputElement).value)}
+          onChange={(e) =>
+            setData('user', (e.target as HTMLInputElement).value)
+          }
           required
         />
 
@@ -70,7 +74,7 @@ export default function EmbedForm() {
           id="date"
           label="Date"
           value={data.date}
-          onChange={(formatted) => setData("date", formatted)}
+          onChange={(formatted) => setData('date', formatted)}
         />
 
         {errors && Object.keys(errors).length > 0 ? (
@@ -88,18 +92,22 @@ export default function EmbedForm() {
         {result?.success ? (
           <div className="alert alert-success">
             <span>
-              Embedded successfully. Chunks processed: {result.chunksProcessed}. Collection: {result.collection}
+              Embedded successfully. Chunks processed: {result.chunksProcessed}.
+              Collection: {result.collection}
             </span>
           </div>
         ) : null}
 
         <div className="form-control mt-2">
-          <button type="submit" className="btn btn-primary" disabled={processing || submitting}>
-            {processing || submitting ? "Saving..." : "Save"}
+          <button
+            type="submit"
+            className="btn btn-primary"
+            disabled={processing || submitting}
+          >
+            {processing || submitting ? 'Saving...' : 'Save'}
           </button>
         </div>
       </div>
     </form>
   );
 }
-

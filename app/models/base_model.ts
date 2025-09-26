@@ -1,10 +1,10 @@
-import type { DateTime } from "luxon";
-import { randomUUID } from "node:crypto";
+import type { DateTime } from 'luxon';
+import { randomUUID } from 'node:crypto';
 import {
   BaseModel as LucidBaseModel,
   beforeCreate,
   column,
-} from "@adonisjs/lucid/orm";
+} from '@adonisjs/lucid/orm';
 
 /**
  * BaseModel
@@ -40,8 +40,8 @@ export default class BaseModel extends LucidBaseModel {
    * Soft archive helpers (future use)
    */
   public static queryNonArchived<
-    TQuery extends { where: (col: string, val: unknown) => TQuery }
+    TQuery extends { where: (col: string, val: unknown) => TQuery },
   >(query: TQuery): TQuery {
-    return query.where("is_archived", false);
+    return query.where('is_archived', false);
   }
 }

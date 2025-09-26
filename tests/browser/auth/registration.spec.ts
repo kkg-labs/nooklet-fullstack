@@ -1,7 +1,11 @@
 import { test, expect } from '@playwright/test';
 import { RegistrationPage } from '../helpers/registration-page';
 import { DatabaseHelpers } from '../helpers/database-helpers';
-import { TestDataFactory, TestDataCleanup, TestDataPatterns } from '../helpers/test-data';
+import {
+  TestDataFactory,
+  TestDataCleanup,
+  TestDataPatterns,
+} from '../helpers/test-data';
 
 /**
  * End-to-End tests for user registration
@@ -42,11 +46,11 @@ test.describe('User Registration E2E', () => {
   test('should render registration form correctly', async () => {
     // Verify all form elements are present and visible
     await registrationPage.verifyFormElements();
-    
+
     // Verify page title and heading
     await expect(registrationPage.page).toHaveTitle(/Register/);
     await expect(registrationPage.heading).toContainText('Create your account');
-    
+
     // Verify login link is present
     await expect(registrationPage.loginLink).toBeVisible();
     await expect(registrationPage.loginLink).toHaveAttribute('href', '/login');
@@ -66,20 +70,25 @@ test.describe('User Registration E2E', () => {
     expect(await registrationPage.hasSuccessMessage()).toBe(true);
 
     // Verify user was created in database
-    const verification = await DatabaseHelpers.verifyUserCreated(testData.email);
-    
+    const verification = await DatabaseHelpers.verifyUserCreated(
+      testData.email,
+    );
+
     // Verify AuthUser record
     expect(verification.authUser.email).toBe(testData.email);
     expect(verification.authUser.isActive).toBe(true);
     expect(verification.authUser.isArchived).toBe(false);
-    
+
     // Verify Profile record
     expect(verification.profile.authUserId).toBe(verification.authUser.id);
     expect(verification.profile.username).toBe(testData.username);
     expect(verification.profile.isArchived).toBe(false);
 
     // Verify password is properly hashed
-    await DatabaseHelpers.verifyPasswordHashed(testData.email, testData.password);
+    await DatabaseHelpers.verifyPasswordHashed(
+      testData.email,
+      testData.password,
+    );
   });
 
   test('should successfully register a user without username', async () => {
@@ -93,8 +102,10 @@ test.describe('User Registration E2E', () => {
     await registrationPage.waitForSuccess();
 
     // Verify user was created in database
-    const verification = await DatabaseHelpers.verifyUserCreated(testData.email);
-    
+    const verification = await DatabaseHelpers.verifyUserCreated(
+      testData.email,
+    );
+
     // Verify profile has null username
     expect(verification.profile.username).toBeNull();
   });
@@ -104,7 +115,7 @@ test.describe('User Registration E2E', () => {
       email: 'processing-test@example.com',
       password: 'password123',
       passwordConfirmation: 'password123',
-      username: 'processinguser'
+      username: 'processinguser',
     };
 
     // Fill the form
@@ -136,7 +147,7 @@ test.describe('User Registration E2E', () => {
     const testData = {
       email: 'loading-state@example.com',
       password: 'password123',
-      passwordConfirmation: 'password123'
+      passwordConfirmation: 'password123',
     };
 
     // Fill the form
@@ -145,7 +156,7 @@ test.describe('User Registration E2E', () => {
     // Intercept the registration request to add delay
     await registrationPage.page.route('**/register', async (route) => {
       // Add a small delay to catch the loading state
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
       await route.continue();
     });
 
@@ -153,7 +164,9 @@ test.describe('User Registration E2E', () => {
     const submitPromise = registrationPage.submit();
 
     // Verify loading state appears
-    await expect(registrationPage.submitButton).toContainText('Creating account...');
+    await expect(registrationPage.submitButton).toContainText(
+      'Creating account...',
+    );
     await expect(registrationPage.submitButton).toBeDisabled();
 
     // Wait for submission to complete
@@ -168,7 +181,7 @@ test.describe('User Registration E2E', () => {
     const testData = {
       email: 'success-message@example.com',
       password: 'password123',
-      passwordConfirmation: 'password123'
+      passwordConfirmation: 'password123',
     };
 
     // Register user
@@ -178,7 +191,9 @@ test.describe('User Registration E2E', () => {
     await registrationPage.waitForSuccess();
 
     // Verify success message is visible and contains expected text
-    const successMessage = registrationPage.page.locator('text=Registration successful');
+    const successMessage = registrationPage.page.locator(
+      'text=Registration successful',
+    );
     await expect(successMessage).toBeVisible();
 
     // Verify form is cleared/reset after successful registration
@@ -193,7 +208,7 @@ test.describe('User Registration E2E', () => {
     const testData = {
       email: 'validation-test@example.com',
       password: 'short', // Too short password
-      passwordConfirmation: 'short'
+      passwordConfirmation: 'short',
     };
 
     // Fill form with invalid data
@@ -206,7 +221,9 @@ test.describe('User Registration E2E', () => {
     // Verify form retains user input after validation error
     await expect(registrationPage.emailInput).toHaveValue(testData.email);
     await expect(registrationPage.passwordInput).toHaveValue(testData.password);
-    await expect(registrationPage.passwordConfirmationInput).toHaveValue(testData.passwordConfirmation);
+    await expect(registrationPage.passwordConfirmationInput).toHaveValue(
+      testData.passwordConfirmation,
+    );
 
     // Verify error message is displayed
     const passwordError = await registrationPage.getFieldError('password');
@@ -219,14 +236,28 @@ test.describe('User Registration E2E', () => {
 
     // Verify form elements are properly labeled and accessible
     await expect(registrationPage.emailInput).toHaveAttribute('type', 'email');
-    await expect(registrationPage.passwordInput).toHaveAttribute('type', 'password');
-    await expect(registrationPage.passwordConfirmationInput).toHaveAttribute('type', 'password');
+    await expect(registrationPage.passwordInput).toHaveAttribute(
+      'type',
+      'password',
+    );
+    await expect(registrationPage.passwordConfirmationInput).toHaveAttribute(
+      'type',
+      'password',
+    );
 
     // Verify form has proper structure
-    await expect(registrationPage.page.locator('label[for="email"]')).toContainText('Email');
-    await expect(registrationPage.page.locator('label[for="password"]')).toContainText('Password');
-    await expect(registrationPage.page.locator('label[for="password_confirmation"]')).toContainText('Confirm Password');
-    await expect(registrationPage.page.locator('label[for="username"]')).toContainText('Username');
+    await expect(
+      registrationPage.page.locator('label[for="email"]'),
+    ).toContainText('Email');
+    await expect(
+      registrationPage.page.locator('label[for="password"]'),
+    ).toContainText('Password');
+    await expect(
+      registrationPage.page.locator('label[for="password_confirmation"]'),
+    ).toContainText('Confirm Password');
+    await expect(
+      registrationPage.page.locator('label[for="username"]'),
+    ).toContainText('Username');
 
     // Verify submit button is initially enabled
     await expect(registrationPage.submitButton).not.toBeDisabled();
@@ -237,18 +268,18 @@ test.describe('User Registration E2E', () => {
     const testData = {
       email: 'stay-on-page@example.com',
       password: 'password123',
-      passwordConfirmation: 'password123'
+      passwordConfirmation: 'password123',
     };
 
     // Register user
     await registrationPage.register(testData);
-    
+
     // Wait for success
     await registrationPage.waitForSuccess();
 
     // Verify we're still on the registration page
     expect(await registrationPage.isOnRegistrationPage()).toBe(true);
-    
+
     // Verify form is cleared or ready for another registration
     // (This depends on the implementation - form might be cleared or not)
   });
@@ -257,7 +288,7 @@ test.describe('User Registration E2E', () => {
     const testData = {
       email: 'network-test@example.com',
       password: 'password123',
-      passwordConfirmation: 'password123'
+      passwordConfirmation: 'password123',
     };
 
     // Simulate slow network (optional - depends on test environment)
@@ -269,9 +300,12 @@ test.describe('User Registration E2E', () => {
     await registrationPage.register(testData);
 
     // Wait for success with longer timeout
-    await registrationPage.page.waitForSelector('text=Registration successful', {
-      timeout: 10000
-    });
+    await registrationPage.page.waitForSelector(
+      'text=Registration successful',
+      {
+        timeout: 10000,
+      },
+    );
 
     // Verify database state
     await DatabaseHelpers.verifyUserCreated(testData.email);
@@ -281,7 +315,7 @@ test.describe('User Registration E2E', () => {
     const testData = {
       email: 'invalid-email',
       password: 'password123',
-      passwordConfirmation: 'password123'
+      passwordConfirmation: 'password123',
     };
 
     // Fill and submit form with invalid email
@@ -303,7 +337,7 @@ test.describe('User Registration E2E', () => {
     const testData = {
       email: 'mismatch@example.com',
       password: 'password123',
-      passwordConfirmation: 'different-password'
+      passwordConfirmation: 'different-password',
     };
 
     // Fill and submit form with mismatched passwords
@@ -313,7 +347,9 @@ test.describe('User Registration E2E', () => {
     await registrationPage.page.waitForTimeout(1000);
 
     // Verify password confirmation error appears
-    const passwordError = await registrationPage.getFieldError('password_confirmation');
+    const passwordError = await registrationPage.getFieldError(
+      'password_confirmation',
+    );
     expect(passwordError).toBeTruthy();
 
     // Verify no user was created in database
@@ -324,7 +360,7 @@ test.describe('User Registration E2E', () => {
     const testData = {
       email: 'short-password@example.com',
       password: '123',
-      passwordConfirmation: '123'
+      passwordConfirmation: '123',
     };
 
     // Fill and submit form with short password
@@ -365,7 +401,7 @@ test.describe('User Registration E2E', () => {
     const testData = {
       email: 'invalid-email',
       password: '123',
-      passwordConfirmation: 'different'
+      passwordConfirmation: 'different',
     };
 
     // Fill and submit form with multiple validation issues
@@ -397,7 +433,7 @@ test.describe('User Registration E2E', () => {
       email: email,
       password: 'password123',
       passwordConfirmation: 'password123',
-      username: 'newusername'
+      username: 'newusername',
     };
 
     // Fill and submit form with duplicate email
@@ -431,7 +467,7 @@ test.describe('User Registration E2E', () => {
     const testData = {
       email: duplicateEmail,
       password: 'password123',
-      passwordConfirmation: 'password123'
+      passwordConfirmation: 'password123',
     };
 
     // Fill and submit form
@@ -453,14 +489,16 @@ test.describe('User Registration E2E', () => {
     const testData = {
       email: 'csrf-test@example.com',
       password: 'password123',
-      passwordConfirmation: 'password123'
+      passwordConfirmation: 'password123',
     };
 
     // Navigate to registration page to ensure CSRF token is loaded
     await registrationPage.goto();
 
     // Verify CSRF token exists in the page (Inertia handles this automatically)
-    const csrfToken = await registrationPage.page.locator('meta[name="csrf-token"]').getAttribute('content');
+    const csrfToken = await registrationPage.page
+      .locator('meta[name="csrf-token"]')
+      .getAttribute('content');
     expect(csrfToken).toBeTruthy();
 
     // Fill and submit form (CSRF token should be included automatically by Inertia)
@@ -477,7 +515,7 @@ test.describe('User Registration E2E', () => {
     const testData = {
       email: 'headers-test@example.com',
       password: 'password123',
-      passwordConfirmation: 'password123'
+      passwordConfirmation: 'password123',
     };
 
     // Set up network monitoring to capture the registration request
@@ -488,7 +526,7 @@ test.describe('User Registration E2E', () => {
           url: request.url(),
           method: request.method(),
           headers: request.headers(),
-          postData: request.postData()
+          postData: request.postData(),
         });
       }
     });
@@ -505,10 +543,17 @@ test.describe('User Registration E2E', () => {
     const registrationRequest = requests[0];
 
     // Verify proper headers are included
-    expect(registrationRequest.headers['content-type']).toContain('application/json');
-    expect(registrationRequest.headers['x-requested-with']).toBe('XMLHttpRequest');
+    expect(registrationRequest.headers['content-type']).toContain(
+      'application/json',
+    );
+    expect(registrationRequest.headers['x-requested-with']).toBe(
+      'XMLHttpRequest',
+    );
 
     // Verify CSRF token is included (Inertia handles this)
-    expect(registrationRequest.headers['x-csrf-token'] || registrationRequest.headers['x-xsrf-token']).toBeTruthy();
+    expect(
+      registrationRequest.headers['x-csrf-token'] ||
+        registrationRequest.headers['x-xsrf-token'],
+    ).toBeTruthy();
   });
 });

@@ -48,7 +48,7 @@ export class TestDataFactory {
   static createValidUser(options: Partial<TestUserData> = {}): TestUserData {
     const email = options.email || this.generateEmail();
     const password = options.password || 'password123';
-    
+
     return {
       email,
       password,
@@ -106,7 +106,7 @@ export class TestDataFactory {
     caseVariant: TestUserData;
   } {
     const password = 'password123';
-    
+
     return {
       original: {
         email: existingEmail,
@@ -134,14 +134,16 @@ export class TestDataFactory {
    */
   static createPerformanceTestData(count: number): TestUserData[] {
     const users: TestUserData[] = [];
-    
+
     for (let i = 0; i < count; i++) {
-      users.push(this.createValidUser({
-        email: this.generateEmail(`perf${i}`),
-        username: this.generateUsername(`perf${i}`),
-      }));
+      users.push(
+        this.createValidUser({
+          email: this.generateEmail(`perf${i}`),
+          username: this.generateUsername(`perf${i}`),
+        }),
+      );
     }
-    
+
     return users;
   }
 
@@ -190,7 +192,7 @@ export class TestDataCleanup {
    * Track multiple emails for cleanup
    */
   static trackEmails(emails: string[]): void {
-    emails.forEach(email => this.createdEmails.add(email));
+    emails.forEach((email) => this.createdEmails.add(email));
   }
 
   /**
@@ -255,7 +257,7 @@ export class TestScenarioBuilder {
    */
   addUsers(users: TestUserData[]): this {
     this.scenario.users.push(...users);
-    TestDataCleanup.trackEmails(users.map(u => u.email));
+    TestDataCleanup.trackEmails(users.map((u) => u.email));
     return this;
   }
 
@@ -303,28 +305,32 @@ export const TestDataPatterns = {
   /**
    * Registration with minimal data
    */
-  minimalRegistration: () => TestDataFactory.createValidUser({ username: undefined }),
+  minimalRegistration: () =>
+    TestDataFactory.createValidUser({ username: undefined }),
 
   /**
    * Registration with special characters in email
    */
-  specialCharacterEmail: () => TestDataFactory.createValidUser({
-    email: 'test+special.chars@example.com',
-  }),
+  specialCharacterEmail: () =>
+    TestDataFactory.createValidUser({
+      email: 'test+special.chars@example.com',
+    }),
 
   /**
    * Registration with long username
    */
-  longUsername: () => TestDataFactory.createValidUser({
-    username: 'a'.repeat(50),
-  }),
+  longUsername: () =>
+    TestDataFactory.createValidUser({
+      username: 'a'.repeat(50),
+    }),
 
   /**
    * Registration with international characters
    */
-  internationalChars: () => TestDataFactory.createValidUser({
-    username: 'üser_tëst_ñame',
-  }),
+  internationalChars: () =>
+    TestDataFactory.createValidUser({
+      username: 'üser_tëst_ñame',
+    }),
 };
 
 export default {

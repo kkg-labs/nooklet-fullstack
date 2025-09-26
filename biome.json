@@ -19,5 +19,12 @@
       "enabled": false
     }
   },
-  "files": {}
+  "files": {
+    "ignoreUnknown": true
+  },
+  "vcs": {
+    "clientKind": "git",
+    "enabled": true,
+    "useIgnoreFile": true
+  }
 }

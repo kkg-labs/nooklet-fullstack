@@ -1,6 +1,12 @@
-import React from "react";
+import React from 'react';
 
-export default function ResponseDisplay({ title, children }: { title: string; children: React.ReactNode }) {
+export default function ResponseDisplay({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="card bg-base-200">
       <div className="card-body">
@@ -10,4 +16,3 @@ export default function ResponseDisplay({ title, children }: { title: string; ch
     </div>
   );
 }
-

@@ -14,7 +14,10 @@ const pool = new Pool({
   database: process.env.DB_DATABASE || process.env.POSTGRES_DB || 'nooklet_db',
 });
 
-async function query<T = any>(text: string, params: any[] = []): Promise<{ rows: T[] }> {
+async function query<T = any>(
+  text: string,
+  params: any[] = [],
+): Promise<{ rows: T[] }> {
   const client = await pool.connect();
   try {
     const result = await client.query(text, params);
@@ -70,20 +73,26 @@ export interface RegistrationVerification {
 }
 
 export class DatabaseHelpers {
-  static async verifyUserCreated(email: string): Promise<RegistrationVerification> {
+  static async verifyUserCreated(
+    email: string,
+  ): Promise<RegistrationVerification> {
     const { rows: users } = await query<UserRecord>(
       'SELECT * FROM auth_users WHERE email = $1 LIMIT 1',
-      [email]
+      [email],
     );
     const authUser = users[0];
-    if (!authUser) throw new Error(`AuthUser with email ${email} not found in database`);
+    if (!authUser)
+      throw new Error(`AuthUser with email ${email} not found in database`);
 
     const { rows: profiles } = await query<ProfileRecord>(
       'SELECT * FROM profiles WHERE auth_user_id = $1 LIMIT 1',
-      [authUser.id]
+      [authUser.id],
     );
     const profile = profiles[0];
-    if (!profile) throw new Error(`Profile for AuthUser ${authUser.id} not found in database`);
+    if (!profile)
+      throw new Error(
+        `Profile for AuthUser ${authUser.id} not found in database`,
+      );
 
     return {
       authUser: {
@@ -112,43 +121,59 @@ export class DatabaseHelpers {
   static async verifyUserNotCreated(email: string): Promise<void> {
     const { rows } = await query<UserRecord>(
       'SELECT id FROM auth_users WHERE email = $1 LIMIT 1',
-      [email]
+      [email],
     );
     if (rows.length) {
-      throw new Error(`AuthUser with email ${email} should not exist but was found in database`);
+      throw new Error(
+        `AuthUser with email ${email} should not exist but was found in database`,
+      );
     }
   }
 
-  static async verifyPasswordHashed(email: string, plainPassword: string): Promise<void> {
+  static async verifyPasswordHashed(
+    email: string,
+    plainPassword: string,
+  ): Promise<void> {
     const { rows } = await query<UserRecord>(
       'SELECT password_hash FROM auth_users WHERE email = $1 LIMIT 1',
-      [email]
+      [email],
     );
     const authUser = rows[0];
     if (!authUser) throw new Error(`AuthUser with email ${email} not found`);
 
     if (authUser.password_hash === plainPassword) {
-      throw new Error('Password appears to be stored in plain text instead of hashed');
+      throw new Error(
+        'Password appears to be stored in plain text instead of hashed',
+      );
     }
     if (!authUser.password_hash.startsWith('$')) {
       throw new Error('Password hash does not appear to be properly formatted');
     }
   }
 
-  static async verifyProfileUsername(email: string, expectedUsername: string | null): Promise<void> {
+  static async verifyProfileUsername(
+    email: string,
+    expectedUsername: string | null,
+  ): Promise<void> {
     const verification = await this.verifyUserCreated(email);
     if (verification.profile.username !== expectedUsername) {
-      throw new Error(`Profile username mismatch. Expected: ${expectedUsername}, Got: ${verification.profile.username}`);
+      throw new Error(
+        `Profile username mismatch. Expected: ${expectedUsername}, Got: ${verification.profile.username}`,
+      );
     }
   }
 
   static async getUserCount(): Promise<number> {
-    const { rows } = await query<{ total: string }>('SELECT COUNT(*) as total FROM auth_users');
+    const { rows } = await query<{ total: string }>(
+      'SELECT COUNT(*) as total FROM auth_users',
+    );
     return parseInt(rows[0].total);
   }
 
   static async getProfileCount(): Promise<number> {
-    const { rows } = await query<{ total: string }>('SELECT COUNT(*) as total FROM profiles');
+    const { rows } = await query<{ total: string }>(
+      'SELECT COUNT(*) as total FROM profiles',
+    );
     return parseInt(rows[0].total);
   }
 
@@ -160,11 +185,13 @@ export class DatabaseHelpers {
   static async cleanupUser(email: string): Promise<void> {
     const { rows } = await query<UserRecord>(
       'SELECT id FROM auth_users WHERE email = $1 LIMIT 1',
-      [email]
+      [email],
     );
     const authUser = rows[0];
     if (authUser) {
-      await query('DELETE FROM profiles WHERE auth_user_id = $1', [authUser.id]);
+      await query('DELETE FROM profiles WHERE auth_user_id = $1', [
+        authUser.id,
+      ]);
       await query('DELETE FROM auth_users WHERE id = $1', [authUser.id]);
     }
   }
@@ -173,16 +200,21 @@ export class DatabaseHelpers {
     const userCount = await this.getUserCount();
     const profileCount = await this.getProfileCount();
     if (userCount > 0 || profileCount > 0) {
-      throw new Error(`Database not empty. Users: ${userCount}, Profiles: ${profileCount}`);
+      throw new Error(
+        `Database not empty. Users: ${userCount}, Profiles: ${profileCount}`,
+      );
     }
   }
 
-  static async createTestUser(email: string, username?: string): Promise<RegistrationVerification> {
+  static async createTestUser(
+    email: string,
+    username?: string,
+  ): Promise<RegistrationVerification> {
     const { rows: userRows } = await query<UserRecord>(
       `INSERT INTO auth_users (email, password_hash, is_active, is_archived)
        VALUES ($1, $2, true, false)
        RETURNING *`,
-      [email, '$scrypt$n=16384,r=8,p=1$test$hash']
+      [email, '$scrypt$n=16384,r=8,p=1$test$hash'],
     );
     const authUser = userRows[0];
 
@@ -190,7 +222,7 @@ export class DatabaseHelpers {
       `INSERT INTO profiles (auth_user_id, username, display_name, timezone, subscription_tier, is_archived)
        VALUES ($1, $2, NULL, NULL, NULL, false)
        RETURNING *`,
-      [authUser.id, username || null]
+      [authUser.id, username || null],
     );
     const profile = profileRows[0];
 

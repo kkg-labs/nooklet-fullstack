@@ -34,7 +34,7 @@ export class TestReporter {
       screenshots: [],
       errors: [],
     };
-    
+
     this.contexts.set(testName, context);
     return context;
   }
@@ -42,14 +42,18 @@ export class TestReporter {
   /**
    * End tracking a test
    */
-  static endTest(testName: string, status: 'passed' | 'failed' | 'skipped', error?: string): TestContext | undefined {
+  static endTest(
+    testName: string,
+    status: 'passed' | 'failed' | 'skipped',
+    error?: string,
+  ): TestContext | undefined {
     const context = this.contexts.get(testName);
     if (!context) return undefined;
 
     context.endTime = Date.now();
     context.duration = context.endTime - context.startTime;
     context.status = status;
-    
+
     if (error) {
       context.errors.push(error);
     }
@@ -120,7 +124,7 @@ export class TestReporter {
 
     page.on('response', (response) => {
       const existingRequest = context.networkRequests!.find(
-        req => req.url === response.url()
+        (req) => req.url === response.url(),
       );
       if (existingRequest) {
         existingRequest.status = response.status();
@@ -161,7 +165,9 @@ export class TestReporter {
       `Status: ${context.status}`,
       `Duration: ${context.duration}ms`,
       `Start Time: ${new Date(context.startTime).toISOString()}`,
-      context.endTime ? `End Time: ${new Date(context.endTime).toISOString()}` : '',
+      context.endTime
+        ? `End Time: ${new Date(context.endTime).toISOString()}`
+        : '',
       '',
     ];
 
@@ -185,7 +191,9 @@ export class TestReporter {
       report.push('Database State:');
       report.push(`  Users: ${context.databaseState.userCount}`);
       report.push(`  Profiles: ${context.databaseState.profileCount}`);
-      report.push(`  Tracked Emails: ${context.databaseState.trackedEmails.length}`);
+      report.push(
+        `  Tracked Emails: ${context.databaseState.trackedEmails.length}`,
+      );
       if (context.databaseState.trackedEmails.length > 0) {
         report.push(`    - ${context.databaseState.trackedEmails.join(', ')}`);
       }
@@ -195,7 +203,9 @@ export class TestReporter {
     if (context.networkRequests && context.networkRequests.length > 0) {
       report.push('Network Requests:');
       context.networkRequests.forEach((request, index) => {
-        report.push(`  ${index + 1}. ${request.method} ${request.url} - ${request.status || 'pending'}`);
+        report.push(
+          `  ${index + 1}. ${request.method} ${request.url} - ${request.status || 'pending'}`,
+        );
       });
       report.push('');
     }
@@ -236,49 +246,53 @@ export class EnhancedTest {
   static async withReporting<T>(
     testName: string,
     page: Page,
-    testFn: () => Promise<T>
+    testFn: () => Promise<T>,
   ): Promise<T> {
     const context = TestReporter.startTest(testName);
-    
+
     // Set up monitoring
     TestReporter.captureNetworkRequests(testName, page);
     TestReporter.captureConsoleMessages(testName, page);
-    
+
     try {
       // Capture initial database state
       await TestReporter.captureDatabaseState(testName);
-      
+
       // Run the test
       const result = await testFn();
-      
+
       // Test passed
       TestReporter.endTest(testName, 'passed');
-      
+
       return result;
     } catch (error) {
       // Test failed - capture additional debugging info
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       TestReporter.addError(testName, errorMessage);
-      
+
       // Take screenshot on failure
       try {
         const screenshotPath = `test-results/screenshots/${testName}-failure-${Date.now()}.png`;
         await page.screenshot({ path: screenshotPath, fullPage: true });
         TestReporter.addScreenshot(testName, screenshotPath);
       } catch (screenshotError) {
-        TestReporter.addError(testName, `Failed to take screenshot: ${screenshotError}`);
+        TestReporter.addError(
+          testName,
+          `Failed to take screenshot: ${screenshotError}`,
+        );
       }
-      
+
       // Capture final database state
       await TestReporter.captureDatabaseState(testName);
-      
+
       // End test with failure
       TestReporter.endTest(testName, 'failed', errorMessage);
-      
+
       // Generate and log detailed report
       const report = TestReporter.generateReport(testName);
       console.error(report);
-      
+
       throw error;
     }
   }
@@ -289,7 +303,7 @@ export class EnhancedTest {
   static async assertWithContext(
     testName: string,
     assertion: () => Promise<void> | void,
-    context: string
+    context: string,
   ): Promise<void> {
     try {
       await assertion();
@@ -307,16 +321,19 @@ export class EnhancedTest {
     testName: string,
     waitFn: () => Promise<void>,
     context: string,
-    timeout: number = 5000
+    timeout: number = 5000,
   ): Promise<void> {
     const startTime = Date.now();
-    
+
     try {
       await Promise.race([
         waitFn(),
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error(`Timeout after ${timeout}ms`)), timeout)
-        )
+        new Promise((_, reject) =>
+          setTimeout(
+            () => reject(new Error(`Timeout after ${timeout}ms`)),
+            timeout,
+          ),
+        ),
       ]);
     } catch (error) {
       const duration = Date.now() - startTime;
@@ -333,18 +350,18 @@ export class EnhancedTest {
 export const enhancedTest = test.extend<{ reporter: TestReporter }>({
   reporter: async ({ page }, use, testInfo) => {
     const testName = testInfo.title;
-    
+
     // Start test tracking
     TestReporter.startTest(testName);
     TestReporter.captureNetworkRequests(testName, page);
     TestReporter.captureConsoleMessages(testName, page);
-    
+
     await use(TestReporter);
-    
+
     // End test tracking
     const status = testInfo.status === 'passed' ? 'passed' : 'failed';
     TestReporter.endTest(testName, status);
-    
+
     // Generate report if test failed
     if (status === 'failed') {
       const report = TestReporter.generateReport(testName);

@@ -1,12 +1,12 @@
-import React from "react";
-import { useForm } from "@inertiajs/react";
-import LabeledTextInput from "~/components/form/LabeledTextInput";
-import { ChatResponse } from "../types";
+import React from 'react';
+import { useForm } from '@inertiajs/react';
+import LabeledTextInput from '~/components/form/LabeledTextInput';
+import { ChatResponse } from '../types';
 
 export default function ChatForm() {
   const { data, setData, processing, errors } = useForm({
-    prompt: "",
-    user: "",
+    prompt: '',
+    user: '',
   });
 
   const [res, setRes] = React.useState<ChatResponse | null>(null);
@@ -23,7 +23,7 @@ export default function ChatForm() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
+          Accept: 'application/json',
         },
         credentials: 'same-origin',
         body: JSON.stringify(data),
@@ -39,8 +39,8 @@ export default function ChatForm() {
       }
       const json = (await response.json()) as ChatResponse;
       setRes(json);
-        } catch (e) {
-      setErr("Network error. Please try again.");
+    } catch (e) {
+      setErr('Network error. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -59,7 +59,9 @@ export default function ChatForm() {
               className="textarea textarea-bordered h-32"
               placeholder="Ask a question about your embedded content..."
               value={data.prompt}
-              onChange={(e) => setData("prompt", (e.target as HTMLTextAreaElement).value)}
+              onChange={(e) =>
+                setData('prompt', (e.target as HTMLTextAreaElement).value)
+              }
               required
             />
           </div>
@@ -69,7 +71,9 @@ export default function ChatForm() {
             label="User"
             type="text"
             value={data.user}
-            onChange={(e) => setData("user", (e.target as HTMLInputElement).value)}
+            onChange={(e) =>
+              setData('user', (e.target as HTMLInputElement).value)
+            }
           />
 
           {errors && Object.keys(errors).length > 0 ? (
@@ -85,8 +89,12 @@ export default function ChatForm() {
           ) : null}
 
           <div className="form-control mt-2">
-            <button type="submit" className="btn btn-primary" disabled={processing || submitting}>
-              {processing || submitting ? "Submitting..." : "Submit Chat"}
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={processing || submitting}
+            >
+              {processing || submitting ? 'Submitting...' : 'Submit Chat'}
             </button>
           </div>
         </div>
@@ -103,7 +111,9 @@ export default function ChatForm() {
           <div className="card bg-base-300">
             <div className="card-body">
               <h3 className="card-title">System Prompt (Debug)</h3>
-              <pre className="text-xs whitespace-pre-wrap">{res.systemPrompt}</pre>
+              <pre className="text-xs whitespace-pre-wrap">
+                {res.systemPrompt}
+              </pre>
             </div>
           </div>
         </div>
@@ -111,4 +121,3 @@ export default function ChatForm() {
     </div>
   );
 }
-

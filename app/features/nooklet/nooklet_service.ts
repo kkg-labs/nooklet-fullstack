@@ -1,6 +1,6 @@
-import type { TransactionClientContract } from "@adonisjs/lucid/types/database";
-import type { DateTime } from "luxon";
-import Nooklet, { type NookletType } from "#features/nooklet/nooklet_model";
+import type { TransactionClientContract } from '@adonisjs/lucid/types/database';
+import type { DateTime } from 'luxon';
+import Nooklet, { type NookletType } from '#features/nooklet/nooklet_model';
 
 export type CreateNookletPayload = {
   userId: string;
@@ -31,7 +31,7 @@ export type ServiceOptions = {
 };
 
 export const NOOKLET_ERRORS = {
-  NOT_FOUND: "NOOKLET_NOT_FOUND",
+  NOT_FOUND: 'NOOKLET_NOT_FOUND',
 } as const;
 
 type WordStats = {
@@ -80,9 +80,9 @@ const NookletService = {
     options: ServiceOptions = {},
   ): Promise<Nooklet[]> {
     return Nooklet.query({ client: options.client })
-      .where("auth_user_id", userId)
-      .where("is_archived", false)
-      .orderBy("created_at", "asc");
+      .where('auth_user_id', userId)
+      .where('is_archived', false)
+      .orderBy('created_at', 'asc');
   },
 
   async create(
@@ -94,7 +94,7 @@ const NookletService = {
     const nooklet = await Nooklet.create(
       {
         userId: payload.userId,
-        type: payload.type ?? "journal",
+        type: payload.type ?? 'journal',
         content: payload.content,
         rawContent: payload.rawContent ?? null,
         summary: payload.summary ?? null,
@@ -117,8 +117,8 @@ const NookletService = {
     options: ServiceOptions = {},
   ): Promise<Nooklet> {
     const nooklet = await Nooklet.query({ client: options.client })
-      .where("id", id)
-      .where("auth_user_id", userId)
+      .where('id', id)
+      .where('auth_user_id', userId)
       .first();
 
     if (!nooklet) {
@@ -177,8 +177,8 @@ const NookletService = {
     options: ServiceOptions = {},
   ): Promise<Nooklet> {
     const nooklet = await Nooklet.query({ client: options.client })
-      .where("id", id)
-      .where("auth_user_id", userId)
+      .where('id', id)
+      .where('auth_user_id', userId)
       .first();
 
     if (!nooklet) {
@@ -199,8 +199,8 @@ const NookletService = {
     options: ServiceOptions = {},
   ): Promise<Nooklet> {
     const nooklet = await Nooklet.query({ client: options.client })
-      .where("id", id)
-      .where("auth_user_id", userId)
+      .where('id', id)
+      .where('auth_user_id', userId)
       .first();
 
     if (!nooklet) {

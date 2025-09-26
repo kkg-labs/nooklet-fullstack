@@ -1,16 +1,16 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from '@playwright/test';
 import {
   gotoJournal,
   setCursorToLineStart,
   selectRange,
   expectMarkersVisible,
   expectMarkersHidden,
-} from "../helpers/markdown-editor-helpers";
+} from '../helpers/markdown-editor-helpers';
 
 // Multi-line selection behavior across markdown elements
 
-test.describe("Cursor-aware visibility  multi-line selections", () => {
-  test("Selecting across header and paragraph shows header markers", async ({
+test.describe('Cursor-aware visibility  multi-line selections', () => {
+  test('Selecting across header and paragraph shows header markers', async ({
     page,
   }) => {
     await gotoJournal(page);
@@ -19,29 +19,29 @@ test.describe("Cursor-aware visibility  multi-line selections", () => {
     const headerLine = 3;
     await setCursorToLineStart(page, headerLine);
     // Select from start of line to next line
-    await page.keyboard.down("Shift");
-    await page.keyboard.press("ArrowDown");
-    await page.keyboard.press("ArrowDown");
-    await page.keyboard.up("Shift");
+    await page.keyboard.down('Shift');
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.up('Shift');
 
     await expectMarkersVisible(page, headerLine);
   });
 
-  test("Selection spanning list items makes their markers visible", async ({
+  test('Selection spanning list items makes their markers visible', async ({
     page,
   }) => {
     await gotoJournal(page);
 
     const listStart = 12; // approximate line index for first list item
     await setCursorToLineStart(page, listStart);
-    await page.keyboard.down("Shift");
-    await page.keyboard.press("ArrowDown");
-    await page.keyboard.up("Shift");
+    await page.keyboard.down('Shift');
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.up('Shift');
 
     await expectMarkersVisible(page, listStart);
   });
 
-  test("Starting selection on inline marker keeps markers visible", async ({
+  test('Starting selection on inline marker keeps markers visible', async ({
     page,
   }) => {
     await gotoJournal(page);
@@ -51,13 +51,13 @@ test.describe("Cursor-aware visibility  multi-line selections", () => {
 
     // Move into the bold marker (first "*") then extend selection across token and beyond
     for (let i = 0; i < 5; i++) {
-      await page.keyboard.press("ArrowRight");
+      await page.keyboard.press('ArrowRight');
     }
-    await page.keyboard.down("Shift");
-    await page.keyboard.press("ArrowRight");
-    await page.keyboard.press("ArrowRight");
-    await page.keyboard.press("End");
-    await page.keyboard.up("Shift");
+    await page.keyboard.down('Shift');
+    await page.keyboard.press('ArrowRight');
+    await page.keyboard.press('ArrowRight');
+    await page.keyboard.press('End');
+    await page.keyboard.up('Shift');
 
     await expectMarkersVisible(page, boldLineIndex);
   });

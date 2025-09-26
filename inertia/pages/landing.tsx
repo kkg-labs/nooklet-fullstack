@@ -1,6 +1,6 @@
-import { Head, Link, usePage } from "@inertiajs/react";
-import Navigation from "../components/layout/Navigation";
-import type { SharedProps } from "@adonisjs/inertia/types";
+import { Head, Link, usePage } from '@inertiajs/react';
+import Navigation from '../components/layout/Navigation';
+import type { SharedProps } from '@adonisjs/inertia/types';
 
 export default function Landing() {
   const { user, flash } = usePage<SharedProps>().props as unknown as {

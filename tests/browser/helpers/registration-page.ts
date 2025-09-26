@@ -17,14 +17,14 @@ export class RegistrationPage {
 
   constructor(page: Page) {
     this.page = page;
-    
+
     // Form elements
     this.emailInput = page.locator('#email');
     this.passwordInput = page.locator('#password');
     this.passwordConfirmationInput = page.locator('#password_confirmation');
     this.usernameInput = page.locator('#username');
     this.submitButton = page.locator('button[type="submit"]');
-    
+
     // Page elements
     this.heading = page.locator('h1');
     this.successMessage = page.locator('text=Registration successful');
@@ -51,7 +51,7 @@ export class RegistrationPage {
     await this.emailInput.fill(data.email);
     await this.passwordInput.fill(data.password);
     await this.passwordConfirmationInput.fill(data.passwordConfirmation);
-    
+
     if (data.username) {
       await this.usernameInput.fill(data.username);
     }
@@ -80,9 +80,14 @@ export class RegistrationPage {
   /**
    * Get error message for a specific field
    */
-  async getFieldError(fieldName: 'email' | 'password' | 'password_confirmation' | 'username'): Promise<string | null> {
-    const errorLocator = this.page.locator(`#${fieldName}`).locator('..').locator('.text-\\[var\\(--color-red-500\\)\\]');
-    
+  async getFieldError(
+    fieldName: 'email' | 'password' | 'password_confirmation' | 'username',
+  ): Promise<string | null> {
+    const errorLocator = this.page
+      .locator(`#${fieldName}`)
+      .locator('..')
+      .locator('.text-\\[var\\(--color-red-500\\)\\]');
+
     try {
       await errorLocator.waitFor({ timeout: 2000 });
       return await errorLocator.textContent();
@@ -122,17 +127,19 @@ export class RegistrationPage {
    * Get all visible error messages
    */
   async getAllErrors(): Promise<string[]> {
-    const errorElements = this.page.locator('.text-\\[var\\(--color-red-500\\)\\]');
+    const errorElements = this.page.locator(
+      '.text-\\[var\\(--color-red-500\\)\\]',
+    );
     const count = await errorElements.count();
     const errors: string[] = [];
-    
+
     for (let i = 0; i < count; i++) {
       const text = await errorElements.nth(i).textContent();
       if (text) {
         errors.push(text);
       }
     }
-    
+
     return errors;
   }
 

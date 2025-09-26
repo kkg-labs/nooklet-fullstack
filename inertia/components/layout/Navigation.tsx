@@ -1,5 +1,5 @@
-import { Link, useForm, usePage } from "@inertiajs/react";
-import type { SharedProps } from "@adonisjs/inertia/types";
+import { Link, useForm, usePage } from '@inertiajs/react';
+import type { SharedProps } from '@adonisjs/inertia/types';
 
 interface User {
   id: string;
@@ -19,7 +19,7 @@ export default function Navigation({ user }: NavigationProps) {
 
   const handleLogout = (e: React.FormEvent) => {
     e.preventDefault();
-    post("/logout");
+    post('/logout');
   };
 
   return (
@@ -38,13 +38,32 @@ export default function Navigation({ user }: NavigationProps) {
                 Dashboard
               </Link>
               <div className="dropdown dropdown-end">
-                <div tabIndex={0} role="button" className="btn btn-ghost btn-sm">
-                  {user.profile?.displayName || user.profile?.username || user.email}
-                  <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                <div
+                  tabIndex={0}
+                  role="button"
+                  className="btn btn-ghost btn-sm"
+                >
+                  {user.profile?.displayName ||
+                    user.profile?.username ||
+                    user.email}
+                  <svg
+                    className="w-4 h-4 ml-1"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
                   </svg>
                 </div>
-                <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+                <ul
+                  tabIndex={0}
+                  className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
+                >
                   <li>
                     <Link href="/profile">Profile</Link>
                   </li>
@@ -58,7 +77,7 @@ export default function Navigation({ user }: NavigationProps) {
                         disabled={processing}
                         className="w-full text-left"
                       >
-                        {processing ? "Logging out..." : "Logout"}
+                        {processing ? 'Logging out...' : 'Logout'}
                       </button>
                     </form>
                   </li>

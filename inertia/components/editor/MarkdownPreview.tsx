@@ -1,6 +1,6 @@
-import { useCallback, useMemo, useRef } from "react";
-import { EditorView } from "@codemirror/view";
-import MarkdownEditor from "./MarkdownEditor";
+import { useCallback, useMemo, useRef } from 'react';
+import { EditorView } from '@codemirror/view';
+import MarkdownEditor from './MarkdownEditor';
 
 interface MarkdownPreviewProps {
   value: string;
@@ -14,11 +14,11 @@ interface MarkdownPreviewProps {
 
 export default function MarkdownPreview({
   value,
-  className = "",
+  className = '',
   onClick,
 }: MarkdownPreviewProps) {
   const viewRef = useRef<EditorView | null>(null);
-  const normalized = useMemo(() => value ?? "", [value]);
+  const normalized = useMemo(() => value ?? '', [value]);
   const noop = useCallback(() => {}, []);
 
   const handleClick = useCallback(

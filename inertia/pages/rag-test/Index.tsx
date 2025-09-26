@@ -1,11 +1,11 @@
-import React from "react";
-import { Head } from "@inertiajs/react";
-import EmbedForm from "./components/EmbedForm";
-import ChatForm from "./components/ChatForm";
-import type { TabType } from "./types";
+import React from 'react';
+import { Head } from '@inertiajs/react';
+import EmbedForm from './components/EmbedForm';
+import ChatForm from './components/ChatForm';
+import type { TabType } from './types';
 
 export default function RAGTestIndex() {
-  const [tab, setTab] = React.useState<TabType>("embed");
+  const [tab, setTab] = React.useState<TabType>('embed');
 
   return (
     <div className="min-h-screen bg-base-100 text-base-content">
@@ -28,17 +28,24 @@ export default function RAGTestIndex() {
 
       <main className="container mx-auto px-6 py-6 grid gap-4">
         <div role="tablist" className="tabs tabs-lifted">
-          <a role="tab" className={`tab ${tab === "embed" ? "tab-active" : ""}`} onClick={() => setTab("embed")}>
+          <a
+            role="tab"
+            className={`tab ${tab === 'embed' ? 'tab-active' : ''}`}
+            onClick={() => setTab('embed')}
+          >
             Embed Text
           </a>
-          <a role="tab" className={`tab ${tab === "chat" ? "tab-active" : ""}`} onClick={() => setTab("chat")}>
+          <a
+            role="tab"
+            className={`tab ${tab === 'chat' ? 'tab-active' : ''}`}
+            onClick={() => setTab('chat')}
+          >
             Chat
           </a>
         </div>
 
-        {tab === "embed" ? <EmbedForm /> : <ChatForm />}
+        {tab === 'embed' ? <EmbedForm /> : <ChatForm />}
       </main>
     </div>
   );
 }
-

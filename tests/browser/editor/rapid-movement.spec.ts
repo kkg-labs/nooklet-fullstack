@@ -1,10 +1,17 @@
 import { test } from '@playwright/test';
-import { gotoJournal, setCursorToLineStart, expectMarkersHidden, expectMarkersVisible } from '../helpers/markdown-editor-helpers';
+import {
+  gotoJournal,
+  setCursorToLineStart,
+  expectMarkersHidden,
+  expectMarkersVisible,
+} from '../helpers/markdown-editor-helpers';
 
 // Rapid cursor movement  smoke checks for flicker/lag
 
 test.describe('Cursor-aware visibility  rapid movement', () => {
-  test('Arrow navigation across elements updates decorations smoothly', async ({ page }) => {
+  test('Arrow navigation across elements updates decorations smoothly', async ({
+    page,
+  }) => {
     await gotoJournal(page);
 
     await setCursorToLineStart(page, 1); // Line 1 (0-based indexing)
@@ -26,4 +33,3 @@ test.describe('Cursor-aware visibility  rapid movement', () => {
     await expectMarkersHidden(page, 1);
   });
 });
-

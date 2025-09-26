@@ -1,5 +1,5 @@
-import { defineConfig } from '@adonisjs/inertia'
-import type { InferSharedProps } from '@adonisjs/inertia/types'
+import { defineConfig } from '@adonisjs/inertia';
+import type { InferSharedProps } from '@adonisjs/inertia/types';
 
 const inertiaConfig = defineConfig({
   /**
@@ -19,12 +19,14 @@ const inertiaConfig = defineConfig({
    */
   ssr: {
     enabled: true,
-    entrypoint: 'inertia/app/ssr.tsx'
-  }
-})
+    entrypoint: 'inertia/app/ssr.tsx',
+  },
+});
 
-export default inertiaConfig
+export default inertiaConfig;
 
 declare module '@adonisjs/inertia/types' {
-  export interface SharedProps extends InferSharedProps<typeof inertiaConfig>, Record<string, unknown> {}
+  export interface SharedProps
+    extends InferSharedProps<typeof inertiaConfig>,
+      Record<string, unknown> {}
 }

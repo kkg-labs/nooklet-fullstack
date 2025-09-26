@@ -1,6 +1,6 @@
-import db from "@adonisjs/lucid/services/db";
-import AuthUser from "#features/auth/auth_user";
-import Profile from "#features/user/profile";
+import db from '@adonisjs/lucid/services/db';
+import AuthUser from '#features/auth/auth_user';
+import Profile from '#features/user/profile';
 
 export type RegisterData = {
   email: string;
@@ -31,19 +31,19 @@ const AuthService = {
             username: username ?? null,
             displayName: displayName ?? null,
           },
-          { client: trx }
+          { client: trx },
         );
         return user;
       });
     } catch (error: any) {
       // Handle database constraint violations gracefully
-      if (error.code === "23505") {
+      if (error.code === '23505') {
         // PostgreSQL unique constraint violation
-        if (error.constraint?.includes("email")) {
-          throw new Error("EMAIL_TAKEN");
+        if (error.constraint?.includes('email')) {
+          throw new Error('EMAIL_TAKEN');
         }
-        if (error.constraint?.includes("username")) {
-          throw new Error("USERNAME_TAKEN");
+        if (error.constraint?.includes('username')) {
+          throw new Error('USERNAME_TAKEN');
         }
       }
       // Re-throw any other errors
@@ -54,7 +54,7 @@ const AuthService = {
   async login({ email, password }: LoginData) {
     const user = await AuthUser.verifyCredentials(email, password);
     if (!user.isActive || user.isArchived) {
-      throw new Error("ACCOUNT_INACTIVE");
+      throw new Error('ACCOUNT_INACTIVE');
     }
     return user;
   },

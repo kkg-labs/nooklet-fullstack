@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Head, usePage } from "@inertiajs/react";
-import type { SharedProps } from "@adonisjs/inertia/types";
-import MarkdownEditor from "../components/editor/MarkdownEditor";
-import MarkdownPreview from "../components/editor/MarkdownPreview";
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Head, usePage } from '@inertiajs/react';
+import type { SharedProps } from '@adonisjs/inertia/types';
+import MarkdownEditor from '../components/editor/MarkdownEditor';
+import MarkdownPreview from '../components/editor/MarkdownPreview';
 
 interface ProfileSummary {
   username?: string | null;
@@ -37,10 +37,10 @@ interface PageProps extends SharedProps {
   nooklets?: SerializedNooklet[];
 }
 
-const DEFAULT_TYPE = "journal";
+const DEFAULT_TYPE = 'journal';
 
 function getXsrfToken() {
-  if (typeof document === "undefined") {
+  if (typeof document === 'undefined') {
     return null;
   }
   const match = document.cookie.match(/(?:^|; )XSRF-TOKEN=([^;]+)/);
@@ -48,11 +48,11 @@ function getXsrfToken() {
 }
 
 function formatDateTime(value?: string | null) {
-  if (!value) return "";
+  if (!value) return '';
   try {
     return new Date(value).toLocaleString(undefined, {
-      dateStyle: "medium",
-      timeStyle: "short",
+      dateStyle: 'medium',
+      timeStyle: 'short',
     });
   } catch {
     return value;
@@ -65,12 +65,12 @@ export default function JournalHome() {
   const initialNooklets = props.nooklets ?? [];
 
   const [entries, setEntries] = useState<SerializedNooklet[]>(initialNooklets);
-  const [newContent, setNewContent] = useState("");
+  const [newContent, setNewContent] = useState('');
   const [createError, setCreateError] = useState<string | null>(null);
   const [isCreating, setIsCreating] = useState(false);
 
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editContent, setEditContentState] = useState("");
+  const [editContent, setEditContentState] = useState('');
   const [editCursor, setEditCursor] = useState<number | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
 
@@ -104,7 +104,7 @@ export default function JournalHome() {
   const resetEditingState = useCallback(() => {
     clearAutoSaveTimer();
     setEditingId(null);
-    setEditContentState("");
+    setEditContentState('');
     setEditCursor(null);
     setPendingAutoSave(false);
     setIsUpdating(false);
@@ -114,20 +114,20 @@ export default function JournalHome() {
 
   const requestJson = useCallback(async (url: string, init: RequestInit) => {
     const headers: Record<string, string> = {
-      Accept: "application/json",
-      "Content-Type": "application/json",
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
       ...(init.headers as Record<string, string> | undefined),
     };
 
     const xsrfToken = getXsrfToken();
     if (xsrfToken) {
-      headers["X-XSRF-TOKEN"] = xsrfToken;
+      headers['X-XSRF-TOKEN'] = xsrfToken;
     }
 
     const response = await fetch(url, {
       ...init,
       headers,
-      credentials: "same-origin",
+      credentials: 'same-origin',
     });
 
     let data: any = null;
@@ -182,7 +182,7 @@ export default function JournalHome() {
       }
 
       const nextContent = editContent;
-      const currentContent = entry.content ?? "";
+      const currentContent = entry.content ?? '';
 
       if (nextContent === currentContent) {
         setPendingAutoSave(false);
@@ -205,7 +205,7 @@ export default function JournalHome() {
         if (!nextContent || nextContent.trim().length === 0) {
           // Archive the nooklet by calling DELETE endpoint
           await requestJson(`/api/v1/nooklets/${editingId}`, {
-            method: "DELETE",
+            method: 'DELETE',
             body: JSON.stringify({}),
           });
 
@@ -219,7 +219,7 @@ export default function JournalHome() {
 
         // Normal save with content
         const json = await requestJson(`/api/v1/nooklets/${editingId}`, {
-          method: "PUT",
+          method: 'PUT',
           body: JSON.stringify({
             content: nextContent,
             type: entry.type || DEFAULT_TYPE,
@@ -303,9 +303,9 @@ export default function JournalHome() {
 
   const greeting = useMemo(() => {
     const hour = new Date().getHours();
-    if (hour < 12) return "Good morning";
-    if (hour < 18) return "Good afternoon";
-    return "Good evening";
+    if (hour < 12) return 'Good morning';
+    if (hour < 18) return 'Good afternoon';
+    return 'Good evening';
   }, []);
 
   const displayName = useMemo(() => {
@@ -313,7 +313,7 @@ export default function JournalHome() {
       user?.profile?.displayName ||
       user?.profile?.username ||
       user?.email ||
-      "Friend"
+      'Friend'
     );
   }, [user]);
 
@@ -359,13 +359,13 @@ export default function JournalHome() {
           content: trimmed,
           type: DEFAULT_TYPE,
         };
-        const json = await requestJson("/api/v1/nooklets", {
-          method: "POST",
+        const json = await requestJson('/api/v1/nooklets', {
+          method: 'POST',
           body: JSON.stringify(payload),
         });
         setEntries((current) => [...current, json.data]);
         beginEdit(json.data, trimmed.length, trimmed);
-        setNewContent("");
+        setNewContent('');
       } catch (error) {
         setCreateError((error as Error).message);
         setPendingCreate(true);
@@ -462,8 +462,8 @@ export default function JournalHome() {
           </div>
           <div className="flex items-center gap-2 text-xs text-nookb-500">
             <span>
-              {entries.length} active{" "}
-              {entries.length === 1 ? "entry" : "entries"}
+              {entries.length} active{' '}
+              {entries.length === 1 ? 'entry' : 'entries'}
             </span>
           </div>
         </div>
@@ -494,11 +494,11 @@ export default function JournalHome() {
               let autoSaveStatus = null;
               if (isEditing) {
                 if (isUpdating) {
-                  autoSaveStatus = "Saving...";
+                  autoSaveStatus = 'Saving...';
                 } else if (autoSaveError) {
-                  autoSaveStatus = "Failed to save";
+                  autoSaveStatus = 'Failed to save';
                 } else if (pendingAutoSave) {
-                  autoSaveStatus = "Unsaved changes";
+                  autoSaveStatus = 'Unsaved changes';
                 } else if (lastSavedAt) {
                   autoSaveStatus = `Saved ${formatDateTime(lastSavedAt)}`;
                 }

@@ -9,7 +9,7 @@
 |
 */
 
-import { Env } from '@adonisjs/core/env'
+import { Env } from '@adonisjs/core/env';
 
 // Resolve .env root for both dev (TS source) and prod (compiled in build/)
 const defaultRoot = new URL('../', import.meta.url); // dev: project root, prod: build/
@@ -49,4 +49,4 @@ export default await Env.create(appRoot, {
   OPENAI_API_KEY: Env.schema.string(),
   QDRANT_HOST: Env.schema.string({ format: 'host' }),
   QDRANT_PORT: Env.schema.number(),
-})
+});

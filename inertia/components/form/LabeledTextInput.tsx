@@ -1,4 +1,4 @@
-import TextInput, { TextInputProps } from "./TextInput";
+import TextInput, { TextInputProps } from './TextInput';
 
 export type LabeledTextInputProps = TextInputProps & {
   id: string;
@@ -11,7 +11,7 @@ export type LabeledTextInputProps = TextInputProps & {
 export default function LabeledTextInput({
   id,
   label,
-  containerClassName = "",
+  containerClassName = '',
   error,
   required,
   ...inputProps
@@ -23,9 +23,10 @@ export default function LabeledTextInput({
       </label>
       <TextInput id={id} required={required} {...inputProps} />
       {error ? (
-        <p className="text-error text-sm mt-1 text-[var(--color-red-500)]">{error}</p>
+        <p className="text-error text-sm mt-1 text-[var(--color-red-500)]">
+          {error}
+        </p>
       ) : null}
     </div>
   );
 }
-

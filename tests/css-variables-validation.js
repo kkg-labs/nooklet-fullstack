@@ -1,6 +1,6 @@
 /**
  * DaisyUI CSS Variables Validation Script
- * 
+ *
  * This script validates that custom CSS variables are properly applied
  * to DaisyUI components and provides comprehensive debugging information.
  */
@@ -26,32 +26,34 @@ const EXPECTED_THEME_VARIABLES = {
 const EXPECTED_COMPONENT_STYLES = {
   'btn-primary': {
     backgroundColor: 'rgb(255, 0, 0)', // red
-    selector: '.btn.btn-primary, a.btn.btn-primary'
+    selector: '.btn.btn-primary, a.btn.btn-primary',
   },
   'btn-secondary': {
     backgroundColor: 'rgb(106, 126, 158)', // #6A7E9E
-    selector: '.btn.btn-secondary'
+    selector: '.btn.btn-secondary',
   },
   'btn-accent': {
     backgroundColor: 'rgb(71, 92, 125)', // #475C7D
-    selector: '.btn.btn-accent'
-  }
+    selector: '.btn.btn-accent',
+  },
 };
 
 test.describe('DaisyUI CSS Variables Validation', () => {
   test.beforeEach(async ({ page }) => {
     // Navigate to the application
     await page.goto('http://localhost:3333');
-    
+
     // Wait for the page to fully load
     await page.waitForLoadState('networkidle');
   });
 
-  test('should have all required CSS variables defined in :root', async ({ page }) => {
+  test('should have all required CSS variables defined in :root', async ({
+    page,
+  }) => {
     const cssVariables = await page.evaluate(() => {
       const rootStyles = window.getComputedStyle(document.documentElement);
       const variables = {};
-      
+
       // Get all CSS custom properties
       for (let i = 0; i < rootStyles.length; i++) {
         const prop = rootStyles[i];
@@ -59,26 +61,41 @@ test.describe('DaisyUI CSS Variables Validation', () => {
           variables[prop] = rootStyles.getPropertyValue(prop).trim();
         }
       }
-      
+
       return variables;
     });
 
     // Validate each expected variable
-    for (const [varName, expectedValue] of Object.entries(EXPECTED_THEME_VARIABLES)) {
-      expect(cssVariables[varName], `CSS variable ${varName} should be defined`).toBeDefined();
-      
+    for (const [varName, expectedValue] of Object.entries(
+      EXPECTED_THEME_VARIABLES,
+    )) {
+      expect(
+        cssVariables[varName],
+        `CSS variable ${varName} should be defined`,
+      ).toBeDefined();
+
       // For brand variables that use var() references, just check they're not empty
       if (expectedValue.startsWith('#') || expectedValue === 'red') {
-        expect(cssVariables[varName], `CSS variable ${varName} should match expected value`).toBe(expectedValue);
+        expect(
+          cssVariables[varName],
+          `CSS variable ${varName} should match expected value`,
+        ).toBe(expectedValue);
       } else {
-        expect(cssVariables[varName], `CSS variable ${varName} should not be empty`).toBeTruthy();
+        expect(
+          cssVariables[varName],
+          `CSS variable ${varName} should not be empty`,
+        ).toBeTruthy();
       }
     }
   });
 
-  test('should apply primary color to btn-primary components', async ({ page }) => {
+  test('should apply primary color to btn-primary components', async ({
+    page,
+  }) => {
     // Find the primary button
-    const primaryButton = page.locator('a[href="/register"].btn.btn-primary').first();
+    const primaryButton = page
+      .locator('a[href="/register"].btn.btn-primary')
+      .first();
     await expect(primaryButton).toBeVisible();
 
     // Get computed styles
@@ -89,44 +106,56 @@ test.describe('DaisyUI CSS Variables Validation', () => {
         color: computed.color,
         cssVariables: {
           colorPrimary: computed.getPropertyValue('--color-primary'),
-          colorPrimaryContent: computed.getPropertyValue('--color-primary-content')
-        }
+          colorPrimaryContent: computed.getPropertyValue(
+            '--color-primary-content',
+          ),
+        },
       };
     });
 
     // Validate background color is red
     expect(styles.backgroundColor).toBe('rgb(255, 0, 0)');
-    
+
     // Validate CSS variables are accessible
     expect(styles.cssVariables.colorPrimary).toBe('red');
     expect(styles.cssVariables.colorPrimaryContent).toBeTruthy();
   });
 
-  test('should validate CSS variable inheritance across components', async ({ page }) => {
+  test('should validate CSS variable inheritance across components', async ({
+    page,
+  }) => {
     const validationResults = await page.evaluate(() => {
       const results = [];
-      
+
       // Test different DaisyUI components
       const testSelectors = [
-        { name: 'primary-button', selector: '.btn.btn-primary', expectedBg: 'rgb(255, 0, 0)' },
-        { name: 'badge-primary', selector: '.badge.badge-primary', expectedBg: 'rgb(255, 0, 0)' },
+        {
+          name: 'primary-button',
+          selector: '.btn.btn-primary',
+          expectedBg: 'rgb(255, 0, 0)',
+        },
+        {
+          name: 'badge-primary',
+          selector: '.badge.badge-primary',
+          expectedBg: 'rgb(255, 0, 0)',
+        },
         { name: 'alert-info', selector: '.alert.alert-info', expectedBg: null }, // May not have background
       ];
-      
+
       testSelectors.forEach(({ name, selector, expectedBg }) => {
         const elements = document.querySelectorAll(selector);
-        
+
         if (elements.length > 0) {
           const element = elements[0];
           const computed = window.getComputedStyle(element);
-          
+
           results.push({
             component: name,
             selector,
             found: true,
             backgroundColor: computed.backgroundColor,
             primaryVariable: computed.getPropertyValue('--color-primary'),
-            expectedBg
+            expectedBg,
           });
         } else {
           results.push({
@@ -135,34 +164,42 @@ test.describe('DaisyUI CSS Variables Validation', () => {
             found: false,
             backgroundColor: null,
             primaryVariable: null,
-            expectedBg
+            expectedBg,
           });
         }
       });
-      
+
       return results;
     });
 
     // Validate results
     validationResults.forEach((result) => {
       if (result.found && result.expectedBg) {
-        expect(result.backgroundColor, `${result.component} should have correct background color`).toBe(result.expectedBg);
+        expect(
+          result.backgroundColor,
+          `${result.component} should have correct background color`,
+        ).toBe(result.expectedBg);
       }
-      
+
       if (result.found) {
-        expect(result.primaryVariable, `${result.component} should have access to --color-primary`).toBe('red');
+        expect(
+          result.primaryVariable,
+          `${result.component} should have access to --color-primary`,
+        ).toBe('red');
       }
     });
   });
 
-  test('should validate theme consistency across page load', async ({ page }) => {
+  test('should validate theme consistency across page load', async ({
+    page,
+  }) => {
     // Take initial snapshot of CSS variables
     const initialVariables = await page.evaluate(() => {
       const rootStyles = window.getComputedStyle(document.documentElement);
       return {
         primary: rootStyles.getPropertyValue('--color-primary'),
         primaryContent: rootStyles.getPropertyValue('--color-primary-content'),
-        base100: rootStyles.getPropertyValue('--color-base-100')
+        base100: rootStyles.getPropertyValue('--color-base-100'),
       };
     });
 
@@ -176,34 +213,42 @@ test.describe('DaisyUI CSS Variables Validation', () => {
       return {
         primary: rootStyles.getPropertyValue('--color-primary'),
         primaryContent: rootStyles.getPropertyValue('--color-primary-content'),
-        base100: rootStyles.getPropertyValue('--color-base-100')
+        base100: rootStyles.getPropertyValue('--color-base-100'),
       };
     });
 
     // Validate consistency
     expect(reloadedVariables.primary).toBe(initialVariables.primary);
-    expect(reloadedVariables.primaryContent).toBe(initialVariables.primaryContent);
+    expect(reloadedVariables.primaryContent).toBe(
+      initialVariables.primaryContent,
+    );
     expect(reloadedVariables.base100).toBe(initialVariables.base100);
   });
 
-  test('should provide comprehensive debugging information', async ({ page }) => {
+  test('should provide comprehensive debugging information', async ({
+    page,
+  }) => {
     const debugInfo = await page.evaluate(() => {
       const rootStyles = window.getComputedStyle(document.documentElement);
       const primaryButton = document.querySelector('.btn.btn-primary');
-      
+
       const info = {
         timestamp: new Date().toISOString(),
         userAgent: navigator.userAgent,
         cssVariables: {},
         componentStyles: {},
         daisyuiVersion: null,
-        tailwindVersion: null
+        tailwindVersion: null,
       };
 
       // Collect all CSS variables
       for (let i = 0; i < rootStyles.length; i++) {
         const prop = rootStyles[i];
-        if (prop.startsWith('--color-') || prop.startsWith('--radius-') || prop.startsWith('--border')) {
+        if (
+          prop.startsWith('--color-') ||
+          prop.startsWith('--radius-') ||
+          prop.startsWith('--border')
+        ) {
           info.cssVariables[prop] = rootStyles.getPropertyValue(prop).trim();
         }
       }
@@ -215,7 +260,7 @@ test.describe('DaisyUI CSS Variables Validation', () => {
           backgroundColor: buttonStyles.backgroundColor,
           color: buttonStyles.color,
           borderColor: buttonStyles.borderColor,
-          borderRadius: buttonStyles.borderRadius
+          borderRadius: buttonStyles.borderRadius,
         };
       }
 
@@ -223,11 +268,16 @@ test.describe('DaisyUI CSS Variables Validation', () => {
     });
 
     // Log debug information for manual inspection
-    console.log('CSS Variables Debug Info:', JSON.stringify(debugInfo, null, 2));
+    console.log(
+      'CSS Variables Debug Info:',
+      JSON.stringify(debugInfo, null, 2),
+    );
 
     // Basic validation that debug info is collected
     expect(debugInfo.cssVariables['--color-primary']).toBe('red');
-    expect(debugInfo.componentStyles.primaryButton?.backgroundColor).toBe('rgb(255, 0, 0)');
+    expect(debugInfo.componentStyles.primaryButton?.backgroundColor).toBe(
+      'rgb(255, 0, 0)',
+    );
   });
 });
 
@@ -238,7 +288,7 @@ export async function validateCSSVariables(page) {
       success: true,
       errors: [],
       warnings: [],
-      variables: {}
+      variables: {},
     };
 
     const rootStyles = window.getComputedStyle(document.documentElement);
@@ -246,13 +296,13 @@ export async function validateCSSVariables(page) {
       '--color-primary',
       '--color-primary-content',
       '--color-base-100',
-      '--color-base-content'
+      '--color-base-content',
     ];
 
-    requiredVars.forEach(varName => {
+    requiredVars.forEach((varName) => {
       const value = rootStyles.getPropertyValue(varName).trim();
       validation.variables[varName] = value;
-      
+
       if (!value) {
         validation.success = false;
         validation.errors.push(`Missing required CSS variable: ${varName}`);
@@ -264,9 +314,11 @@ export async function validateCSSVariables(page) {
     if (primaryButtons.length > 0) {
       const buttonStyle = window.getComputedStyle(primaryButtons[0]);
       const bgColor = buttonStyle.backgroundColor;
-      
+
       if (bgColor !== 'rgb(255, 0, 0)') {
-        validation.warnings.push(`Primary button background is ${bgColor}, expected rgb(255, 0, 0)`);
+        validation.warnings.push(
+          `Primary button background is ${bgColor}, expected rgb(255, 0, 0)`,
+        );
       }
     }
 

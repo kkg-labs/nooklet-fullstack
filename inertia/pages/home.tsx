@@ -1,4 +1,4 @@
-import { Head } from '@inertiajs/react'
+import { Head } from '@inertiajs/react';
 
 export default function Home() {
   return (
@@ -26,18 +26,78 @@ export default function Home() {
           <article className="row-span-3 relative p-6 shadow-sm hover:shadow border border-sand-7 hover:border-sand-8 rounded-2xl transition ease-in-out duration-700 group flex flex-col gap-8">
             <div className="relative opacity-80">
               <svg fill="none" viewBox="0 0 240 105">
-                <path fill="#F9F9F8" d="M0 4a4 4 0 0 1 4-4h232a4 4 0 0 1 4 4v101H0V4Z" />
-                <g fill="#000" fillRule="evenodd" clipPath="url(#a)" clipRule="evenodd">
+                <path
+                  fill="#F9F9F8"
+                  d="M0 4a4 4 0 0 1 4-4h232a4 4 0 0 1 4 4v101H0V4Z"
+                />
+                <g
+                  fill="#000"
+                  fillRule="evenodd"
+                  clipPath="url(#a)"
+                  clipRule="evenodd"
+                >
                   <path d="M24 11.444c0 4.391 1.053 5.445 5.444 5.445s5.445-1.054 5.445-5.445c0-4.39-1.054-5.444-5.445-5.444C25.054 6 24 7.053 24 11.444Zm2.195 1.131 1.708-3.88c.288-.655.843-1.01 1.541-1.01.699 0 1.253.355 1.542 1.01l1.707 3.88c.078.189.144.433.144.644 0 .964-.676 1.64-1.64 1.64-.33 0-.59-.083-.854-.168-.271-.087-.545-.175-.899-.175-.35 0-.63.089-.906.176-.267.085-.53.168-.846.168-.964 0-1.64-.677-1.64-1.641 0-.211.066-.455.143-.644Zm3.25-3.204-1.686 3.814c.499-.233 1.075-.344 1.685-.344.588 0 1.187.111 1.664.344l-1.664-3.814Zm26.473-.678c-.378 0-.65.268-.65.64 0 .374.272.641.65.641s.651-.267.651-.64-.273-.64-.65-.64Zm-11.907 5.502c-1.009 0-1.738-.745-1.738-1.91 0-1.187.73-1.933 1.737-1.933.468 0 .814.158 1.019.468V8.86h1.05v5.25h-1.05v-.372c-.2.304-.546.456-1.019.456Zm-.667-1.91c0-.652.352-1.077.887-1.077.54 0 .887.42.887 1.071 0 .64-.346 1.056-.887 1.056-.535 0-.887-.415-.887-1.05Zm4.384-.011c0-.646.351-1.06.877-1.06.53 0 .882.414.882 1.06 0 .646-.352 1.06-.883 1.06-.525 0-.876-.414-.876-1.06Zm11.571.835c0 .194-.147.31-.52.31-.42 0-.682-.221-.682-.489h-1.05c.026.725.714 1.265 1.711 1.265.946 0 1.55-.42 1.55-1.165 0-.557-.358-.945-1.066-1.087l-.762-.152c-.23-.047-.367-.163-.367-.315 0-.226.23-.347.525-.347.42 0 .583.195.583.426h.997c-.026-.683-.562-1.203-1.56-1.203-.929 0-1.559.468-1.559 1.176 0 .64.415.93 1.035 1.06l.756.164c.247.052.41.157.41.357Zm-2.85 1.002h-1.05v-3.675h1.05v3.675Zm-4.264-3.675v.384c.268-.31.625-.468 1.066-.468.824 0 1.36.536 1.36 1.365v2.394h-1.05v-2.173c0-.446-.252-.714-.688-.714-.436 0-.688.268-.688.714v2.173h-1.05v-3.675h1.05Zm-3.58-.084c-1.119 0-1.948.809-1.948 1.922s.83 1.921 1.948 1.921c1.123 0 1.953-.808 1.953-1.921s-.83-1.922-1.953-1.922Zm-8.758.856c-.535 0-.887.425-.887 1.076 0 .636.352 1.05.887 1.05.54 0 .887-.414.887-1.055 0-.65-.346-1.07-.887-1.07Zm-1.958 1.076c0 1.166.73 1.911 1.732 1.911.478 0 .82-.152 1.024-.456v.372h1.05v-3.675h-1.05v.384c-.21-.31-.556-.468-1.024-.468-1.003 0-1.732.746-1.732 1.932Z" />
                 </g>
-                <rect width="8" height="3" x="162" y="9.944" fill="#DAD9D6" rx="1" />
-                <rect width="14" height="3" x="174" y="9.944" fill="#DAD9D6" rx="1" />
-                <rect width="10" height="3" x="192" y="9.944" fill="#DAD9D6" rx="1" />
-                <rect width="10" height="3" x="206" y="9.944" fill="#DAD9D6" rx="1" />
-                <rect width="81" height="6" x="24" y="32" fill="#DAD9D6" rx="2" />
-                <rect width="95" height="6" x="24" y="44" fill="#DAD9D6" rx="2" />
-                <rect width="16" height="5" x="24" y="60" fill="#21201C" rx="1" />
-                <path fill="#DAD9D6" d="M24 85a4 4 0 0 1 4-4h184a4 4 0 0 1 4 4v20H24V85Z" />
+                <rect
+                  width="8"
+                  height="3"
+                  x="162"
+                  y="9.944"
+                  fill="#DAD9D6"
+                  rx="1"
+                />
+                <rect
+                  width="14"
+                  height="3"
+                  x="174"
+                  y="9.944"
+                  fill="#DAD9D6"
+                  rx="1"
+                />
+                <rect
+                  width="10"
+                  height="3"
+                  x="192"
+                  y="9.944"
+                  fill="#DAD9D6"
+                  rx="1"
+                />
+                <rect
+                  width="10"
+                  height="3"
+                  x="206"
+                  y="9.944"
+                  fill="#DAD9D6"
+                  rx="1"
+                />
+                <rect
+                  width="81"
+                  height="6"
+                  x="24"
+                  y="32"
+                  fill="#DAD9D6"
+                  rx="2"
+                />
+                <rect
+                  width="95"
+                  height="6"
+                  x="24"
+                  y="44"
+                  fill="#DAD9D6"
+                  rx="2"
+                />
+                <rect
+                  width="16"
+                  height="5"
+                  x="24"
+                  y="60"
+                  fill="#21201C"
+                  rx="1"
+                />
+                <path
+                  fill="#DAD9D6"
+                  d="M24 85a4 4 0 0 1 4-4h184a4 4 0 0 1 4 4v20H24V85Z"
+                />
                 <path
                   fill="url(#b)"
                   fillOpacity=".2"
@@ -83,10 +143,12 @@ export default function Home() {
                 </h2>
 
                 <p className="text-sm text-sand-11 group-hover:text-sand-12 transition ease-in-out duration-700">
-                  Dive into the official documentation to learn AdonisJS. Read carefully to discover
-                  an unmatched set of features, best practices and developer experience. Through
-                  examples, guides and API references, you'll find everything you need to build your
-                  next project. From installation to deployment, we've got you covered.
+                  Dive into the official documentation to learn AdonisJS. Read
+                  carefully to discover an unmatched set of features, best
+                  practices and developer experience. Through examples, guides
+                  and API references, you'll find everything you need to build
+                  your next project. From installation to deployment, we've got
+                  you covered.
                 </p>
               </div>
             </div>
@@ -111,8 +173,9 @@ export default function Home() {
               </h2>
 
               <p className="text-sm text-sand-11 group-hover:text-sand-12 transition ease-in-out duration-700">
-                Level up your development and Adonis skills with hours of video content, from
-                beginner to advanced, through databases, testing, and more.
+                Level up your development and Adonis skills with hours of video
+                content, from beginner to advanced, through databases, testing,
+                and more.
               </p>
             </div>
           </article>
@@ -136,8 +199,8 @@ export default function Home() {
               </h2>
 
               <p className="text-sm text-sand-11 group-hover:text-sand-12 transition ease-in-out duration-700">
-                Supercharge your AdonisJS application with packages built and maintained by both the
-                core team and the community.
+                Supercharge your AdonisJS application with packages built and
+                maintained by both the core team and the community.
               </p>
             </div>
           </article>
@@ -161,8 +224,8 @@ export default function Home() {
               </h2>
 
               <p className="text-sm text-sand-11 group-hover:text-sand-12 transition ease-in-out duration-700">
-                Never get lost again, ask questions, and share your knowledge or projects with a
-                growing and supportive community. Join us.
+                Never get lost again, ask questions, and share your knowledge or
+                projects with a growing and supportive community. Join us.
               </p>
             </div>
           </article>
@@ -199,8 +262,9 @@ export default function Home() {
               </h2>
 
               <p className="mt-4 text-sm text-sand-11 group-hover:text-sand-12 transition ease-in-out duration-100">
-                A SQL ORM with a powerful query builder, active record, migrations, and model
-                factories. Everything you need to work with databases.
+                A SQL ORM with a powerful query builder, active record,
+                migrations, and model factories. Everything you need to work
+                with databases.
               </p>
 
               <svg
@@ -220,7 +284,11 @@ export default function Home() {
 
             <article className="relative py-4 px-5 bg-white border border-transparent rounded-lg hover:border-sand-8 hover:shadow-sm transition duration-100 ease-in-out group">
               <h2 className="font-semibold text-sand-12">
-                <a href="https://vinejs.dev/" target="_blank" className="flex flex-row gap-2">
+                <a
+                  href="https://vinejs.dev/"
+                  target="_blank"
+                  className="flex flex-row gap-2"
+                >
                   <span className="bg-[#F3DBFC] h-6 w-6 flex justify-center items-center rounded">
                     <svg className="h-4 w-4 fill-[#CA5AF2]" viewBox="0 0 24 24">
                       <path
@@ -239,8 +307,9 @@ export default function Home() {
               </h2>
 
               <p className="mt-4 text-sm text-sand-11 group-hover:text-sand-12 transition ease-in-out duration-100">
-                A yet simple but feature rich and type-safe form data validation. It comes with 50+
-                built-in rules and an expressive API to define custom rules.
+                A yet simple but feature rich and type-safe form data
+                validation. It comes with 50+ built-in rules and an expressive
+                API to define custom rules.
               </p>
 
               <svg
@@ -260,7 +329,11 @@ export default function Home() {
 
             <article className="relative py-4 px-5 bg-white border border-transparent rounded-lg hover:border-sand-8 hover:shadow-sm transition duration-100 ease-in-out group">
               <h2 className="font-semibold text-sand-12">
-                <a href="https://inertiajs.com/" target="_blank" className="flex flex-row gap-2">
+                <a
+                  href="https://inertiajs.com/"
+                  target="_blank"
+                  className="flex flex-row gap-2"
+                >
                   <span className="bg-[#B8EAE0] h-6 w-6 flex justify-center items-center rounded">
                     <svg className="h-4 w-4 fill-[#4BBBA5]" viewBox="0 0 24 24">
                       <path
@@ -279,8 +352,8 @@ export default function Home() {
               </h2>
 
               <p className="mt-4 text-sm text-sand-11 group-hover:text-sand-12 transition ease-in-out duration-100">
-                The modern monolithic application architecture. It allows you to build single-page
-                applications without building an API.
+                The modern monolithic application architecture. It allows you to
+                build single-page applications without building an API.
               </p>
 
               <svg
@@ -300,9 +373,16 @@ export default function Home() {
 
             <article className="relative py-4 px-5 bg-white border border-transparent rounded-lg hover:border-sand-8 hover:shadow-sm transition duration-100 ease-in-out group">
               <h2 className="font-semibold text-sand-12">
-                <a href="https://japa.dev" target="_blank" className="flex flex-row gap-2">
+                <a
+                  href="https://japa.dev"
+                  target="_blank"
+                  className="flex flex-row gap-2"
+                >
                   <span className="bg-[#FACDDC] h-6 w-6 flex justify-center items-center rounded">
-                    <svg className="h-4 w-4 fill-[#DD3074]" viewBox="0 0 256 256">
+                    <svg
+                      className="h-4 w-4 fill-[#DD3074]"
+                      viewBox="0 0 256 256"
+                    >
                       <path
                         fill="currentColor"
                         d="m240.49 83.51-60-60a12 12 0 0 0-17 0L34.28 152.75a48.77 48.77 0 0 0 69 69l111.2-111.26 21.31-7.11a12 12 0 0 0 4.7-19.87M86.28 204.75a24.77 24.77 0 0 1-35-35l28.13-28.13c7.73-2.41 19.58-3 35.06 5a84 84 0 0 0 21.95 8ZM204.2 88.62a12.15 12.15 0 0 0-4.69 2.89l-38.89 38.9c-7.73 2.41-19.58 3-35.06-5a84 84 0 0 0-21.94-8L172 49l37.79 37.79Z"
@@ -315,8 +395,9 @@ export default function Home() {
               </h2>
 
               <p className="mt-4 text-sm text-sand-11 group-hover:text-sand-12 transition ease-in-out duration-100">
-                From JSON API tests using Open API schema to browser tests with Playwrighht, it
-                comes with everything you need to test your application.
+                From JSON API tests using Open API schema to browser tests with
+                Playwrighht, it comes with everything you need to test your
+                application.
               </p>
 
               <svg
@@ -337,10 +418,10 @@ export default function Home() {
         </div>
 
         <div className="text-sm text-center [&>code]:font-medium [&>code]:text-[#a599ff] bg-sand-12 text-sand-1 fixed bottom-0 left-0 right-0 py-2">
-          Route for this page is registered in <code>start/routes.ts</code> file, rendering{' '}
-          <code>inertia/pages/home.tsx</code> template
+          Route for this page is registered in <code>start/routes.ts</code>{' '}
+          file, rendering <code>inertia/pages/home.tsx</code> template
         </div>
       </div>
     </>
-  )
+  );
 }
