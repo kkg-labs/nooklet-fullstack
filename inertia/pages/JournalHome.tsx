@@ -79,7 +79,6 @@ export default function JournalHome() {
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
   const [autoSaveError, setAutoSaveError] = useState<string | null>(null);
 
-  const [archiveId, setArchiveId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -188,6 +187,35 @@ export default function JournalHome() {
       setActionError(null);
 
       try {
+        // Check if content is empty (all text deleted)
+        if (!nextContent || nextContent.trim().length === 0) {
+          // Archive the nooklet by calling DELETE endpoint
+          await requestJson(`/api/v1/nooklets/${editingId}`, {
+            method: "DELETE",
+            body: JSON.stringify({}),
+          });
+
+          // Remove from entries list and reset editing state
+          setEntries((current) => current.filter((item) => item.id !== editingId));
+          resetEditingState();
+          return true;
+        }
+
+        // Check if content is empty (all text deleted)
+        if (!nextContent || nextContent.trim().length === 0) {
+          // Archive the nooklet by calling DELETE endpoint
+          await requestJson(`/api/v1/nooklets/${editingId}`, {
+            method: "DELETE",
+            body: JSON.stringify({}),
+          });
+
+          // Remove from entries list and reset editing state
+          setEntries((current) => current.filter((item) => item.id !== editingId));
+          resetEditingState();
+          return true;
+        }
+
+        // Normal save with content
         const json = await requestJson(`/api/v1/nooklets/${editingId}`, {
           method: "PUT",
           body: JSON.stringify({
@@ -221,7 +249,7 @@ export default function JournalHome() {
       isUpdating,
       pendingAutoSave,
       requestJson,
-    ]
+    ],
   );
 
   const finishEditing = useCallback(async () => {
@@ -304,7 +332,7 @@ export default function JournalHome() {
           method: "POST",
           body: JSON.stringify(payload),
         });
-        setEntries((current) => [json.data, ...current]);
+        setEntries((current) => [...current, json.data]);
         setNewContent("");
       } catch (error) {
         setCreateError((error as Error).message);
@@ -312,14 +340,14 @@ export default function JournalHome() {
         setIsCreating(false);
       }
     },
-    [canSubmitNew, newContent, requestJson]
+    [canSubmitNew, newContent, requestJson],
   );
 
   const beginEdit = useCallback(
     (
       entry: SerializedNooklet,
       cursor: number | null = null,
-      contentOverride?: string
+      contentOverride?: string,
     ) => {
       clearAutoSaveTimer();
       setEditingId(entry.id);
@@ -333,34 +361,10 @@ export default function JournalHome() {
       setLastSavedAt(entry.updatedAt ?? entry.createdAt ?? null);
       setAutoSaveError(null);
     },
-    [clearAutoSaveTimer]
+    [clearAutoSaveTimer],
   );
 
-  const handleArchive = useCallback(
-    async (entryId: string) => {
-      if (archiveId || !window.confirm("Archive this nooklet?")) {
-        return;
-      }
-      setActionError(null);
-      setArchiveId(entryId);
 
-      try {
-        await requestJson(`/api/v1/nooklets/${entryId}`, {
-          method: "DELETE",
-          body: JSON.stringify({}),
-        });
-        setEntries((current) => current.filter((item) => item.id !== entryId));
-        if (editingId === entryId) {
-          resetEditingState();
-        }
-      } catch (error) {
-        setActionError((error as Error).message);
-      } finally {
-        setArchiveId(null);
-      }
-    },
-    [archiveId, editingId, requestJson, resetEditingState]
-  );
 
   return (
     <div className="min-h-screen bg-nookb-950 text-base-content">
@@ -450,29 +454,23 @@ export default function JournalHome() {
                 const isEditing = editingId === entry.id;
                 const createdLabel = formatDateTime(entry.createdAt);
                 const updatedLabel = formatDateTime(entry.updatedAt);
-                const autoSaveStatus = (() => {
-                  if (!isEditing) {
-                    return null;
-                  }
-                  if (autoSaveError) {
-                    return `Error saving: ${autoSaveError}`;
-                  }
+                let autoSaveStatus = null;
+                if (isEditing) {
                   if (isUpdating) {
-                    return "Saving...";
+                    autoSaveStatus = "Saving...";
+                  } else if (autoSaveError) {
+                    autoSaveStatus = "Failed to save";
+                  } else if (pendingAutoSave) {
+                    autoSaveStatus = "Unsaved changes";
+                  } else if (lastSavedAt) {
+                    autoSaveStatus = `Saved ${formatDateTime(lastSavedAt)}`;
                   }
-                  if (pendingAutoSave) {
-                    return "Unsaved changes";
-                  }
-                  if (lastSavedAt) {
-                    return `Saved ${formatDateTime(lastSavedAt)}`;
-                  }
-                  return "All changes saved";
-                })();
+                }
 
                 return (
                   <div key={entry.id}>
                     <div className="p-4">
-                      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between mb-3">
+                      <div className="flex flex-col gap-2 px-1.5 sm:flex-row sm:items-start sm:justify-between mb-3">
                         <div>
                           <div className="flex flex-wrap gap-3 text-xs text-nookb-400">
                             {createdLabel ? (
@@ -497,30 +495,20 @@ export default function JournalHome() {
                             <div className="flex items-center h-8">
                               {autoSaveStatus ? (
                                 <span
-                                  className={`text-xs ${
-                                    autoSaveError
-                                      ? "text-error"
-                                      : isUpdating
-                                      ? "text-nookb-200"
-                                      : "text-nookb-400"
-                                  }`}
+                                  className="text-xs text-nookb-400"
                                 >
                                   {autoSaveStatus}
                                 </span>
                               ) : null}
+
+                              {/* Show archive warning when content is empty */}
+                              {isEditing && !editContent.trim() && (
+                                <span className="text-xs text-nookb-400 ml-2">
+                                  Entry will be archived when saved
+                                </span>
+                              )}
                             </div>
-                          ) : (
-                            <button
-                              type="button"
-                              className="btn btn-ghost btn-sm h-8"
-                              onClick={() => handleArchive(entry.id)}
-                              disabled={archiveId === entry.id}
-                            >
-                              {archiveId === entry.id
-                                ? "Archiving..."
-                                : "Archive"}
-                            </button>
-                          )}
+                          ) : null}
                         </div>
                       </div>
 
@@ -529,21 +517,19 @@ export default function JournalHome() {
                           <MarkdownEditor
                             value={editContent}
                             onChange={handleEditContentChange}
-                            onBlur={() => {
-                              void finishEditing();
-                            }}
-                            autoFocus
-                            unstyledContainer
-                            className="rounded-lg bg-base-100/80 p-3 transition"
+                            onBlur={() => void finishEditing()}
+                            autoFocus={true}
+                            unstyledContainer={true}
+                            className="rounded-lg bg-base-100/80 transition"
                             cursorPosition={editCursor}
                           />
                         ) : (
                           <MarkdownPreview
                             value={entry.content}
-                            className="rounded-lg bg-base-100/80 p-3 transition cursor-text"
-                            onClick={(_, cursor, value) =>
-                              beginEdit(entry, cursor, value)
-                            }
+                            className="rounded-lg bg-base-100/80 transition cursor-text"
+                            onClick={(_, cursor, value) => {
+                              beginEdit(entry, cursor, value);
+                            }}
                           />
                         )}
                       </div>
@@ -575,13 +561,7 @@ export default function JournalHome() {
               ) : null}
 
               <div className="grid gap-3">
-                <div
-                  style={{
-                    height: "280px",
-                    minHeight: "220px",
-                    maxHeight: "420px",
-                  }}
-                >
+                <div>
                   <MarkdownEditor
                     value={newContent}
                     onChange={setNewContent}
