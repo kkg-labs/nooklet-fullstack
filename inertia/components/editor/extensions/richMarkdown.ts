@@ -28,8 +28,13 @@ function buildDecorations(view: EditorView): DecorationSet {
   const codeRE = /`([^`\n]+)`/g;
   const italicUsRE = /_([^_\n]+)_/g; // underscore emphasis
 
-  // Track cursor position for conditional visibility
+  // Track cursor/selection for conditional visibility
   const cursorPos = view.state.selection.main.head;
+  const selectionRanges = view.state.selection.ranges;
+  const selectionIntersects = (from: number, to: number) =>
+    selectionRanges.some(
+      (r) => !(r.from === r.to) && r.from < to && r.to > from,
+    );
 
   for (let i = 1; i <= doc.lines; i++) {
     const line = doc.line(i);
@@ -43,23 +48,24 @@ function buildDecorations(view: EditorView): DecorationSet {
       const prefixLen = hashes.length + 1; // hashes + space
       const isPreview = view.state.facet(EditorView.editable) === false;
       const onLine = cursorPos >= line.from && cursorPos <= line.to;
+      const lineSelected = selectionIntersects(line.from, line.to);
 
       builder.add(
         line.from,
         line.from,
-        Decoration.line({ class: `cm-rm-h${level}-line` })
+        Decoration.line({ class: `cm-rm-h${level}-line` }),
       );
 
-      if (isPreview || !onLine) {
+      if (isPreview || !(onLine || lineSelected)) {
         builder.add(
           line.from,
           line.from + hashes.length,
-          Decoration.mark({ class: "cm-rm-marker" })
+          Decoration.mark({ class: "cm-rm-marker" }),
         );
         builder.add(
           line.from + hashes.length,
           line.from + prefixLen,
-          Decoration.mark({ class: "cm-rm-marker" })
+          Decoration.mark({ class: "cm-rm-marker" }),
         );
       }
     }
@@ -70,17 +76,18 @@ function buildDecorations(view: EditorView): DecorationSet {
       const prefix = qm[1];
       const prefixLen = prefix.length;
       const onLine = cursorPos >= line.from && cursorPos <= line.to;
-      if (!onLine) {
+      const lineSelected = selectionIntersects(line.from, line.to);
+      if (!(onLine || lineSelected)) {
         builder.add(
           line.from,
           line.from + prefixLen,
-          Decoration.mark({ class: "cm-rm-marker" })
+          Decoration.mark({ class: "cm-rm-marker" }),
         );
       }
       builder.add(
         line.from + prefixLen,
         line.to,
-        Decoration.mark({ class: "cm-rm-quote" })
+        Decoration.mark({ class: "cm-rm-quote" }),
       );
     }
 
@@ -93,7 +100,7 @@ function buildDecorations(view: EditorView): DecorationSet {
       builder.add(
         line.from + prefixLen,
         line.to,
-        Decoration.mark({ class: "cm-rm-list" })
+        Decoration.mark({ class: "cm-rm-list" }),
       );
     }
 
@@ -106,7 +113,7 @@ function buildDecorations(view: EditorView): DecorationSet {
       builder.add(
         line.from + prefixLen,
         line.to,
-        Decoration.mark({ class: "cm-rm-olist" })
+        Decoration.mark({ class: "cm-rm-olist" }),
       );
     }
 
@@ -129,9 +136,11 @@ function buildDecorations(view: EditorView): DecorationSet {
         const innerEnd = innerStart + inner.length;
         const end = start + full.length;
         const isPreview = view.state.facet(EditorView.editable) === false;
-        const cursorInToken = cursorPos >= start && cursorPos <= end;
+        const intersects =
+          (cursorPos >= start && cursorPos <= end) ||
+          selectionIntersects(start, end);
 
-        if (isPreview || !cursorInToken) {
+        if (isPreview || !intersects) {
           inlineDecorations.push({
             from: start,
             to: innerStart,
@@ -187,7 +196,7 @@ export function richMarkdown(): Extension {
     },
     {
       decorations: (v) => v.decorations,
-    }
+    },
   );
 
   const baseTheme = EditorView.baseTheme({

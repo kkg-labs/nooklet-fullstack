@@ -436,7 +436,7 @@ export default function JournalHome() {
           </div>
         ) : null}
 
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4">
           {entries.length === 0 ? (
             <div className="card border border-dashed border-nookb-800 bg-nookb-1000/60">
               <div className="card-body items-center text-center text-nookb-400">
@@ -445,112 +445,113 @@ export default function JournalHome() {
               </div>
             </div>
           ) : (
-            entries.map((entry) => {
-              const isEditing = editingId === entry.id;
-              const createdLabel = formatDateTime(entry.createdAt);
-              const updatedLabel = formatDateTime(entry.updatedAt);
-              const autoSaveStatus = (() => {
-                if (!isEditing) {
-                  return null;
-                }
-                if (autoSaveError) {
-                  return `Error saving: ${autoSaveError}`;
-                }
-                if (isUpdating) {
-                  return "Saving...";
-                }
-                if (pendingAutoSave) {
-                  return "Unsaved changes";
-                }
-                if (lastSavedAt) {
-                  return `Saved ${formatDateTime(lastSavedAt)}`;
-                }
-                return "All changes saved";
-              })();
+            <div className="bg-nookb-1000 rounded-lg overflow-hidden">
+              {entries.map((entry) => {
+                const isEditing = editingId === entry.id;
+                const createdLabel = formatDateTime(entry.createdAt);
+                const updatedLabel = formatDateTime(entry.updatedAt);
+                const autoSaveStatus = (() => {
+                  if (!isEditing) {
+                    return null;
+                  }
+                  if (autoSaveError) {
+                    return `Error saving: ${autoSaveError}`;
+                  }
+                  if (isUpdating) {
+                    return "Saving...";
+                  }
+                  if (pendingAutoSave) {
+                    return "Unsaved changes";
+                  }
+                  if (lastSavedAt) {
+                    return `Saved ${formatDateTime(lastSavedAt)}`;
+                  }
+                  return "All changes saved";
+                })();
 
-              return (
-                <div
-                  key={entry.id}
-                  className="card card-bordered bg-nookb-1000 w-full"
-                >
-                  <div className="card-body gap-4">
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                      <div>
-                        <div className="flex flex-wrap gap-3 text-xs text-nookb-400">
-                          {createdLabel ? (
-                            <span>Created {createdLabel}</span>
-                          ) : null}
-                          {updatedLabel && updatedLabel !== createdLabel ? (
-                            <span>Updated {updatedLabel}</span>
-                          ) : null}
-                          {entry.wordCount != null ? (
-                            <span>{entry.wordCount} words</span>
-                          ) : null}
-                          {entry.isDraft ? (
-                            <span className="badge badge-outline badge-sm">
-                              Draft
-                            </span>
-                          ) : null}
+                return (
+                  <div key={entry.id}>
+                    <div className="p-4">
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between mb-3">
+                        <div>
+                          <div className="flex flex-wrap gap-3 text-xs text-nookb-400">
+                            {createdLabel ? (
+                              <span>Created {createdLabel}</span>
+                            ) : null}
+                            {updatedLabel && updatedLabel !== createdLabel ? (
+                              <span>Updated {updatedLabel}</span>
+                            ) : null}
+                            {entry.wordCount != null ? (
+                              <span>{entry.wordCount} words</span>
+                            ) : null}
+                            {entry.isDraft ? (
+                              <span className="badge badge-outline badge-sm">
+                                Draft
+                              </span>
+                            ) : null}
+                          </div>
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-2 min-h-[2rem]">
+                          {isEditing ? (
+                            <div className="flex items-center h-8">
+                              {autoSaveStatus ? (
+                                <span
+                                  className={`text-xs ${
+                                    autoSaveError
+                                      ? "text-error"
+                                      : isUpdating
+                                      ? "text-nookb-200"
+                                      : "text-nookb-400"
+                                  }`}
+                                >
+                                  {autoSaveStatus}
+                                </span>
+                              ) : null}
+                            </div>
+                          ) : (
+                            <button
+                              type="button"
+                              className="btn btn-ghost btn-sm h-8"
+                              onClick={() => handleArchive(entry.id)}
+                              disabled={archiveId === entry.id}
+                            >
+                              {archiveId === entry.id
+                                ? "Archiving..."
+                                : "Archive"}
+                            </button>
+                          )}
                         </div>
                       </div>
 
-                      <div className="flex flex-wrap items-center gap-2">
+                      <div>
                         {isEditing ? (
-                          autoSaveStatus ? (
-                            <span
-                              className={`text-xs ${
-                                autoSaveError
-                                  ? "text-error"
-                                  : isUpdating
-                                  ? "text-nookb-200"
-                                  : "text-nookb-400"
-                              }`}
-                            >
-                              {autoSaveStatus}
-                            </span>
-                          ) : null
+                          <MarkdownEditor
+                            value={editContent}
+                            onChange={handleEditContentChange}
+                            onBlur={() => {
+                              void finishEditing();
+                            }}
+                            autoFocus
+                            unstyledContainer
+                            className="rounded-lg bg-base-100/80 p-3 transition"
+                            cursorPosition={editCursor}
+                          />
                         ) : (
-                          <button
-                            type="button"
-                            className="btn btn-ghost btn-sm"
-                            onClick={() => handleArchive(entry.id)}
-                            disabled={archiveId === entry.id}
-                          >
-                            {archiveId === entry.id
-                              ? "Archiving..."
-                              : "Archive"}
-                          </button>
+                          <MarkdownPreview
+                            value={entry.content}
+                            className="rounded-lg bg-base-100/80 p-3 transition cursor-text"
+                            onClick={(_, cursor, value) =>
+                              beginEdit(entry, cursor, value)
+                            }
+                          />
                         )}
                       </div>
                     </div>
-
-                    <div>
-                      {isEditing ? (
-                        <MarkdownEditor
-                          value={editContent}
-                          onChange={handleEditContentChange}
-                          onBlur={() => {
-                            void finishEditing();
-                          }}
-                          autoFocus
-                          unstyledContainer
-                          className="rounded-lg border border-base-200 bg-base-100/80 p-4 transition"
-                          cursorPosition={editCursor}
-                        />
-                      ) : (
-                        <MarkdownPreview
-                          value={entry.content}
-                          className="rounded-lg border border-base-200 bg-base-100/80 p-4 transition cursor-text"
-                          onClick={(event, cursor, value) =>
-                            beginEdit(entry, cursor, value)
-                          }
-                        />
-                      )}
-                    </div>
                   </div>
-                </div>
-              );
-            })
+                );
+              })}
+            </div>
           )}
 
           <form
@@ -574,14 +575,19 @@ export default function JournalHome() {
               ) : null}
 
               <div className="grid gap-3">
-                <MarkdownEditor
-                  value={newContent}
-                  onChange={setNewContent}
-                  height="280px"
-                  minHeight="220px"
-                  maxHeight="420px"
-                  placeholder="Share a thought, reflection, or quick capture..."
-                />
+                <div
+                  style={{
+                    height: "280px",
+                    minHeight: "220px",
+                    maxHeight: "420px",
+                  }}
+                >
+                  <MarkdownEditor
+                    value={newContent}
+                    onChange={setNewContent}
+                    placeholder="Share a thought, reflection, or quick capture..."
+                  />
+                </div>
               </div>
 
               <div className="flex flex-wrap justify-end gap-2">

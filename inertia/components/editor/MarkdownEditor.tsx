@@ -2,12 +2,12 @@ import React, { useCallback, useEffect, useMemo, useRef } from "react";
 
 import CodeMirror from "@uiw/react-codemirror";
 import { markdown } from "@codemirror/lang-markdown";
-import { EditorView } from "@codemirror/view";
+import { EditorView, ViewUpdate } from "@codemirror/view";
 import { richMarkdown } from "./extensions/richMarkdown";
 
 interface MarkdownEditorProps {
   value: string;
-  onChange: (value: string) => void;
+  onChange: (value: string, viewUpdate?: ViewUpdate) => void;
   placeholder?: string;
   className?: string;
   disabled?: boolean;
@@ -42,14 +42,22 @@ const MarkdownEditorBase: React.FC<MarkdownEditorProps> = ({
     const base = [
       markdown(),
       richMarkdown(),
+      EditorView.lineWrapping,
       EditorView.theme(
         {
           ".cm-activeLine": { backgroundColor: "transparent" },
           ".cm-activeLineGutter": { backgroundColor: "transparent" },
           ".cm-editor": { backgroundColor: "transparent" },
-          ".cm-scroller": { backgroundColor: "transparent" },
+          ".cm-scroller": {
+            backgroundColor: "transparent",
+            overflowX: "hidden",
+          },
+          ".cm-content": {
+            whiteSpace: "pre-wrap",
+            wordBreak: "break-word",
+          },
         },
-        { dark: true }
+        { dark: true },
       ),
     ];
 
@@ -61,8 +69,8 @@ const MarkdownEditorBase: React.FC<MarkdownEditorProps> = ({
             ".cm-scroller": { pointerEvents: "none" },
             ".cm-content": { pointerEvents: "none" },
           },
-          { dark: true }
-        )
+          { dark: true },
+        ),
       );
     }
 
@@ -79,13 +87,13 @@ const MarkdownEditorBase: React.FC<MarkdownEditorProps> = ({
       });
       if (!disablePointerEvents) {
         requestAnimationFrame(() => {
-          if (!view.isDestroyed) {
+          if (view.dom.isConnected) {
             view.focus();
           }
         });
       }
     },
-    [disablePointerEvents]
+    [disablePointerEvents],
   );
 
   useEffect(() => {
@@ -102,7 +110,29 @@ const MarkdownEditorBase: React.FC<MarkdownEditorProps> = ({
       fontFamily:
         'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
     }),
-    []
+    [],
+  );
+
+  const handleEditorChange = useCallback(
+    (nextValue: string, viewUpdate: ViewUpdate) => {
+      onChange(nextValue, viewUpdate);
+    },
+    [onChange],
+  );
+
+  const handleEditorBlur = useCallback(
+    (event: React.FocusEvent<HTMLDivElement>) => {
+      if (!onBlur) {
+        return;
+      }
+      const view = viewRef.current;
+      if (view) {
+        onBlur(view.state.doc.toString());
+        return;
+      }
+      onBlur(value);
+    },
+    [onBlur, value],
   );
 
   const containerClasses: string[] = ["markdown-editor"];
@@ -112,10 +142,12 @@ const MarkdownEditorBase: React.FC<MarkdownEditorProps> = ({
       "border",
       "border-base-200",
       "bg-base-100/80",
-      "transition"
+      "transition",
     );
     containerClasses.push(
-      disabled ? "opacity-50 cursor-not-allowed" : "focus-within:border-primary"
+      disabled
+        ? "opacity-50 cursor-not-allowed"
+        : "focus-within:border-primary",
     );
   } else if (disabled) {
     containerClasses.push("opacity-50 cursor-not-allowed");
@@ -128,7 +160,7 @@ const MarkdownEditorBase: React.FC<MarkdownEditorProps> = ({
     <div className={containerClasses.join(" ")} onClick={onClick}>
       <CodeMirror
         value={value}
-        onChange={onChange}
+        onChange={handleEditorChange}
         placeholder={placeholder}
         theme="dark"
         extensions={extensions}
@@ -136,7 +168,7 @@ const MarkdownEditorBase: React.FC<MarkdownEditorProps> = ({
         readOnly={readOnly}
         style={editorStyle}
         autoFocus={autoFocus}
-        onBlur={(nextValue) => onBlur?.(nextValue)}
+        onBlur={handleEditorBlur}
         onCreateEditor={(view) => {
           viewRef.current = view;
           onCreateEditor?.(view);
@@ -167,7 +199,7 @@ const MarkdownEditorBase: React.FC<MarkdownEditorProps> = ({
 
 const propsAreEqual = (
   prev: Readonly<MarkdownEditorProps>,
-  next: Readonly<MarkdownEditorProps>
+  next: Readonly<MarkdownEditorProps>,
 ) => {
   return (
     prev.value === next.value &&

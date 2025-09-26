@@ -45,7 +45,7 @@ export default function MarkdownPreview({
       value={normalized}
       onChange={noop}
       readOnly
-      className={`rounded-lg border border-base-200 bg-base-100/80 p-4 transition ${className}`}
+      className={`rounded-lg bg-base-100/80 p-3 transition ${className}`}
       unstyledContainer
       disablePointerEvents
       autoFocus={false}
