@@ -83,9 +83,43 @@ export default function JournalHome() {
   const newEntryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [pendingCreate, setPendingCreate] = useState(false);
 
-  useEffect(() => {
-    setEntries(initialNooklets);
-  }, [initialNooklets]);
+  // Helper function to detect whitespace-only changes
+  const isWhitespaceOnlyChange = useCallback(
+    (previous: string, current: string): boolean => {
+      const previousTrimmed = previous.trim();
+      const currentTrimmed = current.trim();
+      return previousTrimmed === currentTrimmed && previous !== current;
+    },
+    [],
+  );
+
+  // Helper function to handle async operations with consistent error handling
+  const handleAsyncOperation = useCallback(
+    async <T,>(
+      operation: () => Promise<T>,
+      setError: (error: string) => void,
+      setLoading: (loading: boolean) => void,
+      onSuccess?: (result: T) => void,
+      onFailure?: () => void,
+    ): Promise<T | null> => {
+      try {
+        const result = await operation();
+        if (onSuccess) {
+          onSuccess(result);
+        }
+        return result;
+      } catch (error) {
+        setError((error as Error).message);
+        if (onFailure) {
+          onFailure();
+        }
+        return null;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
 
   const clearAutoSaveTimer = useCallback(() => {
     if (autoSaveTimerRef.current) {
@@ -100,6 +134,10 @@ export default function JournalHome() {
       newEntryTimerRef.current = null;
     }
   }, []);
+
+  useEffect(() => {
+    setEntries(initialNooklets);
+  }, [initialNooklets]);
 
   const resetEditingState = useCallback(() => {
     clearAutoSaveTimer();
@@ -147,44 +185,41 @@ export default function JournalHome() {
     return data as { data: SerializedNooklet };
   }, []);
 
-  const handleEditContentChange = useCallback((value: string) => {
-    setEditContentState((previous) => {
-      if (previous === value) {
-        return previous;
-      }
+  const handleEditContentChange = useCallback(
+    (value: string) => {
+      setEditContentState((previous) => {
+        if (previous === value) {
+          return previous;
+        }
 
-      // Check if this is a whitespace-only change
-      const previousTrimmed = previous.trim();
-      const valueTrimmed = value.trim();
-      const isWhitespaceOnlyChange =
-        previousTrimmed === valueTrimmed && previous !== value;
+        // Check if this is a whitespace-only change
+        const whitespaceOnlyChange = isWhitespaceOnlyChange(previous, value);
 
-      // Only trigger auto-save for non-whitespace-only changes or actual content changes
-      if (!isWhitespaceOnlyChange) {
-        setPendingAutoSave(true);
-        setLastSavedAt(null);
-        setAutoSaveError(null);
-      }
+        // Only trigger auto-save for non-whitespace-only changes or actual content changes
+        if (!whitespaceOnlyChange) {
+          setPendingAutoSave(true);
+          setLastSavedAt(null);
+          setAutoSaveError(null);
+        }
 
-      return value;
-    });
-    setActionError(null);
-  }, []);
+        return value;
+      });
+      setActionError(null);
+    },
+    [isWhitespaceOnlyChange],
+  );
 
   const handleNewContentChange = useCallback(
     (value: string) => {
-      const previousTrimmed = newContent.trim();
-      const valueTrimmed = value.trim();
-      const isWhitespaceOnlyChange =
-        previousTrimmed === valueTrimmed && newContent !== value;
+      const whitespaceOnlyChange = isWhitespaceOnlyChange(newContent, value);
 
       // Only update state and trigger auto-save for non-whitespace-only changes or actual content changes
-      if (!isWhitespaceOnlyChange) {
+      if (!whitespaceOnlyChange) {
         setNewContent(value);
         setCreateError(null);
       }
     },
-    [newContent],
+    [newContent, isWhitespaceOnlyChange],
   );
 
   const flushAutoSave = useCallback(
@@ -223,7 +258,7 @@ export default function JournalHome() {
       setIsUpdating(true);
       setActionError(null);
 
-      try {
+      const saveOperation = async () => {
         // Check if content is empty (all text deleted)
         if (!nextContent || nextContent.trim().length === 0) {
           // Archive the nooklet by calling DELETE endpoint
@@ -255,16 +290,22 @@ export default function JournalHome() {
         setEditContentState(json.data.content ?? nextContent);
         setLastSavedAt(json.data.updatedAt ?? new Date().toISOString());
         setPendingAutoSave(false);
-        setIsUpdating(false);
         setAutoSaveError(null);
         return true;
-      } catch (error) {
-        setActionError((error as Error).message);
-        setIsUpdating(false);
-        setPendingAutoSave(true);
-        setAutoSaveError((error as Error).message);
-        return false;
-      }
+      };
+
+      const result = await handleAsyncOperation(
+        saveOperation,
+        setActionError,
+        setIsUpdating,
+        undefined,
+        () => {
+          setPendingAutoSave(true);
+          setAutoSaveError('Failed to save');
+        },
+      );
+
+      return result ?? false;
     },
     [
       clearAutoSaveTimer,
@@ -275,6 +316,7 @@ export default function JournalHome() {
       pendingAutoSave,
       requestJson,
       resetEditingState,
+      handleAsyncOperation,
     ],
   );
 
@@ -377,7 +419,7 @@ export default function JournalHome() {
       setPendingCreate(false);
       setCreateError(null);
 
-      try {
+      const createOperation = async () => {
         const payload = {
           content: content, // Use original content to preserve newlines
           type: DEFAULT_TYPE,
@@ -389,14 +431,26 @@ export default function JournalHome() {
         setEntries((current) => [...current, json.data]);
         beginEdit(json.data, content.length, content);
         setNewContent('');
-      } catch (error) {
-        setCreateError((error as Error).message);
-        setPendingCreate(true);
-      } finally {
-        setIsCreating(false);
-      }
+        return json;
+      };
+
+      await handleAsyncOperation(
+        createOperation,
+        setCreateError,
+        setIsCreating,
+        undefined,
+        () => {
+          setPendingCreate(true);
+        },
+      );
     },
-    [beginEdit, clearNewEntryTimer, isCreating, requestJson],
+    [
+      beginEdit,
+      clearNewEntryTimer,
+      isCreating,
+      requestJson,
+      handleAsyncOperation,
+    ],
   );
 
   useEffect(() => {
