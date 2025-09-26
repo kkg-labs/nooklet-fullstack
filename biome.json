@@ -1,12 +1,8 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.1.4/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.2.2/schema.json",
   "linter": {
     "enabled": true,
-    "rules": {
-      "nursery": {
-        "useCssUnknownProperty": "off"
-      }
-    }
+    "rules": {}
   },
   "formatter": {
     "enabled": true,
@@ -23,7 +19,5 @@
       "enabled": false
     }
   },
-  "files": {
-    "ignore": ["**/*.css"]
-  }
+  "files": {}
 }
