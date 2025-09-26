@@ -80,6 +80,8 @@ export default function JournalHome() {
   const [autoSaveError, setAutoSaveError] = useState<string | null>(null);
 
   const [actionError, setActionError] = useState<string | null>(null);
+  const newEntryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [pendingCreate, setPendingCreate] = useState(false);
 
   useEffect(() => {
     setEntries(initialNooklets);
@@ -89,6 +91,13 @@ export default function JournalHome() {
     if (autoSaveTimerRef.current) {
       clearTimeout(autoSaveTimerRef.current);
       autoSaveTimerRef.current = null;
+    }
+  }, []);
+
+  const clearNewEntryTimer = useCallback(() => {
+    if (newEntryTimerRef.current) {
+      clearTimeout(newEntryTimerRef.current);
+      newEntryTimerRef.current = null;
     }
   }, []);
 
@@ -150,6 +159,11 @@ export default function JournalHome() {
     setActionError(null);
   }, []);
 
+  const handleNewContentChange = useCallback((value: string) => {
+    setNewContent(value);
+    setCreateError(null);
+  }, []);
+
   const flushAutoSave = useCallback(
     async (force = false) => {
       if (!editingId) {
@@ -187,22 +201,6 @@ export default function JournalHome() {
       setActionError(null);
 
       try {
-        // Check if content is empty (all text deleted)
-        if (!nextContent || nextContent.trim().length === 0) {
-          // Archive the nooklet by calling DELETE endpoint
-          await requestJson(`/api/v1/nooklets/${editingId}`, {
-            method: "DELETE",
-            body: JSON.stringify({}),
-          });
-
-          // Remove from entries list and reset editing state
-          setEntries((current) =>
-            current.filter((item) => item.id !== editingId),
-          );
-          resetEditingState();
-          return true;
-        }
-
         // Check if content is empty (all text deleted)
         if (!nextContent || nextContent.trim().length === 0) {
           // Archive the nooklet by calling DELETE endpoint
@@ -297,6 +295,12 @@ export default function JournalHome() {
     pendingAutoSave,
   ]);
 
+  useEffect(() => {
+    return () => {
+      clearNewEntryTimer();
+    };
+  }, [clearNewEntryTimer]);
+
   const greeting = useMemo(() => {
     const hour = new Date().getHours();
     if (hour < 12) return "Good morning";
@@ -313,39 +317,9 @@ export default function JournalHome() {
     );
   }, [user]);
 
-  const canSubmitNew = useMemo(() => {
-    return newContent.trim().length > 0 && !isCreating;
-  }, [newContent, isCreating]);
-
-  const handleCreate = useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault();
-      if (!canSubmitNew) {
-        return;
-      }
-
-      setCreateError(null);
-      setIsCreating(true);
-
-      try {
-        const payload = {
-          content: newContent.trim(),
-          type: DEFAULT_TYPE,
-        };
-        const json = await requestJson("/api/v1/nooklets", {
-          method: "POST",
-          body: JSON.stringify(payload),
-        });
-        setEntries((current) => [...current, json.data]);
-        setNewContent("");
-      } catch (error) {
-        setCreateError((error as Error).message);
-      } finally {
-        setIsCreating(false);
-      }
-    },
-    [canSubmitNew, newContent, requestJson],
-  );
+  const hasNewDraftContent = useMemo(() => {
+    return newContent.trim().length > 0;
+  }, [newContent]);
 
   const beginEdit = useCallback(
     (
@@ -367,6 +341,64 @@ export default function JournalHome() {
     },
     [clearAutoSaveTimer],
   );
+
+  const createDraftEntry = useCallback(
+    async (content: string) => {
+      const trimmed = content.trim();
+      if (!trimmed || isCreating) {
+        return;
+      }
+
+      clearNewEntryTimer();
+      setIsCreating(true);
+      setPendingCreate(false);
+      setCreateError(null);
+
+      try {
+        const payload = {
+          content: trimmed,
+          type: DEFAULT_TYPE,
+        };
+        const json = await requestJson("/api/v1/nooklets", {
+          method: "POST",
+          body: JSON.stringify(payload),
+        });
+        setEntries((current) => [...current, json.data]);
+        beginEdit(json.data, trimmed.length, trimmed);
+        setNewContent("");
+      } catch (error) {
+        setCreateError((error as Error).message);
+        setPendingCreate(true);
+      } finally {
+        setIsCreating(false);
+      }
+    },
+    [beginEdit, clearNewEntryTimer, isCreating, requestJson],
+  );
+
+  useEffect(() => {
+    const trimmed = newContent.trim();
+    clearNewEntryTimer();
+
+    if (!trimmed) {
+      setPendingCreate(false);
+      return;
+    }
+
+    if (isCreating) {
+      setPendingCreate(true);
+      return;
+    }
+
+    setPendingCreate(true);
+    newEntryTimerRef.current = setTimeout(() => {
+      void createDraftEntry(trimmed);
+    }, 2000);
+
+    return () => {
+      clearNewEntryTimer();
+    };
+  }, [newContent, isCreating, clearNewEntryTimer, createDraftEntry]);
 
   return (
     <div className="min-h-screen bg-nookb-950 text-base-content">
@@ -443,155 +475,139 @@ export default function JournalHome() {
         ) : null}
 
         <div className="flex flex-col gap-4">
-          {entries.length === 0 ? (
-            <div className="card border border-dashed border-nookb-800 bg-nookb-1000/60">
-              <div className="card-body items-center text-center text-nookb-400">
-                <h2 className="card-title text-nookb-100">No nooklets yet</h2>
-                <p>Use the editor below to create your first entry.</p>
+          <div className="bg-nookb-1000 rounded-lg overflow-hidden flex flex-col gap-4 py-5">
+            {entries.length === 0 ? (
+              <div className="px-4">
+                <div className="rounded-lg border border-dashed border-nookb-800 bg-nookb-1000/60 px-6 py-8 text-center text-sm text-nookb-400">
+                  <p>
+                    No nooklets yet. Start writing below to create your first
+                    entry.
+                  </p>
+                </div>
               </div>
-            </div>
-          ) : (
-            <div className="bg-nookb-1000 rounded-lg overflow-hidden flex flex-col gap-4 py-5">
-              {entries.map((entry) => {
-                const isEditing = editingId === entry.id;
-                const createdLabel = formatDateTime(entry.createdAt);
-                const updatedLabel = formatDateTime(entry.updatedAt);
-                let autoSaveStatus = null;
-                if (isEditing) {
-                  if (isUpdating) {
-                    autoSaveStatus = "Saving...";
-                  } else if (autoSaveError) {
-                    autoSaveStatus = "Failed to save";
-                  } else if (pendingAutoSave) {
-                    autoSaveStatus = "Unsaved changes";
-                  } else if (lastSavedAt) {
-                    autoSaveStatus = `Saved ${formatDateTime(lastSavedAt)}`;
-                  }
+            ) : null}
+
+            {entries.map((entry) => {
+              const isEditing = editingId === entry.id;
+              const createdLabel = formatDateTime(entry.createdAt);
+              const updatedLabel = formatDateTime(entry.updatedAt);
+              let autoSaveStatus = null;
+              if (isEditing) {
+                if (isUpdating) {
+                  autoSaveStatus = "Saving...";
+                } else if (autoSaveError) {
+                  autoSaveStatus = "Failed to save";
+                } else if (pendingAutoSave) {
+                  autoSaveStatus = "Unsaved changes";
+                } else if (lastSavedAt) {
+                  autoSaveStatus = `Saved ${formatDateTime(lastSavedAt)}`;
                 }
+              }
 
-                return (
-                  <div key={entry.id}>
-                    <div className="px-4">
-                      <div className="flex flex-col gap-2 px-1.5 sm:flex-row sm:items-start sm:justify-between mb-1">
-                        <div>
-                          <div className="flex flex-wrap gap-3 text-xs text-nookb-400">
-                            {createdLabel ? (
-                              <span>Created {createdLabel}</span>
-                            ) : null}
-                            {updatedLabel && updatedLabel !== createdLabel ? (
-                              <span>Updated {updatedLabel}</span>
-                            ) : null}
-                            {entry.wordCount != null ? (
-                              <span>{entry.wordCount} words</span>
-                            ) : null}
-                            {entry.isDraft ? (
-                              <span className="badge badge-outline badge-sm">
-                                Draft
-                              </span>
-                            ) : null}
-                          </div>
-                        </div>
-
-                        <div className="flex flex-wrap items-center gap-2">
-                          {isEditing ? (
-                            <div className="flex items-center">
-                              {autoSaveStatus ? (
-                                <span className="text-xs text-nookb-400">
-                                  {autoSaveStatus}
-                                </span>
-                              ) : null}
-
-                              {/* Show archive warning when content is empty */}
-                              {isEditing && !editContent.trim() && (
-                                <span className="text-xs text-nookb-400 ml-2">
-                                  Entry will be archived when saved
-                                </span>
-                              )}
-                            </div>
+              return (
+                <div key={entry.id}>
+                  <div className="px-4">
+                    <div className="flex flex-col gap-2 px-1.5 sm:flex-row sm:items-start sm:justify-between mb-1">
+                      <div>
+                        <div className="flex flex-wrap gap-3 text-xs text-nookb-500">
+                          {createdLabel ? (
+                            <span>Created {createdLabel}</span>
+                          ) : null}
+                          {updatedLabel && updatedLabel !== createdLabel ? (
+                            <span>Updated {updatedLabel}</span>
+                          ) : null}
+                          {entry.wordCount != null ? (
+                            <span>{entry.wordCount} words</span>
+                          ) : null}
+                          {entry.isDraft ? (
+                            <span className="badge badge-outline badge-sm">
+                              Draft
+                            </span>
                           ) : null}
                         </div>
                       </div>
 
-                      <div>
+                      <div className="flex flex-wrap items-center gap-2">
                         {isEditing ? (
-                          <MarkdownEditor
-                            value={editContent}
-                            onChange={handleEditContentChange}
-                            onBlur={() => void finishEditing()}
-                            autoFocus={true}
-                            unstyledContainer={true}
-                            className="rounded-lg bg-base-100/80 transition"
-                            cursorPosition={editCursor}
-                          />
-                        ) : (
-                          <MarkdownPreview
-                            value={entry.content}
-                            className="rounded-lg bg-base-100/80 transition cursor-text"
-                            onClick={(_, cursor, value) => {
-                              beginEdit(entry, cursor, value);
-                            }}
-                          />
-                        )}
+                          <div className="flex items-center">
+                            {autoSaveStatus ? (
+                              <span className="text-xs text-nookb-400">
+                                {autoSaveStatus}
+                              </span>
+                            ) : null}
+
+                            {/* Show archive warning when content is empty */}
+                            {isEditing && !editContent.trim() && (
+                              <span className="text-xs text-nookb-400 ml-2">
+                                Entry will be archived when saved
+                              </span>
+                            )}
+                          </div>
+                        ) : null}
                       </div>
                     </div>
+
+                    <div>
+                      {isEditing ? (
+                        <MarkdownEditor
+                          value={editContent}
+                          onChange={handleEditContentChange}
+                          onBlur={() => void finishEditing()}
+                          autoFocus={true}
+                          unstyledContainer={true}
+                          className="rounded-lg bg-base-100/80 transition"
+                          cursorPosition={editCursor}
+                        />
+                      ) : (
+                        <MarkdownPreview
+                          value={entry.content}
+                          className="rounded-lg bg-base-100/80 transition cursor-text"
+                          onClick={(_, cursor, value) => {
+                            beginEdit(entry, cursor, value);
+                          }}
+                        />
+                      )}
+                    </div>
                   </div>
-                );
-              })}
-            </div>
-          )}
-
-          <form
-            onSubmit={handleCreate}
-            className="card card-bordered bg-nookb-1000"
-          >
-            <div className="card-body gap-4">
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                <h2 className="card-title text-lg text-nookb-100">
-                  Create a new nooklet
-                </h2>
-                <div className="flex items-center gap-2 text-xs text-nookb-400">
-                  <span>Entries save automatically to your account</span>
                 </div>
-              </div>
+              );
+            })}
 
-              {createError ? (
-                <div className="alert alert-error">
-                  <span>{createError}</span>
-                </div>
-              ) : null}
-
-              <div className="grid gap-3">
+            <div className="px-4">
+              <div className="flex flex-col gap-2 px-1.5 sm:flex-row sm:items-start sm:justify-between mb-1">
                 <div>
-                  <MarkdownEditor
-                    value={newContent}
-                    onChange={setNewContent}
-                    placeholder="Share a thought, reflection, or quick capture..."
-                  />
+                  <div className="flex flex-wrap gap-3 text-xs text-nookb-500">
+                    <span>Create a new nooklet</span>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  {createError ? (
+                    <span className="text-xs text-error">{createError}</span>
+                  ) : null}
+                  {!createError ? (
+                    isCreating ? (
+                      <span className="text-xs text-nookb-400">Saving…</span>
+                    ) : pendingCreate && hasNewDraftContent ? (
+                      <span className="text-xs text-nookb-400">
+                        Autosave pending
+                      </span>
+                    ) : null
+                  ) : null}
                 </div>
               </div>
 
-              <div className="flex flex-wrap justify-end gap-2">
-                <button
-                  type="button"
-                  className="btn btn-ghost btn-sm"
-                  onClick={() => {
-                    setNewContent("");
-                    setCreateError(null);
-                  }}
-                  disabled={isCreating}
-                >
-                  Clear
-                </button>
-                <button
-                  type="submit"
-                  className="btn btn-primary"
-                  disabled={!canSubmitNew}
-                >
-                  {isCreating ? "Saving..." : "Save entry"}
-                </button>
+              <div>
+                <MarkdownEditor
+                  value={newContent}
+                  onChange={handleNewContentChange}
+                  placeholder="Share a thought, reflection, or quick capture..."
+                  unstyledContainer={true}
+                  className="rounded-lg bg-base-100/80 transition"
+                />
               </div>
             </div>
-          </form>
+          </div>
         </div>
       </main>
     </div>
