@@ -19,6 +19,7 @@ interface MarkdownEditorProps {
   onClick?: (event: React.MouseEvent<HTMLDivElement>) => void;
   onCreateEditor?: (view: EditorView) => void;
   cursorPosition?: number | null;
+  initialHeight?: number;
 }
 
 const MarkdownEditorBase: React.FC<MarkdownEditorProps> = ({
@@ -35,6 +36,7 @@ const MarkdownEditorBase: React.FC<MarkdownEditorProps> = ({
   onClick,
   onCreateEditor,
   cursorPosition,
+  initialHeight,
 }) => {
   const viewRef = useRef<EditorView | null>(null);
   const latestCursorRef = useRef<number | null>(cursorPosition ?? null);
@@ -47,14 +49,19 @@ const MarkdownEditorBase: React.FC<MarkdownEditorProps> = ({
         {
           ".cm-activeLine": { backgroundColor: "transparent" },
           ".cm-activeLineGutter": { backgroundColor: "transparent" },
-          ".cm-editor": { backgroundColor: "transparent" },
+          ".cm-editor": {
+            backgroundColor: "transparent",
+            minHeight: initialHeight ? `${initialHeight}px` : undefined,
+          },
           ".cm-scroller": {
             backgroundColor: "transparent",
             overflowX: "hidden",
+            minHeight: initialHeight ? `${initialHeight}px` : undefined,
           },
           ".cm-content": {
             whiteSpace: "pre-wrap",
             wordBreak: "break-word",
+            minHeight: initialHeight ? `${initialHeight}px` : undefined,
           },
         },
         { dark: true },
@@ -209,6 +216,7 @@ const propsAreEqual = (
     prev.unstyledContainer === next.unstyledContainer &&
     prev.disablePointerEvents === next.disablePointerEvents &&
     prev.cursorPosition === next.cursorPosition &&
+    prev.initialHeight === next.initialHeight &&
     prev.onBlur === next.onBlur &&
     prev.onClick === next.onClick
   );

@@ -604,6 +604,7 @@ export default function JournalHome() {
                   placeholder="Share a thought, reflection, or quick capture..."
                   unstyledContainer={true}
                   className="rounded-lg bg-base-100/80 transition"
+                  initialHeight={72}
                 />
               </div>
             </div>
