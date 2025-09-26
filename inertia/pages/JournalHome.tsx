@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Head, usePage } from '@inertiajs/react';
 import type { SharedProps } from '@adonisjs/inertia/types';
+import { Head, usePage } from '@inertiajs/react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import MarkdownEditor from '../components/editor/MarkdownEditor';
 import MarkdownPreview from '../components/editor/MarkdownPreview';
 
@@ -130,7 +130,7 @@ export default function JournalHome() {
       credentials: 'same-origin',
     });
 
-    let data: any = null;
+    let data: unknown = null;
     try {
       data = await response.json();
     } catch {
@@ -139,7 +139,8 @@ export default function JournalHome() {
 
     if (!response.ok) {
       const message =
-        data?.message || `Request failed (HTTP ${response.status})`;
+        (data as { message?: string })?.message ||
+        `Request failed (HTTP ${response.status})`;
       throw new Error(message);
     }
 
@@ -151,18 +152,40 @@ export default function JournalHome() {
       if (previous === value) {
         return previous;
       }
-      setPendingAutoSave(true);
-      setLastSavedAt(null);
-      setAutoSaveError(null);
+
+      // Check if this is a whitespace-only change
+      const previousTrimmed = previous.trim();
+      const valueTrimmed = value.trim();
+      const isWhitespaceOnlyChange =
+        previousTrimmed === valueTrimmed && previous !== value;
+
+      // Only trigger auto-save for non-whitespace-only changes or actual content changes
+      if (!isWhitespaceOnlyChange) {
+        setPendingAutoSave(true);
+        setLastSavedAt(null);
+        setAutoSaveError(null);
+      }
+
       return value;
     });
     setActionError(null);
   }, []);
 
-  const handleNewContentChange = useCallback((value: string) => {
-    setNewContent(value);
-    setCreateError(null);
-  }, []);
+  const handleNewContentChange = useCallback(
+    (value: string) => {
+      const previousTrimmed = newContent.trim();
+      const valueTrimmed = value.trim();
+      const isWhitespaceOnlyChange =
+        previousTrimmed === valueTrimmed && newContent !== value;
+
+      // Only update state and trigger auto-save for non-whitespace-only changes or actual content changes
+      if (!isWhitespaceOnlyChange) {
+        setNewContent(value);
+        setCreateError(null);
+      }
+    },
+    [newContent],
+  );
 
   const flushAutoSave = useCallback(
     async (force = false) => {
@@ -251,6 +274,7 @@ export default function JournalHome() {
       isUpdating,
       pendingAutoSave,
       requestJson,
+      resetEditingState,
     ],
   );
 
@@ -288,7 +312,6 @@ export default function JournalHome() {
     };
   }, [
     clearAutoSaveTimer,
-    editContent,
     editingId,
     flushAutoSave,
     isUpdating,
@@ -356,7 +379,7 @@ export default function JournalHome() {
 
       try {
         const payload = {
-          content: trimmed,
+          content: content, // Use original content to preserve newlines
           type: DEFAULT_TYPE,
         };
         const json = await requestJson('/api/v1/nooklets', {
@@ -364,7 +387,7 @@ export default function JournalHome() {
           body: JSON.stringify(payload),
         });
         setEntries((current) => [...current, json.data]);
-        beginEdit(json.data, trimmed.length, trimmed);
+        beginEdit(json.data, content.length, content);
         setNewContent('');
       } catch (error) {
         setCreateError((error as Error).message);
@@ -414,6 +437,7 @@ export default function JournalHome() {
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
+                aria-hidden="true"
               >
                 <path
                   strokeLinecap="round"

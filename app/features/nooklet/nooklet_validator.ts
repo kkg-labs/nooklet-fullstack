@@ -3,7 +3,7 @@ import vine from '@vinejs/vine';
 export const createNookletValidator = vine.compile(
   vine.object({
     type: vine.enum(['journal', 'voice', 'quick_capture']).optional(),
-    content: vine.string().trim().minLength(1),
+    content: vine.string().minLength(1),
     rawContent: vine.string().optional(),
     summary: vine.string().optional(),
     metadata: vine.object({}).allowUnknownProperties().optional(),
@@ -15,7 +15,7 @@ export const createNookletValidator = vine.compile(
 export const updateNookletValidator = vine.compile(
   vine.object({
     type: vine.enum(['journal', 'voice', 'quick_capture']).optional(),
-    content: vine.string().trim().minLength(1).optional(),
+    content: vine.string().minLength(1).optional(),
     rawContent: vine.string().optional(),
     summary: vine.string().optional(),
     metadata: vine.object({}).allowUnknownProperties().optional(),
