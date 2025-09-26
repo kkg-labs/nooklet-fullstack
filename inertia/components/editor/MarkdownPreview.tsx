@@ -8,7 +8,7 @@ interface MarkdownPreviewProps {
   onClick?: (
     event: React.MouseEvent<HTMLDivElement>,
     cursor: number | null,
-    value: string
+    value: string,
   ) => void;
 }
 
@@ -37,7 +37,7 @@ export default function MarkdownPreview({
       }
       onClick(event, cursor, normalized);
     },
-    [normalized, onClick]
+    [normalized, onClick],
   );
 
   return (
@@ -45,7 +45,7 @@ export default function MarkdownPreview({
       value={normalized}
       onChange={noop}
       readOnly
-      className={`rounded-lg bg-base-100/80 p-3 transition ${className}`}
+      className={`rounded-lg bg-base-100/80 transition ${className}`}
       unstyledContainer
       disablePointerEvents
       autoFocus={false}

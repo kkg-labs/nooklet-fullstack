@@ -39,7 +39,7 @@ type WordStats = {
 };
 
 function sanitizeMetadata(
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown>,
 ): Record<string, unknown> {
   if (!metadata) {
     return {};
@@ -77,17 +77,17 @@ function attachClient(model: Nooklet, client?: TransactionClientContract) {
 const NookletService = {
   async listForUser(
     userId: string,
-    options: ServiceOptions = {}
+    options: ServiceOptions = {},
   ): Promise<Nooklet[]> {
     return Nooklet.query({ client: options.client })
       .where("auth_user_id", userId)
       .where("is_archived", false)
-      .orderBy("created_at", "desc");
+      .orderBy("created_at", "asc");
   },
 
   async create(
     payload: CreateNookletPayload,
-    options: ServiceOptions = {}
+    options: ServiceOptions = {},
   ): Promise<Nooklet> {
     const { wordCount } = computeWordStats(payload.content);
 
@@ -104,7 +104,7 @@ const NookletService = {
         wordCount,
         publishedAt: payload.publishedAt ?? null,
       },
-      { client: options.client }
+      { client: options.client },
     );
 
     return nooklet;
@@ -114,7 +114,7 @@ const NookletService = {
     id: string,
     userId: string,
     payload: UpdateNookletPayload,
-    options: ServiceOptions = {}
+    options: ServiceOptions = {},
   ): Promise<Nooklet> {
     const nooklet = await Nooklet.query({ client: options.client })
       .where("id", id)
@@ -174,7 +174,7 @@ const NookletService = {
   async archive(
     id: string,
     userId: string,
-    options: ServiceOptions = {}
+    options: ServiceOptions = {},
   ): Promise<Nooklet> {
     const nooklet = await Nooklet.query({ client: options.client })
       .where("id", id)
@@ -196,7 +196,7 @@ const NookletService = {
   async restore(
     id: string,
     userId: string,
-    options: ServiceOptions = {}
+    options: ServiceOptions = {},
   ): Promise<Nooklet> {
     const nooklet = await Nooklet.query({ client: options.client })
       .where("id", id)
