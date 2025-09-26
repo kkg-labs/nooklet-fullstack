@@ -3,6 +3,9 @@ node_modules
 build
 tmp
 
+# Database
+nooklet-db/qdrant/collections
+
 # Secrets
 .env
 .env.local
@@ -23,3 +26,8 @@ yarn-error.log
 
 # Platform specific
 .DS_Store
+
+# AI Agent Frameworks
+.spec-workflow
+.serena
+.playwright-mcp

@@ -74,6 +74,7 @@ export default class NookletController {
       };
 
       const nooklet = await NookletService.create(createPayload);
+
       return response.created({ data: nooklet.serialize() });
     } catch (error) {
       if ((error as Error).message === PROFILE_ERROR) {
@@ -116,7 +117,7 @@ export default class NookletController {
       const nooklet = await NookletService.update(
         params.id,
         profileId,
-        updatePayload
+        updatePayload,
       );
       return response.ok({ data: nooklet.serialize() });
     } catch (error) {

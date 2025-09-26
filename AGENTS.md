@@ -475,6 +475,8 @@ Remember: Specs are truth. Changes are proposals. Keep them in sync.
 - Dev server (after scaffold): `npm run dev` (Adonis serve + Vite) or `node ace serve --watch`.
 - Type check/build: `node ace build` (compiles TypeScript) and `vite build` for assets.
 - UI tests should be executed via MCP Playwright (Model Context Protocol). Do not use `npx playwright test` in this project.
+- For Agent AI tests, assume servers are running already. Only spin up servers if you cannot access it.
+- Use test credentials user: ken@test.com - pass: 12345678
 
 ## Coding Style & Naming Conventions
 - Language: TypeScript (backend and Inertia React). Indentation: 2 spaces.
