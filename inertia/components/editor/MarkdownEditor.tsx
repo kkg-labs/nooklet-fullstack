@@ -120,20 +120,17 @@ const MarkdownEditorBase: React.FC<MarkdownEditorProps> = ({
     [onChange],
   );
 
-  const handleEditorBlur = useCallback(
-    (event: React.FocusEvent<HTMLDivElement>) => {
-      if (!onBlur) {
-        return;
-      }
-      const view = viewRef.current;
-      if (view) {
-        onBlur(view.state.doc.toString());
-        return;
-      }
-      onBlur(value);
-    },
-    [onBlur, value],
-  );
+  const handleEditorBlur = useCallback(() => {
+    if (!onBlur) {
+      return;
+    }
+    const view = viewRef.current;
+    if (view) {
+      onBlur(view.state.doc.toString());
+      return;
+    }
+    onBlur(value);
+  }, [onBlur, value]);
 
   const containerClasses: string[] = ["markdown-editor"];
   if (!unstyledContainer) {
