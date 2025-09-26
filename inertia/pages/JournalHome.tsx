@@ -181,8 +181,8 @@ export default function JournalHome() {
         return false;
       }
 
-      const nextContent = editContent.trim();
-      const currentContent = (entry.content ?? "").trim();
+      const nextContent = editContent;
+      const currentContent = entry.content ?? "";
 
       if (nextContent === currentContent) {
         setPendingAutoSave(false);
