@@ -196,7 +196,9 @@ export default function JournalHome() {
           });
 
           // Remove from entries list and reset editing state
-          setEntries((current) => current.filter((item) => item.id !== editingId));
+          setEntries((current) =>
+            current.filter((item) => item.id !== editingId),
+          );
           resetEditingState();
           return true;
         }
@@ -210,7 +212,9 @@ export default function JournalHome() {
           });
 
           // Remove from entries list and reset editing state
-          setEntries((current) => current.filter((item) => item.id !== editingId));
+          setEntries((current) =>
+            current.filter((item) => item.id !== editingId),
+          );
           resetEditingState();
           return true;
         }
@@ -225,7 +229,7 @@ export default function JournalHome() {
         });
 
         setEntries((current) =>
-          current.map((item) => (item.id === editingId ? json.data : item))
+          current.map((item) => (item.id === editingId ? json.data : item)),
         );
         setEditContentState(json.data.content ?? nextContent);
         setLastSavedAt(json.data.updatedAt ?? new Date().toISOString());
@@ -364,8 +368,6 @@ export default function JournalHome() {
     [clearAutoSaveTimer],
   );
 
-
-
   return (
     <div className="min-h-screen bg-nookb-950 text-base-content">
       <Head title="Journal — Nooklet" />
@@ -449,7 +451,7 @@ export default function JournalHome() {
               </div>
             </div>
           ) : (
-            <div className="bg-nookb-1000 rounded-lg overflow-hidden">
+            <div className="bg-nookb-1000 rounded-lg overflow-hidden flex flex-col gap-4 py-5">
               {entries.map((entry) => {
                 const isEditing = editingId === entry.id;
                 const createdLabel = formatDateTime(entry.createdAt);
@@ -469,8 +471,8 @@ export default function JournalHome() {
 
                 return (
                   <div key={entry.id}>
-                    <div className="p-4">
-                      <div className="flex flex-col gap-2 px-1.5 sm:flex-row sm:items-start sm:justify-between mb-3">
+                    <div className="px-4">
+                      <div className="flex flex-col gap-2 px-1.5 sm:flex-row sm:items-start sm:justify-between mb-1">
                         <div>
                           <div className="flex flex-wrap gap-3 text-xs text-nookb-400">
                             {createdLabel ? (
@@ -490,13 +492,11 @@ export default function JournalHome() {
                           </div>
                         </div>
 
-                        <div className="flex flex-wrap items-center gap-2 min-h-[2rem]">
+                        <div className="flex flex-wrap items-center gap-2">
                           {isEditing ? (
-                            <div className="flex items-center h-8">
+                            <div className="flex items-center">
                               {autoSaveStatus ? (
-                                <span
-                                  className="text-xs text-nookb-400"
-                                >
+                                <span className="text-xs text-nookb-400">
                                   {autoSaveStatus}
                                 </span>
                               ) : null}
