@@ -2,13 +2,15 @@
 // CodeMirror dark theme customizations using existing color palette
 
 // SCSS Variables for editor theming based on existing color palette
-$editor-bg: var(--color-nookb-1000);           // Main background
-$editor-bg-darker: var(--color-navy-950);    // Darker background for gutters
-$editor-bg-lighter: var(--color-nookb-875);  // Slightly lighter for active line
-$editor-border: var(--color-gray-800);       // Border color
-$editor-text: var(--color-slate-100);        // Main text color
-$editor-text-muted: var(--color-slate-400);  // Muted text (line numbers, placeholders)
-$editor-accent: var(--color-nookb-600);      // Primary accent (cursor, selections)
+$editor-bg: var(--color-nookb-1000); // Main background
+$editor-bg-darker: var(--color-navy-950); // Darker background for gutters
+$editor-bg-lighter: var(--color-nookb-875); // Slightly lighter for active line
+$editor-border: var(--color-gray-800); // Border color
+$editor-text: var(--color-nookb-100); // Main text color
+$editor-text-muted: var(
+  --color-nookb-400
+); // Muted text (line numbers, placeholders)
+$editor-accent: var(--color-nookb-600); // Primary accent (cursor, selections)
 $editor-accent-hover: var(--color-blue-300); // Hover states
 $editor-accent-light: var(--color-nookb-400); // Lighter accent for highlights
 
@@ -51,7 +53,11 @@ $editor-accent-light: var(--color-nookb-400); // Lighter accent for highlights
 
   // Selection
   .cm-selectionBackground {
-    background-color: color-mix(in oklab, $editor-accent, transparent 70%) !important;
+    background-color: color-mix(
+      in oklab,
+      $editor-accent,
+      transparent 70%
+    ) !important;
   }
 
   // Cursor
@@ -63,7 +69,11 @@ $editor-accent-light: var(--color-nookb-400); // Lighter accent for highlights
 
   // Search highlighting
   .cm-searchMatch {
-    background-color: color-mix(in oklab, $editor-accent-light, transparent 60%);
+    background-color: color-mix(
+      in oklab,
+      $editor-accent-light,
+      transparent 60%
+    );
     border: 1px solid $editor-accent;
   }
 
@@ -73,7 +83,11 @@ $editor-accent-light: var(--color-nookb-400); // Lighter accent for highlights
 
   // Bracket matching
   .cm-matchingBracket {
-    background-color: color-mix(in oklab, $editor-accent-light, transparent 80%);
+    background-color: color-mix(
+      in oklab,
+      $editor-accent-light,
+      transparent 80%
+    );
     outline: 1px solid $editor-accent;
   }
 
@@ -107,14 +121,20 @@ $editor-accent-light: var(--color-nookb-400); // Lighter accent for highlights
       color: var(--color-accent-400);
       padding: 0.125rem 0.25rem;
       border-radius: 0.25rem;
-      font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+      font-family:
+        "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas,
+        "Courier New", monospace;
     }
 
     // Links
     .cm-link {
       color: $editor-accent-hover;
       text-decoration: underline;
-      text-decoration-color: color-mix(in oklab, $editor-accent-hover, transparent 50%);
+      text-decoration-color: color-mix(
+        in oklab,
+        $editor-accent-hover,
+        transparent 50%
+      );
 
       &:hover {
         text-decoration-color: $editor-accent-hover;
