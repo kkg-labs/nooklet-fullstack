@@ -1,25 +1,20 @@
 import { test } from '@japa/runner';
 import db from '@adonisjs/lucid/services/db';
+import { randomUUID } from 'node:crypto';
 
 import AuthService from '#features/auth/auth_service';
-import AuthUser from '#features/auth/auth_user';
-
-const resetAuthData = async () => {
-  await db.transaction(async (trx) => {
-    await trx.from('nooklets').delete();
-    await trx.from('profiles').delete();
-    await trx.from('auth_users').delete();
-  });
-};
 
 test.group('AuthService.login', (group) => {
   group.each.setup(async () => {
-    await resetAuthData();
+    await db.beginGlobalTransaction();
+    return async () => {
+      await db.rollbackGlobalTransaction();
+    };
   });
 
   test('authenticates user with valid credentials', async ({ assert }) => {
     const credentials = {
-      email: 'login-success@example.com',
+      email: `login-success-${randomUUID()}@example.com`,
       password: 'super-secret',
     };
 
@@ -33,7 +28,7 @@ test.group('AuthService.login', (group) => {
 
   test('throws error for invalid credentials', async ({ assert }) => {
     const credentials = {
-      email: 'login-invalid@example.com',
+      email: `login-invalid-${randomUUID()}@example.com`,
       password: 'super-secret',
     };
 
@@ -49,7 +44,7 @@ test.group('AuthService.login', (group) => {
 
   test('throws ACCOUNT_INACTIVE when user is inactive', async ({ assert }) => {
     const credentials = {
-      email: 'login-inactive@example.com',
+      email: `login-inactive-${randomUUID()}@example.com`,
       password: 'super-secret',
     };
 
@@ -67,7 +62,7 @@ test.group('AuthService.login', (group) => {
 
   test('throws ACCOUNT_INACTIVE when user is archived', async ({ assert }) => {
     const credentials = {
-      email: 'login-archived@example.com',
+      email: `login-archived-${randomUUID()}@example.com`,
       password: 'super-secret',
     };
 

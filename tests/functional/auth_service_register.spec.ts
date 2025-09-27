@@ -1,26 +1,22 @@
 import { test } from '@japa/runner';
 import hash from '@adonisjs/core/services/hash';
 import db from '@adonisjs/lucid/services/db';
+import { randomUUID } from 'node:crypto';
 
 import AuthService from '#features/auth/auth_service';
 import AuthUser from '#features/auth/auth_user';
 import Profile from '#features/user/profile';
 
-const resetAuthData = async () => {
-  await db.transaction(async (trx) => {
-    await trx.from('nooklets').delete();
-    await trx.from('profiles').delete();
-    await trx.from('auth_users').delete();
-  });
-};
-
 test.group('AuthService.register', (group) => {
   group.each.setup(async () => {
-    await resetAuthData();
+    await db.beginGlobalTransaction();
+    return async () => {
+      await db.rollbackGlobalTransaction();
+    };
   });
 
   test('creates auth user and profile for email + password registration', async ({ assert }) => {
-    const email = 'register-basic@example.com';
+    const email = `register-basic-${randomUUID()}@example.com`;
     const password = 'super-secret';
 
     const user = await AuthService.register({ email, password });
@@ -37,7 +33,7 @@ test.group('AuthService.register', (group) => {
   });
 
   test('stores optional username and display name during registration', async ({ assert }) => {
-    const email = 'register-with-meta@example.com';
+    const email = `register-with-meta-${randomUUID()}@example.com`;
     const password = 'super-secret';
 
     const user = await AuthService.register({
@@ -53,7 +49,7 @@ test.group('AuthService.register', (group) => {
   });
 
   test('throws EMAIL_TAKEN when email already exists', async ({ assert }) => {
-    const email = 'register-duplicate@example.com';
+    const email = `register-duplicate-${randomUUID()}@example.com`;
 
     await AuthService.register({ email, password: 'password-one' });
 
@@ -69,24 +65,26 @@ test.group('AuthService.register', (group) => {
   });
 
   test('throws USERNAME_TAKEN when username already exists', async ({ assert }) => {
+    const username = `duplicateuser-${randomUUID()}`;
+
     await AuthService.register({
-      email: 'register-first@example.com',
+      email: `register-first-${randomUUID()}@example.com`,
       password: 'password-one',
-      username: 'duplicateuser',
+      username,
     });
 
     await assert.rejects(
       async () => {
         await AuthService.register({
-          email: 'register-second@example.com',
+          email: `register-second-${randomUUID()}@example.com`,
           password: 'password-two',
-          username: 'duplicateuser',
+          username,
         });
       },
       /USERNAME_TAKEN/,
     );
 
-    const profiles = await Profile.query().where('username', 'duplicateuser');
+    const profiles = await Profile.query().where('username', username);
     assert.lengthOf(profiles, 1);
   });
 });

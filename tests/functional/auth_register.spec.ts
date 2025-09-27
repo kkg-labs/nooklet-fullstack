@@ -1,12 +1,13 @@
 import { test } from '@japa/runner';
 import db from '@adonisjs/lucid/services/db';
+import { randomUUID } from 'node:crypto';
 
 test.group('Auth Registration', (group) => {
   group.each.setup(async () => {
-    await db.transaction(async (trx) => {
-      await trx.from('profiles').delete();
-      await trx.from('auth_users').delete();
-    });
+    await db.beginGlobalTransaction();
+    return async () => {
+      await db.rollbackGlobalTransaction();
+    };
   });
 
   test('GET /register renders Inertia page', async ({ client }) => {
@@ -19,7 +20,7 @@ test.group('Auth Registration', (group) => {
     client,
     assert,
   }) => {
-    const email = 'new@example.com';
+    const email = `new-${randomUUID()}@example.com`;
 
     // First make a GET request to establish session and get CSRF token
     await client.get('/register');
@@ -46,7 +47,7 @@ test.group('Auth Registration', (group) => {
   });
 
   test('duplicate email returns validation-like error', async ({ client }) => {
-    const email = 'dupe@example.com';
+    const email = `dupe-${randomUUID()}@example.com`;
 
     // First registration - establish session and use CSRF token
     await client.get('/register');
@@ -57,17 +58,30 @@ test.group('Auth Registration', (group) => {
         password: 'password123',
         password_confirmation: 'password123',
       })
+      .withInertia()
       .withCsrfToken();
 
     // Second registration with same email - should fail
     await client.get('/register');
-    await client
+    const response = await client
       .post('/register')
+      .header('referer', 'http://localhost/register')
       .form({
         email,
         password: 'password123',
         password_confirmation: 'password123',
       })
+      .withInertia()
       .withCsrfToken();
+
+    response.assertStatus(200);
+    response.assertInertiaComponent('auth/Register');
+    response.assertInertiaPropsContains({
+      flash: {
+        errors: {
+          email: 'Email is already in use',
+        },
+      },
+    });
   });
 });
