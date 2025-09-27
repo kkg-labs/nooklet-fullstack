@@ -1,0 +1,14 @@
+## 1. Implementation
+- [x] 1.1 Create unit test file for AuthService registration function
+- [x] 1.2 Create unit test file for AuthService login function  
+- [x] 1.3 Create unit test file for AuthService verifyPassword function
+- [x] 1.4 Test successful registration with email and password
+- [x] 1.5 Test registration with optional username and displayName
+- [x] 1.6 Test registration error handling for duplicate email
+- [x] 1.7 Test registration error handling for duplicate username
+- [x] 1.8 Test successful login with valid credentials
+- [x] 1.9 Test login failure with invalid credentials
+- [x] 1.10 Test login failure for inactive/archived accounts
+- [x] 1.11 Test verifyPassword returns true for correct password
+- [x] 1.12 Test verifyPassword returns false for incorrect password
+- [x] 1.13 Run tests to ensure all pass

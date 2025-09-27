@@ -43,7 +43,11 @@ export const runnerHooks: Required<Pick<Config, 'setup' | 'teardown'>> = {
  */
 export const configureSuite: Config['configureSuite'] = (suite) => {
   if (['browser', 'functional', 'e2e'].includes(suite.name)) {
-    suite.setup(() => testUtils.httpServer().start());
-    suite.teardown(() => testUtils.httpServer().stop());
+    suite.setup(async () => {
+      const closeServer = await testUtils.httpServer().start();
+      return async () => {
+        await closeServer();
+      };
+    });
   }
 };
