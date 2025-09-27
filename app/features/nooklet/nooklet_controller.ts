@@ -1,5 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http';
 import { DateTime } from 'luxon';
+import Profile from '#features/user/profile';
 import NookletService, {
   NOOKLET_ERRORS,
   type CreateNookletPayload,
@@ -12,9 +13,13 @@ import {
 
 const PROFILE_ERROR = 'PROFILE_NOT_FOUND' as const;
 
-// For now we can use the auth user's id directly as owner of nooklets
+// Resolve the owning profile from the authenticated user
 async function resolveOwnerId(authUserId: string): Promise<string> {
-  return authUserId;
+  const profile = await Profile.findBy('auth_user_id', authUserId);
+  if (!profile) {
+    throw new Error(PROFILE_ERROR);
+  }
+  return profile.id;
 }
 
 function parsePublishedAt(input?: string | null): DateTime | null {
@@ -40,8 +45,8 @@ export default class NookletController {
     }
 
     try {
-      const ownerId = await resolveOwnerId(user.id);
-      const nooklets = await NookletService.listForUser(ownerId);
+      const profileId = await resolveOwnerId(user.id);
+      const nooklets = await NookletService.listForUser(profileId);
       const serialized = nooklets.map((entry) => entry.serialize());
       return inertia.render('JournalHome', { nooklets: serialized });
     } catch (error) {
@@ -63,7 +68,7 @@ export default class NookletController {
       const profileId = await resolveOwnerId(user.id);
 
       const createPayload: CreateNookletPayload = {
-        userId: profileId,
+        profileId,
         type: payload.type,
         content: payload.content,
         rawContent: payload.rawContent ?? null,

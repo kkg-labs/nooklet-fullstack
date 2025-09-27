@@ -2,7 +2,7 @@ import type { DateTime } from 'luxon';
 import { belongsTo, column } from '@adonisjs/lucid/orm';
 import type { BelongsTo } from '@adonisjs/lucid/types/relations';
 import Base from '#models/base_model';
-import AuthUser from '#features/auth/auth_user';
+import Profile from '#features/user/profile';
 
 export type NookletType = 'journal' | 'voice' | 'quick_capture';
 
@@ -12,8 +12,8 @@ export default class Nooklet extends Base {
   @column({ isPrimary: true })
   declare id: string;
 
-  @column({ columnName: 'auth_user_id' })
-  declare userId: string;
+  @column({ columnName: 'user_id' })
+  declare profileId: string;
 
   @column()
   declare type: NookletType;
@@ -58,8 +58,8 @@ export default class Nooklet extends Base {
   })
   declare updatedAt: DateTime | null;
 
-  @belongsTo(() => AuthUser, {
-    foreignKey: 'userId',
+  @belongsTo(() => Profile, {
+    foreignKey: 'profileId',
   })
-  declare owner: BelongsTo<typeof AuthUser>;
+  declare owner: BelongsTo<typeof Profile>;
 }
