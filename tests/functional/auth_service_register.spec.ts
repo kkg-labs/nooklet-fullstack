@@ -15,7 +15,9 @@ test.group('AuthService.register', (group) => {
     };
   });
 
-  test('creates auth user and profile for email + password registration', async ({ assert }) => {
+  test('creates auth user and profile for email + password registration', async ({
+    assert,
+  }) => {
     const email = `register-basic-${randomUUID()}@example.com`;
     const password = 'super-secret';
 
@@ -24,7 +26,9 @@ test.group('AuthService.register', (group) => {
     const storedUser = await AuthUser.findByOrFail('email', email);
     assert.equal(storedUser.id, user.id);
     assert.notEqual(storedUser.passwordHash, password);
-    const hashed = await hash.use('scrypt').verify(storedUser.passwordHash, password);
+    const hashed = await hash
+      .use('scrypt')
+      .verify(storedUser.passwordHash, password);
     assert.isTrue(hashed);
 
     const profile = await Profile.findByOrFail('authUserId', storedUser.id);
@@ -32,7 +36,9 @@ test.group('AuthService.register', (group) => {
     assert.equal(profile.displayName, null);
   });
 
-  test('stores optional username and display name during registration', async ({ assert }) => {
+  test('stores optional username and display name during registration', async ({
+    assert,
+  }) => {
     const email = `register-with-meta-${randomUUID()}@example.com`;
     const password = 'super-secret';
 
@@ -53,18 +59,17 @@ test.group('AuthService.register', (group) => {
 
     await AuthService.register({ email, password: 'password-one' });
 
-    await assert.rejects(
-      async () => {
-        await AuthService.register({ email, password: 'password-two' });
-      },
-      /EMAIL_TAKEN/,
-    );
+    await assert.rejects(async () => {
+      await AuthService.register({ email, password: 'password-two' });
+    }, /EMAIL_TAKEN/);
 
     const users = await AuthUser.query().where('email', email);
     assert.lengthOf(users, 1);
   });
 
-  test('throws USERNAME_TAKEN when username already exists', async ({ assert }) => {
+  test('throws USERNAME_TAKEN when username already exists', async ({
+    assert,
+  }) => {
     const username = `duplicateuser-${randomUUID()}`;
 
     await AuthService.register({
@@ -73,16 +78,13 @@ test.group('AuthService.register', (group) => {
       username,
     });
 
-    await assert.rejects(
-      async () => {
-        await AuthService.register({
-          email: `register-second-${randomUUID()}@example.com`,
-          password: 'password-two',
-          username,
-        });
-      },
-      /USERNAME_TAKEN/,
-    );
+    await assert.rejects(async () => {
+      await AuthService.register({
+        email: `register-second-${randomUUID()}@example.com`,
+        password: 'password-two',
+        username,
+      });
+    }, /USERNAME_TAKEN/);
 
     const profiles = await Profile.query().where('username', username);
     assert.lengthOf(profiles, 1);

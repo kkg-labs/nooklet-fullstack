@@ -34,12 +34,9 @@ test.group('AuthService.login', (group) => {
 
     await AuthService.register(credentials);
 
-    await assert.rejects(
-      async () => {
-        await AuthService.login({ ...credentials, password: 'wrong-password' });
-      },
-      /Invalid user/,
-    );
+    await assert.rejects(async () => {
+      await AuthService.login({ ...credentials, password: 'wrong-password' });
+    }, /Invalid user/);
   });
 
   test('throws ACCOUNT_INACTIVE when user is inactive', async ({ assert }) => {
@@ -52,12 +49,9 @@ test.group('AuthService.login', (group) => {
     user.isActive = false;
     await user.save();
 
-    await assert.rejects(
-      async () => {
-        await AuthService.login(credentials);
-      },
-      /ACCOUNT_INACTIVE/,
-    );
+    await assert.rejects(async () => {
+      await AuthService.login(credentials);
+    }, /ACCOUNT_INACTIVE/);
   });
 
   test('throws ACCOUNT_INACTIVE when user is archived', async ({ assert }) => {
@@ -70,11 +64,8 @@ test.group('AuthService.login', (group) => {
     user.isArchived = true;
     await user.save();
 
-    await assert.rejects(
-      async () => {
-        await AuthService.login(credentials);
-      },
-      /ACCOUNT_INACTIVE/,
-    );
+    await assert.rejects(async () => {
+      await AuthService.login(credentials);
+    }, /ACCOUNT_INACTIVE/);
   });
 });

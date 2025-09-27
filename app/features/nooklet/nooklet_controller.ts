@@ -1,15 +1,15 @@
 import type { HttpContext } from '@adonisjs/core/http';
 import { DateTime } from 'luxon';
-import Profile from '#features/user/profile';
 import NookletService, {
-  NOOKLET_ERRORS,
   type CreateNookletPayload,
+  NOOKLET_ERRORS,
   type UpdateNookletPayload,
 } from '#features/nooklet/nooklet_service';
 import {
   createNookletValidator,
   updateNookletValidator,
 } from '#features/nooklet/nooklet_validator';
+import Profile from '#features/user/profile';
 
 const PROFILE_ERROR = 'PROFILE_NOT_FOUND' as const;
 
@@ -85,11 +85,7 @@ export default class NookletController {
       if ((error as Error).message === PROFILE_ERROR) {
         return response.badRequest({ message: 'Profile not found' });
       }
-      if ((error as Error).message === 'INVALID_PUBLISHED_AT') {
-        return response.unprocessableEntity({
-          message: 'Invalid publishedAt value',
-        });
-      }
+
       throw error;
     }
   }
