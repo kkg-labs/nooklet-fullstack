@@ -1,9 +1,9 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 
-import CodeMirror from '@uiw/react-codemirror';
-import { markdown } from '@codemirror/lang-markdown';
-import { EditorView, type ViewUpdate } from '@codemirror/view';
-import { richMarkdown } from './extensions/richMarkdown';
+import CodeMirror from "@uiw/react-codemirror";
+import { markdown } from "@codemirror/lang-markdown";
+import { EditorView, type ViewUpdate } from "@codemirror/view";
+import { richMarkdown } from "./extensions/richMarkdown";
 
 interface MarkdownEditorProps {
   value: string;
@@ -25,7 +25,7 @@ interface MarkdownEditorProps {
 const MarkdownEditorBase: React.FC<MarkdownEditorProps> = ({
   value,
   onChange,
-  placeholder = 'Start typing your markdown...',
+  placeholder = "Start typing your markdown...",
   className,
   disabled = false,
   readOnly = false,
@@ -47,21 +47,21 @@ const MarkdownEditorBase: React.FC<MarkdownEditorProps> = ({
       EditorView.lineWrapping,
       EditorView.theme(
         {
-          '.cm-activeLine': { backgroundColor: 'transparent' },
-          '.cm-activeLineGutter': { backgroundColor: 'transparent' },
-          '.cm-editor': {
-            backgroundColor: 'transparent',
-            minHeight: initialHeight ? `${initialHeight}px` : undefined,
+          ".cm-activeLine": { backgroundColor: "transparent" },
+          ".cm-activeLineGutter": { backgroundColor: "transparent" },
+          ".cm-editor": {
+            backgroundColor: "transparent",
+            minHeight: initialHeight ? `${initialHeight}px` : null,
           },
-          '.cm-scroller': {
-            backgroundColor: 'transparent',
-            overflowX: 'hidden',
-            minHeight: initialHeight ? `${initialHeight}px` : undefined,
+          ".cm-scroller": {
+            backgroundColor: "transparent",
+            overflowX: "hidden",
+            minHeight: initialHeight ? `${initialHeight}px` : null,
           },
-          '.cm-content': {
-            whiteSpace: 'pre-wrap',
-            wordBreak: 'break-word',
-            minHeight: initialHeight ? `${initialHeight}px` : undefined,
+          ".cm-content": {
+            whiteSpace: "pre-wrap",
+            wordBreak: "break-word",
+            minHeight: initialHeight ? `${initialHeight}px` : null,
           },
         },
         { dark: true },
@@ -72,9 +72,9 @@ const MarkdownEditorBase: React.FC<MarkdownEditorProps> = ({
       base.push(
         EditorView.theme(
           {
-            '.cm-editor': { pointerEvents: 'none' },
-            '.cm-scroller': { pointerEvents: 'none' },
-            '.cm-content': { pointerEvents: 'none' },
+            ".cm-editor": { pointerEvents: "none" },
+            ".cm-scroller": { pointerEvents: "none" },
+            ".cm-content": { pointerEvents: "none" },
           },
           { dark: true },
         ),
@@ -82,7 +82,7 @@ const MarkdownEditorBase: React.FC<MarkdownEditorProps> = ({
     }
 
     return base;
-  }, [disablePointerEvents]);
+  }, [disablePointerEvents, initialHeight]);
 
   const applyCursor = useCallback(
     (view: EditorView, position: number) => {
@@ -113,7 +113,7 @@ const MarkdownEditorBase: React.FC<MarkdownEditorProps> = ({
 
   const editorStyle = useMemo(
     () => ({
-      fontSize: '14px',
+      fontSize: "14px",
       fontFamily:
         'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
     }),
@@ -139,29 +139,41 @@ const MarkdownEditorBase: React.FC<MarkdownEditorProps> = ({
     onBlur(value);
   }, [onBlur, value]);
 
-  const containerClasses: string[] = ['markdown-editor'];
+  const containerClasses: string[] = ["markdown-editor"];
   if (!unstyledContainer) {
     containerClasses.push(
-      'rounded-lg',
-      'border',
-      'border-base-200',
-      'bg-base-100/80',
-      'transition',
+      "rounded-lg",
+      "border",
+      "border-base-200",
+      "bg-base-100/80",
+      "transition",
     );
     containerClasses.push(
       disabled
-        ? 'opacity-50 cursor-not-allowed'
-        : 'focus-within:border-primary',
+        ? "opacity-50 cursor-not-allowed"
+        : "focus-within:border-primary",
     );
   } else if (disabled) {
-    containerClasses.push('opacity-50 cursor-not-allowed');
+    containerClasses.push("opacity-50 cursor-not-allowed");
   }
   if (className) {
     containerClasses.push(className);
   }
 
   return (
-    <div className={containerClasses.join(' ')} onClick={onClick}>
+    // biome-ignore lint/a11y/useSemanticElements: This is a container element
+    <div
+      className={containerClasses.join(" ")}
+      onClick={onClick}
+      onKeyDown={(e) => {
+        if (onClick && (e.key === "Enter" || e.key === " ")) {
+          e.preventDefault();
+          e.currentTarget.click();
+        }
+      }}
+      role="button"
+      tabIndex={onClick ? 0 : undefined}
+    >
       <CodeMirror
         value={value}
         onChange={handleEditorChange}

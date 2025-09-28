@@ -1,7 +1,9 @@
 @import "tailwindcss";
+/* biome-ignore lint/css/unknownAtRules: Tailwind CSS v4 @theme block */
 @plugin "daisyui";
 
 /* Tailwind v4 palettes generated from provided hexes */
+/* biome-ignore lint/css/unknownAtRules: Tailwind CSS v4 @theme block */
 @theme {
   /* Palette A (Navy/Slate family) */
   --color-nookb-50: oklch(93.2% 0.0389 263.4);
@@ -118,14 +120,14 @@ body {
   box-shadow: none;
 }
 :where(
-    .btn,
-    .input,
-    .select,
-    .textarea,
-    .checkbox,
-    .radio,
-    .link
-  ):focus-visible {
+  .btn,
+  .input,
+  .select,
+  .textarea,
+  .checkbox,
+  .radio,
+  .link
+):focus-visible {
   outline: 2px solid var(--brand-accent);
   outline-offset: 2px;
   box-shadow: none;
