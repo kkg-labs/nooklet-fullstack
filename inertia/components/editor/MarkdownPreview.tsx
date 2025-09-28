@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useRef } from 'react';
-import { EditorView } from '@codemirror/view';
+import type { EditorView } from '@codemirror/view';
 import MarkdownEditor from './MarkdownEditor';
 
 interface MarkdownPreviewProps {

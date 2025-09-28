@@ -1,10 +1,10 @@
-import { Extension, RangeSetBuilder } from '@codemirror/state';
+import { type Extension, RangeSetBuilder } from '@codemirror/state';
 import {
   Decoration,
-  DecorationSet,
+  type DecorationSet,
   EditorView,
   ViewPlugin,
-  ViewUpdate,
+  type ViewUpdate,
 } from '@codemirror/view';
 
 // Prototype rich markdown rendering using decorations

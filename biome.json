@@ -1,9 +1,25 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.2.2/schema.json",
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "linter": {
     "enabled": true,
-    "rules": {}
+    "rules": {
+      "correctness": {
+        "useHookAtTopLevel": "off"
+      }
+    }
   },
+  "overrides": [
+    {
+      "includes": ["**/*.{jsx,tsx}"],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "useHookAtTopLevel": "on"
+          }
+        }
+      }
+    }
+  ],
   "formatter": {
     "enabled": true,
     "indentStyle": "space",

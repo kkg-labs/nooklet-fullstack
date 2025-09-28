@@ -155,7 +155,7 @@ export class DatabaseHelpers {
     email: string,
     expectedUsername: string | null,
   ): Promise<void> {
-    const verification = await this.verifyUserCreated(email);
+    const verification = await DatabaseHelpers.verifyUserCreated(email);
     if (verification.profile.username !== expectedUsername) {
       throw new Error(
         `Profile username mismatch. Expected: ${expectedUsername}, Got: ${verification.profile.username}`,
@@ -197,8 +197,8 @@ export class DatabaseHelpers {
   }
 
   static async verifyDatabaseEmpty(): Promise<void> {
-    const userCount = await this.getUserCount();
-    const profileCount = await this.getProfileCount();
+    const userCount = await DatabaseHelpers.getUserCount();
+    const profileCount = await DatabaseHelpers.getProfileCount();
     if (userCount > 0 || profileCount > 0) {
       throw new Error(
         `Database not empty. Users: ${userCount}, Profiles: ${profileCount}`,

@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 
 export type TextInputProps = React.InputHTMLAttributes<HTMLInputElement> & {
   className?: string;

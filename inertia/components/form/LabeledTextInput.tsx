@@ -1,4 +1,4 @@
-import TextInput, { TextInputProps } from './TextInput';
+import TextInput, { type TextInputProps } from './TextInput';
 
 export type LabeledTextInputProps = TextInputProps & {
   id: string;

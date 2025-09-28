@@ -1,4 +1,4 @@
-import { expect, Page } from '@playwright/test';
+import { expect, type Page } from '@playwright/test';
 
 // Simple navigation helper
 export async function gotoJournal(page: Page) {

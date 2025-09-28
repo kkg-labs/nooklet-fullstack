@@ -1,4 +1,4 @@
-import { test, expect, Page } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 import { DatabaseHelpers } from './database-helpers';
 import { TestDataCleanup } from './test-data';
 
@@ -35,7 +35,7 @@ export class TestReporter {
       errors: [],
     };
 
-    this.contexts.set(testName, context);
+    TestReporter.contexts.set(testName, context);
     return context;
   }
 
@@ -47,7 +47,7 @@ export class TestReporter {
     status: 'passed' | 'failed' | 'skipped',
     error?: string,
   ): TestContext | undefined {
-    const context = this.contexts.get(testName);
+    const context = TestReporter.contexts.get(testName);
     if (!context) return undefined;
 
     context.endTime = Date.now();
@@ -65,7 +65,7 @@ export class TestReporter {
    * Add screenshot to test context
    */
   static addScreenshot(testName: string, screenshotPath: string): void {
-    const context = this.contexts.get(testName);
+    const context = TestReporter.contexts.get(testName);
     if (context) {
       context.screenshots.push(screenshotPath);
     }
@@ -75,7 +75,7 @@ export class TestReporter {
    * Add error to test context
    */
   static addError(testName: string, error: string): void {
-    const context = this.contexts.get(testName);
+    const context = TestReporter.contexts.get(testName);
     if (context) {
       context.errors.push(error);
     }
@@ -85,7 +85,7 @@ export class TestReporter {
    * Capture database state for debugging
    */
   static async captureDatabaseState(testName: string): Promise<void> {
-    const context = this.contexts.get(testName);
+    const context = TestReporter.contexts.get(testName);
     if (!context) return;
 
     try {
@@ -108,7 +108,7 @@ export class TestReporter {
    * Capture network requests for debugging
    */
   static captureNetworkRequests(testName: string, page: Page): void {
-    const context = this.contexts.get(testName);
+    const context = TestReporter.contexts.get(testName);
     if (!context) return;
 
     context.networkRequests = [];
@@ -138,7 +138,7 @@ export class TestReporter {
    * Capture console messages for debugging
    */
   static captureConsoleMessages(testName: string, page: Page): void {
-    const context = this.contexts.get(testName);
+    const context = TestReporter.contexts.get(testName);
     if (!context) return;
 
     context.consoleMessages = [];
@@ -157,7 +157,7 @@ export class TestReporter {
    * Generate detailed test report
    */
   static generateReport(testName: string): string {
-    const context = this.contexts.get(testName);
+    const context = TestReporter.contexts.get(testName);
     if (!context) return `No context found for test: ${testName}`;
 
     const report = [
@@ -225,14 +225,14 @@ export class TestReporter {
    * Clear all contexts (useful for cleanup)
    */
   static clearAll(): void {
-    this.contexts.clear();
+    TestReporter.contexts.clear();
   }
 
   /**
    * Get all test contexts
    */
   static getAllContexts(): Map<string, TestContext> {
-    return new Map(this.contexts);
+    return new Map(TestReporter.contexts);
   }
 }
 

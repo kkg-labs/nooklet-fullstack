@@ -70,7 +70,6 @@ function computeWordStats(content?: string | null): WordStats {
 
 function attachClient(model: Nooklet, client?: TransactionClientContract) {
   if (client) {
-    // biome-ignore lint/correctness/useHookAtTopLevel: false positive - not a React hook
     model.useTransaction(client);
   }
 }

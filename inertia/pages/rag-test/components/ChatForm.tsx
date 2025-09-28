@@ -1,7 +1,7 @@
 import React from 'react';
 import { useForm } from '@inertiajs/react';
 import LabeledTextInput from '~/components/form/LabeledTextInput';
-import { ChatResponse } from '../types';
+import type { ChatResponse } from '../types';
 
 export default function ChatForm() {
   const { data, setData, processing, errors } = useForm({

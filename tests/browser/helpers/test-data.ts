@@ -28,32 +28,32 @@ export class TestDataFactory {
    * Generate a unique test email
    */
   static generateEmail(prefix: string = 'test'): string {
-    this.counter++;
+    TestDataFactory.counter++;
     const timestamp = Date.now();
-    return `${prefix}-${this.counter}-${timestamp}@example.com`;
+    return `${prefix}-${TestDataFactory.counter}-${timestamp}@example.com`;
   }
 
   /**
    * Generate a unique username
    */
   static generateUsername(prefix: string = 'user'): string {
-    this.counter++;
+    TestDataFactory.counter++;
     const timestamp = Date.now();
-    return `${prefix}${this.counter}${timestamp}`;
+    return `${prefix}${TestDataFactory.counter}${timestamp}`;
   }
 
   /**
    * Generate valid registration data
    */
   static createValidUser(options: Partial<TestUserData> = {}): TestUserData {
-    const email = options.email || this.generateEmail();
+    const email = options.email || TestDataFactory.generateEmail();
     const password = options.password || 'password123';
 
     return {
       email,
       password,
       passwordConfirmation: options.passwordConfirmation || password,
-      username: options.username || this.generateUsername(),
+      username: options.username || TestDataFactory.generateUsername(),
     };
   }
 
@@ -61,7 +61,7 @@ export class TestDataFactory {
    * Generate test data for various validation scenarios
    */
   static createTestVariants(baseEmail?: string): TestUserVariant {
-    const email = baseEmail || this.generateEmail();
+    const email = baseEmail || TestDataFactory.generateEmail();
     const validPassword = 'password123';
 
     return {
@@ -69,25 +69,25 @@ export class TestDataFactory {
         email,
         password: validPassword,
         passwordConfirmation: validPassword,
-        username: this.generateUsername(),
+        username: TestDataFactory.generateUsername(),
       },
       invalidEmail: {
         email: 'invalid-email-format',
         password: validPassword,
         passwordConfirmation: validPassword,
-        username: this.generateUsername(),
+        username: TestDataFactory.generateUsername(),
       },
       shortPassword: {
-        email: this.generateEmail('short'),
+        email: TestDataFactory.generateEmail('short'),
         password: '123',
         passwordConfirmation: '123',
-        username: this.generateUsername(),
+        username: TestDataFactory.generateUsername(),
       },
       passwordMismatch: {
-        email: this.generateEmail('mismatch'),
+        email: TestDataFactory.generateEmail('mismatch'),
         password: validPassword,
         passwordConfirmation: 'different-password',
-        username: this.generateUsername(),
+        username: TestDataFactory.generateUsername(),
       },
       missingFields: {
         // Intentionally incomplete data
@@ -112,19 +112,19 @@ export class TestDataFactory {
         email: existingEmail,
         password,
         passwordConfirmation: password,
-        username: this.generateUsername('original'),
+        username: TestDataFactory.generateUsername('original'),
       },
       duplicate: {
         email: existingEmail,
         password,
         passwordConfirmation: password,
-        username: this.generateUsername('duplicate'),
+        username: TestDataFactory.generateUsername('duplicate'),
       },
       caseVariant: {
         email: existingEmail.toUpperCase(),
         password,
         passwordConfirmation: password,
-        username: this.generateUsername('case'),
+        username: TestDataFactory.generateUsername('case'),
       },
     };
   }
@@ -137,9 +137,9 @@ export class TestDataFactory {
 
     for (let i = 0; i < count; i++) {
       users.push(
-        this.createValidUser({
-          email: this.generateEmail(`perf${i}`),
-          username: this.generateUsername(`perf${i}`),
+        TestDataFactory.createValidUser({
+          email: TestDataFactory.generateEmail(`perf${i}`),
+          username: TestDataFactory.generateUsername(`perf${i}`),
         }),
       );
     }
@@ -152,17 +152,17 @@ export class TestDataFactory {
    */
   static createCrossBrowserTestData(): Record<string, TestUserData> {
     return {
-      chromium: this.createValidUser({
-        email: this.generateEmail('chromium'),
-        username: this.generateUsername('chromium'),
+      chromium: TestDataFactory.createValidUser({
+        email: TestDataFactory.generateEmail('chromium'),
+        username: TestDataFactory.generateUsername('chromium'),
       }),
-      firefox: this.createValidUser({
-        email: this.generateEmail('firefox'),
-        username: this.generateUsername('firefox'),
+      firefox: TestDataFactory.createValidUser({
+        email: TestDataFactory.generateEmail('firefox'),
+        username: TestDataFactory.generateUsername('firefox'),
       }),
-      webkit: this.createValidUser({
-        email: this.generateEmail('webkit'),
-        username: this.generateUsername('webkit'),
+      webkit: TestDataFactory.createValidUser({
+        email: TestDataFactory.generateEmail('webkit'),
+        username: TestDataFactory.generateUsername('webkit'),
       }),
     };
   }
@@ -171,7 +171,7 @@ export class TestDataFactory {
    * Reset the counter (useful for test isolation)
    */
   static resetCounter(): void {
-    this.counter = 0;
+    TestDataFactory.counter = 0;
   }
 }
 
@@ -185,28 +185,28 @@ export class TestDataCleanup {
    * Track an email for cleanup
    */
   static trackEmail(email: string): void {
-    this.createdEmails.add(email);
+    TestDataCleanup.createdEmails.add(email);
   }
 
   /**
    * Track multiple emails for cleanup
    */
   static trackEmails(emails: string[]): void {
-    emails.forEach((email) => this.createdEmails.add(email));
+    emails.forEach((email) => TestDataCleanup.createdEmails.add(email));
   }
 
   /**
    * Get all tracked emails
    */
   static getTrackedEmails(): string[] {
-    return Array.from(this.createdEmails);
+    return Array.from(TestDataCleanup.createdEmails);
   }
 
   /**
    * Clear tracking (call after cleanup)
    */
   static clearTracking(): void {
-    this.createdEmails.clear();
+    TestDataCleanup.createdEmails.clear();
   }
 
   /**
@@ -217,8 +217,8 @@ export class TestDataCleanup {
     emails: string[];
   } {
     return {
-      trackedEmails: this.createdEmails.size,
-      emails: Array.from(this.createdEmails),
+      trackedEmails: TestDataCleanup.createdEmails.size,
+      emails: Array.from(TestDataCleanup.createdEmails),
     };
   }
 }

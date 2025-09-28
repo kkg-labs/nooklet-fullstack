@@ -1,7 +1,7 @@
 import React from 'react';
 import { useForm } from '@inertiajs/react';
 import LabeledTextInput from '~/components/form/LabeledTextInput';
-import { EmbedFormData, EmbedResponse } from '../types';
+import type { EmbedFormData, EmbedResponse } from '../types';
 import DateTimePicker from './DateTimePicker';
 
 export default function EmbedForm() {
